@@ -35,7 +35,7 @@ public class ClientUtils {
 			path = dtoObject.getId().toString();
 		
 		Hierarchic currentObject = dtoObject.getParent();
-		while (currentObject != null) {
+		while (currentObject != null && currentObject.getId() != 0) {
 			if (path.length() > 0) {
 				path = currentObject.getId().toString() + ":" + path;
 			} else {
