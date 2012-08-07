@@ -1,8 +1,11 @@
 package ru.ppsrk.gwt.server;
 
+import java.util.Set;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -14,6 +17,8 @@ public class User {
     String username;
     String password;
     String salt;
+    @OneToMany(mappedBy="user")
+    Set<Role> roles;
 
     public User() {
 
@@ -53,5 +58,11 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+    public Set<Role> getRoles() {
+        return roles;
+    }
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

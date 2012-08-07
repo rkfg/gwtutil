@@ -1,6 +1,5 @@
 package ru.ppsrk.gwt.client;
 
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
@@ -36,32 +35,26 @@ public class Login extends PopupPanel {
         verticalPanel.setSpacing(5);
         verticalPanel.add(horizontalPanel);
         horizontalPanel.setWidth("100%");
-        horizontalPanel
-                .setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        horizontalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         horizontalPanel.setSpacing(5);
 
         horizontalPanel.add(inlineLabel);
-        horizontalPanel.setCellVerticalAlignment(inlineLabel,
-                HasVerticalAlignment.ALIGN_MIDDLE);
+        horizontalPanel.setCellVerticalAlignment(inlineLabel, HasVerticalAlignment.ALIGN_MIDDLE);
         textBox_login.addKeyPressHandler(new TextBoxKeyPressHandler());
 
         horizontalPanel.add(textBox_login);
         textBox_login.setWidth("180px");
         verticalPanel.add(horizontalPanel_1);
         horizontalPanel_1.setSpacing(5);
-        horizontalPanel_1
-                .setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        horizontalPanel_1.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         horizontalPanel_1.setWidth("100%");
 
         horizontalPanel_1.add(inlineLabel_1);
         horizontalPanel_1.setCellWidth(inlineLabel_1, "100%");
-        horizontalPanel_1.setCellHorizontalAlignment(inlineLabel_1,
-                HasHorizontalAlignment.ALIGN_RIGHT);
+        horizontalPanel_1.setCellHorizontalAlignment(inlineLabel_1, HasHorizontalAlignment.ALIGN_RIGHT);
         inlineLabel_1.setWidth("");
-        horizontalPanel_1.setCellVerticalAlignment(inlineLabel_1,
-                HasVerticalAlignment.ALIGN_MIDDLE);
-        textBox_password
-                .addKeyPressHandler(new TextBox_passwordKeyPressHandler());
+        horizontalPanel_1.setCellVerticalAlignment(inlineLabel_1, HasVerticalAlignment.ALIGN_MIDDLE);
+        textBox_password.addKeyPressHandler(new TextBox_passwordKeyPressHandler());
 
         horizontalPanel_1.add(textBox_password);
         textBox_password.setWidth("180px");
@@ -74,13 +67,26 @@ public class Login extends PopupPanel {
         horizontalPanel_2.setCellWidth(button_login, "50%");
         button_register.addClickHandler(new Button_registerClickHandler());
 
-        horizontalPanel_2.add(button_register);
-        horizontalPanel_2.setCellWidth(button_register, "50%");
-        horizontalPanel_2.setCellHorizontalAlignment(button_register,
-                HasHorizontalAlignment.ALIGN_RIGHT);
+        Auth.Util.getInstance().isRegistrationEnabled(new AsyncCallback<Boolean>() {
+
+            @Override
+            public void onSuccess(Boolean result) {
+                if (result) {
+                    horizontalPanel_2.add(button_register);
+                    horizontalPanel_2.setCellWidth(button_register, "50%");
+                    horizontalPanel_2.setCellHorizontalAlignment(button_register, HasHorizontalAlignment.ALIGN_RIGHT);
+                } else {
+                    horizontalPanel_2.setCellHorizontalAlignment(button_login, HasHorizontalAlignment.ALIGN_CENTER);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                // TODO Auto-generated method stub
+
+            }
+        });
     }
-    
-    
 
     @Override
     public void center() {
@@ -89,8 +95,6 @@ public class Login extends PopupPanel {
         super.center();
         textBox_login.setFocus(true);
     }
-
-
 
     private class TextBoxKeyPressHandler implements KeyPressHandler {
         public void onKeyPress(KeyPressEvent event) {
@@ -108,39 +112,42 @@ public class Login extends PopupPanel {
 
     private class Button_loginClickHandler implements ClickHandler {
         public void onClick(ClickEvent event) {
-            authservice.login(textBox_login.getText(),
-                    textBox_password.getText(), new AsyncCallback<Boolean>() {
+            authservice.login(textBox_login.getText(), textBox_password.getText(), new AsyncCallback<Boolean>() {
 
-                        @Override
-                        public void onSuccess(Boolean result) {
-                            if (result) {
-                                hide();
-                                Window.Location.reload();
-                            } else {
-                                textBox_password.setText("");
-                                Window.alert("Неверное имя пользователя или пароль.");
-                            }
-                        }
+                @Override
+                public void onSuccess(Boolean result) {
+                    if (result) {
+                        hide();
+                        Window.Location.reload();
+                    } else {
+                        textBox_password.setText("");
+                        Window.alert("Неверное имя пользователя или пароль.");
+                    }
+                }
 
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            textBox_password.setText("");
-                            System.out.println(caught.getMessage());
-                            Window.alert("Неверное имя пользователя или пароль.");
-                        }
-                    });
+                @Override
+                public void onFailure(Throwable caught) {
+                    textBox_password.setText("");
+                    System.out.println(caught.getMessage());
+                    Window.alert("Неверное имя пользователя или пароль.");
+                }
+            });
         }
     }
 
     private class Button_registerClickHandler implements ClickHandler {
         public void onClick(ClickEvent event) {
             authservice.register(textBox_login.getText(), textBox_password.getText(), new AsyncCallback<Boolean>() {
-                
+
                 @Override
                 public void onSuccess(Boolean result) {
-                    Window.alert("Вы успешно зарегистрированы!");
+                    if (result) {
+                        Window.alert("Вы успешно зарегистрированы!");
+                    } else {
+                        Window.alert("Ошибка регистрации.");
+                    }
                 }
-                
+
                 @Override
                 public void onFailure(Throwable caught) {
                 }

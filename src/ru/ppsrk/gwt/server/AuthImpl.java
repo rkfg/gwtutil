@@ -14,6 +14,10 @@
  *******************************************************************************/
 package ru.ppsrk.gwt.server;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -38,13 +42,22 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
      * 
      */
     private static final long serialVersionUID = -5049525086987492554L;
+    public static boolean registrationEnabled = false;
 
     @Override
-    public boolean login(String username, String password)
-            throws ClientAuthenticationException, ClientAuthorizationException {
+    public boolean login(String username, String password) throws ClientAuthenticationException, ClientAuthorizationException {
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(new UsernamePasswordToken(username, password));
+            if (subject.isAuthenticated()) {
+                Session session = HibernateUtil.getSessionFactory(0).openSession();
+                session.beginTransaction();
+                @SuppressWarnings("unchecked")
+                List<User> user = session.createQuery("from User where username = :un").setParameter("un", username).list();
+                session.getTransaction().commit();
+                subject.getSession().setAttribute("userid", user.get(0).getId());
+                return true;
+            }
         } catch (AuthenticationException e) {
             throw new ClientAuthenticationException(e.getMessage());
         } catch (AuthorizationException e) {
@@ -55,9 +68,11 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
 
     @Override
     public boolean register(String username, String password) {
+        if (!registrationEnabled) {
+            return false;
+        }
         ByteSource salt = rng.nextBytes();
-        String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024)
-                .toBase64();
+        String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
 
         User user = new User(username, hashedPasswordBase64);
         // save the salt with the new account. The HashedCredentialsMatcher
@@ -75,22 +90,40 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
             throw new ClientAuthenticationException("Not authenticated");
     }
 
-    public static void requiresPerm(String perm)
-            throws ClientAuthorizationException {
+    public static void requiresPerm(String perm) throws ClientAuthorizationException {
         if (!SecurityUtils.getSubject().isPermitted(perm))
-            throw new ClientAuthorizationException("Not authorized [perm: "
-                    + perm + "]");
+            throw new ClientAuthorizationException("Not authorized [perm: " + perm + "]");
     }
 
-    public static void requiresRole(String role)
-            throws ClientAuthorizationException {
+    public static void requiresRole(String role) throws ClientAuthorizationException {
         if (!SecurityUtils.getSubject().hasRole(role))
-            throw new ClientAuthorizationException("Not authorized [role: "
-                    + role + "]");
+            throw new ClientAuthorizationException("Not authorized [role: " + role + "]");
     }
 
     @Override
     public void logout() {
+        SecurityUtils.getSubject().getSession().removeAttribute("userid");
         SecurityUtils.getSubject().logout();
+    }
+
+    @Override
+    public boolean isRegistrationEnabled() {
+        return registrationEnabled;
+    }
+
+    public static List<String> getRoles() {
+        Long userId = (Long) SecurityUtils.getSubject().getSession().getAttribute("userid");
+        if (userId == null)
+            return new ArrayList<String>();
+        
+        Session session = HibernateUtil.getSessionFactory(0).openSession();
+        session.beginTransaction();
+        Set<Role> roles = ((User) session.get(User.class, userId)).getRoles();
+        session.getTransaction().commit();
+        List<String> result = new ArrayList<String>();
+        for (Role role : roles) {
+            result.add(role.getRole());
+        }
+        return result;
     }
 }

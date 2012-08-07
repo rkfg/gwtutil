@@ -14,7 +14,6 @@
  *******************************************************************************/
 package ru.ppsrk.gwt.client;
 
-import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -35,6 +34,7 @@ public interface Auth extends RemoteService {
         }
     }
 
+    public boolean isRegistrationEnabled();
     public boolean login(String username, String password)
             throws ClientAuthenticationException, ClientAuthorizationException;
 
