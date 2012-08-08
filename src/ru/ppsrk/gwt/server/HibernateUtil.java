@@ -3,6 +3,7 @@ package ru.ppsrk.gwt.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
@@ -34,4 +35,17 @@ public class HibernateUtil {
 	public static SessionFactory getSessionFactory() {
 		return getSessionFactory(0);
 	}
+	public static Session getSession(int nIndex){
+        Session session = getSessionFactory(nIndex).openSession();
+        session.beginTransaction();
+        return session;
+	}
+	
+    public static Session getSession(){
+        return getSession(0);
+    }
+    public static void endSession(Session session){
+        session.getTransaction().commit();
+        session.close();
+    }
 }

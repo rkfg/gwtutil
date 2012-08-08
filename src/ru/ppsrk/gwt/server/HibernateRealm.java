@@ -45,12 +45,11 @@ public class HibernateRealm extends AuthorizingRealm {
             AuthenticationToken token) throws AuthenticationException {
         Object principal, credentials;
         ByteSource salt;
-        Session session = HibernateUtil.getSessionFactory(0).openSession();
-        session.beginTransaction();
+        Session session = HibernateUtil.getSession();
         @SuppressWarnings("unchecked")
         List<User> user = session.createQuery("from User where username = :un")
                 .setParameter("un", token.getPrincipal()).list();
-        session.getTransaction().commit();
+        HibernateUtil.endSession(session);
         if (user.size() > 1)
             throw new AuthenticationException("Duplicate users");
         if (user.size() == 0)

@@ -50,11 +50,10 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         try {
             subject.login(new UsernamePasswordToken(username, password));
             if (subject.isAuthenticated()) {
-                Session session = HibernateUtil.getSessionFactory(0).openSession();
-                session.beginTransaction();
+                Session session = HibernateUtil.getSession();
                 @SuppressWarnings("unchecked")
                 List<User> user = session.createQuery("from User where username = :un").setParameter("un", username).list();
-                session.getTransaction().commit();
+                HibernateUtil.endSession(session);
                 subject.getSession().setAttribute("userid", user.get(0).getId());
                 return true;
             }
@@ -78,10 +77,9 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         // save the salt with the new account. The HashedCredentialsMatcher
         // will need it later when handling login attempts:
         user.setSalt(salt.toBase64());
-        Session session = HibernateUtil.getSessionFactory(0).openSession();
-        session.beginTransaction();
+        Session session = HibernateUtil.getSession();
         session.save(user);
-        session.getTransaction().commit();
+        HibernateUtil.endSession(session);
         return true;
     }
 
@@ -116,10 +114,9 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         if (userId == null)
             return new ArrayList<String>();
         
-        Session session = HibernateUtil.getSessionFactory(0).openSession();
-        session.beginTransaction();
+        Session session = HibernateUtil.getSession();
         Set<Role> roles = ((User) session.get(User.class, userId)).getRoles();
-        session.getTransaction().commit();
+        HibernateUtil.endSession(session);
         List<String> result = new ArrayList<String>();
         for (Role role : roles) {
             result.add(role.getRole());
