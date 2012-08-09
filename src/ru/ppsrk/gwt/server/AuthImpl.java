@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import ru.ppsrk.gwt.client.Auth;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
+import ru.ppsrk.gwt.client.LogicException;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -45,15 +46,20 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     public static boolean registrationEnabled = false;
 
     @Override
-    public boolean login(String username, String password) throws ClientAuthenticationException, ClientAuthorizationException {
+    public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException, LogicException {
         Subject subject = SecurityUtils.getSubject();
         try {
-            subject.login(new UsernamePasswordToken(username, password));
+            subject.login(new UsernamePasswordToken(username, password, remember));
             if (subject.isAuthenticated()) {
-                Session session = HibernateUtil.getSession();
-                @SuppressWarnings("unchecked")
-                List<User> user = session.createQuery("from User where username = :un").setParameter("un", username).list();
-                HibernateUtil.endSession(session);
+                List<User> user = HibernateUtil.exec(new HibernateCallback<List<User>>() {
+                    
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public List<User> run(Session session) {
+                        // TODO Auto-generated method stub
+                        return session.createQuery("from User where username = :un").setParameter("un", username).list();
+                    }
+                });
                 subject.getSession().setAttribute("userid", user.get(0).getId());
                 return true;
             }
@@ -66,25 +72,30 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     }
 
     @Override
-    public boolean register(String username, String password) {
+    public boolean register(String username, String password) throws LogicException {
         if (!registrationEnabled) {
             return false;
         }
         ByteSource salt = rng.nextBytes();
         String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
 
-        User user = new User(username, hashedPasswordBase64);
+        final User user = new User(username, hashedPasswordBase64);
         // save the salt with the new account. The HashedCredentialsMatcher
         // will need it later when handling login attempts:
         user.setSalt(salt.toBase64());
-        Session session = HibernateUtil.getSession();
-        session.save(user);
-        HibernateUtil.endSession(session);
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+            
+            @Override
+            public Void run(Session session) {
+                session.save(user);
+                return null;
+            }
+        });
         return true;
     }
 
     public static void requiresAuth() throws ClientAuthenticationException {
-        if (!SecurityUtils.getSubject().isAuthenticated())
+        if (!SecurityUtils.getSubject().isAuthenticated() && !SecurityUtils.getSubject().isRemembered())
             throw new ClientAuthenticationException("Not authenticated");
     }
 
@@ -109,18 +120,22 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         return registrationEnabled;
     }
 
-    public static List<String> getRoles() {
-        Long userId = (Long) SecurityUtils.getSubject().getSession().getAttribute("userid");
+    public static List<String> getRoles() throws LogicException {
+        final Long userId = (Long) SecurityUtils.getSubject().getSession().getAttribute("userid");
         if (userId == null)
             return new ArrayList<String>();
         
-        Session session = HibernateUtil.getSession();
-        Set<Role> roles = ((User) session.get(User.class, userId)).getRoles();
-        HibernateUtil.endSession(session);
-        List<String> result = new ArrayList<String>();
-        for (Role role : roles) {
-            result.add(role.getRole());
-        }
-        return result;
+        return HibernateUtil.exec(new HibernateCallback<List<String>>() {
+            
+            @Override
+            public List<String> run(Session session) {
+                Set<Role> roles = ((User) session.get(User.class, userId)).getRoles();
+                List<String> result = new ArrayList<String>();
+                for (Role role : roles) {
+                    result.add(role.getRole());
+                }
+                return result;
+            }
+        });
     }
 }

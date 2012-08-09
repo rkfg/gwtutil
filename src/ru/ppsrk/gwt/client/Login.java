@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -28,6 +29,8 @@ public class Login extends PopupPanel {
     private final Button button_login = new Button("Вход");
     private final AuthAsync authservice = Auth.Util.getInstance();
     private final Button button_register = new Button("Регистрация");
+    private final HorizontalPanel horizontalPanel_3 = new HorizontalPanel();
+    private final CheckBox checkBox_remember = new CheckBox((String) null);
 
     public Login(boolean autoHide, boolean modal) {
         super(autoHide, modal);
@@ -58,6 +61,12 @@ public class Login extends PopupPanel {
 
         horizontalPanel_1.add(textBox_password);
         textBox_password.setWidth("180px");
+        
+        verticalPanel.add(horizontalPanel_3);
+        checkBox_remember.setValue(true);
+        checkBox_remember.setHTML("Запомнить меня");
+        
+        horizontalPanel_3.add(checkBox_remember);
         verticalPanel.add(horizontalPanel_2);
         horizontalPanel_2.setSpacing(5);
         horizontalPanel_2.setWidth("100%");
@@ -112,7 +121,7 @@ public class Login extends PopupPanel {
 
     private class Button_loginClickHandler implements ClickHandler {
         public void onClick(ClickEvent event) {
-            authservice.login(textBox_login.getText(), textBox_password.getText(), new AsyncCallback<Boolean>() {
+            authservice.login(textBox_login.getText(), textBox_password.getText(), checkBox_remember.getValue(), new AsyncCallback<Boolean>() {
 
                 @Override
                 public void onSuccess(Boolean result) {
