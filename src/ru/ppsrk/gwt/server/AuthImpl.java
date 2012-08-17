@@ -46,13 +46,14 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     public static boolean registrationEnabled = false;
 
     @Override
-    public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException, LogicException {
+    public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException,
+            LogicException {
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(new UsernamePasswordToken(username, password, remember));
             if (subject.isAuthenticated()) {
                 List<User> user = HibernateUtil.exec(new HibernateCallback<List<User>>() {
-                    
+
                     @SuppressWarnings("unchecked")
                     @Override
                     public List<User> run(Session session) {
@@ -60,7 +61,7 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
                         return session.createQuery("from User where username = :un").setParameter("un", username).list();
                     }
                 });
-                subject.getSession().setAttribute("userid", user.get(0).getId());
+                setSessionAttribute("userid", user.get(0).getId());
                 return true;
             }
         } catch (AuthenticationException e) {
@@ -84,7 +85,7 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         // will need it later when handling login attempts:
         user.setSalt(salt.toBase64());
         HibernateUtil.exec(new HibernateCallback<Void>() {
-            
+
             @Override
             public Void run(Session session) {
                 session.save(user);
@@ -111,7 +112,7 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
 
     @Override
     public void logout() {
-        SecurityUtils.getSubject().getSession().removeAttribute("userid");
+        removeSessionAttribute("userid");
         SecurityUtils.getSubject().logout();
     }
 
@@ -120,16 +121,31 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         return registrationEnabled;
     }
 
-    public static List<String> getRoles() throws LogicException {
-        final Long userId = (Long) SecurityUtils.getSubject().getSession().getAttribute("userid");
-        if (userId == null)
-            return new ArrayList<String>();
-        
+    public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
+        requiresAuth();
+        Long userId = (Long) getSessionAttribute("userid"); 
+        if (userId == null) {
+            userId = HibernateUtil.exec(new HibernateCallback<Long>() {
+
+                @Override
+                public Long run(Session session) throws LogicException {
+                    @SuppressWarnings("unchecked")
+                    List<User> users = session.createQuery("from User where username = :un").setParameter("un", SecurityUtils.getSubject().getPrincipal())
+                            .list();
+                    if (users.size() != 1) {
+                        return 0L;
+                    }
+                    return users.get(0).getId();
+                }
+            });
+        }
+
+        final Long userId2 = userId;
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
-            
+
             @Override
             public List<String> run(Session session) {
-                Set<Role> roles = ((User) session.get(User.class, userId)).getRoles();
+                Set<Role> roles = ((User) session.get(User.class, userId2)).getRoles();
                 List<String> result = new ArrayList<String>();
                 for (Role role : roles) {
                     result.add(role.getRole());
@@ -137,5 +153,17 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
                 return result;
             }
         });
+    }
+
+    public static void setSessionAttribute(Object key, Object value) {
+        SecurityUtils.getSubject().getSession().setAttribute(key, value);
+    }
+
+    public static Object getSessionAttribute(Object key) {
+        return SecurityUtils.getSubject().getSession().getAttribute(key);
+    }
+
+    public static void removeSessionAttribute(Object key) {
+        SecurityUtils.getSubject().getSession().removeAttribute(key);
     }
 }
