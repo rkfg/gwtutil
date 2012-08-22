@@ -27,7 +27,16 @@ public abstract class ResizableHeader<T> extends Header<String> {
     private static final String RESIZE_COLOR = "#A49AED";
     private static final String MOVE_COLOR = "gray";
     private static final double GHOST_OPACITY = .3;
-    private static final int MINIMUM_COLUMN_WIDTH = 30;
+    private int minimumColumnWidth = 30;
+    
+    public int getMinimumColumnWidth() {
+        return minimumColumnWidth;
+    }
+
+    public void setMinimumColumnWidth(int minimumColumnWidth) {
+        this.minimumColumnWidth = minimumColumnWidth;
+    }
+
     private final String title;
     private final Document document = Document.get();
     private final AbstractCellTable<T> table;
@@ -180,7 +189,7 @@ public abstract class ResizableHeader<T> extends Header<String> {
                 handler.removeHandler();
                 resizeLine.removeFromParent();
                 dragCallback.dragFinished();
-                columnResized(Math.max(clientX - header.getAbsoluteLeft(), MINIMUM_COLUMN_WIDTH));
+                columnResized(Math.max(clientX - header.getAbsoluteLeft(), minimumColumnWidth));
             }
         }
 

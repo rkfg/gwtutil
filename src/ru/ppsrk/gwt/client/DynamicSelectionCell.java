@@ -64,6 +64,10 @@ public class DynamicSelectionCell extends AbstractInputCell<Pair<Long, String>, 
     refreshIndexes();
   }
 
+  public List<Pair<Long, String>> getOptions(){
+      return options;
+  }
+  
   public void addOption(Pair<Long, String> newOp){
       options.add(newOp);
       refreshIndexes();

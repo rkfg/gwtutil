@@ -13,5 +13,11 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
         protected int getTableBodyHeight() {
             return ResizableDataGrid.this.getTableBodyElement().getOffsetHeight();
         }
+
+        @Override
+        public void columnResized(int newWidth) {
+            super.columnResized(newWidth);
+            refreshColumnWidths();
+        }
     }
 }

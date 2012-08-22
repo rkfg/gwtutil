@@ -31,6 +31,10 @@ public class HibernateUtil {
         }
     }
 
+    public static List<SessionFactory> getSessionFactories() {
+        return sessionFactory;
+    }
+    
     public static SessionFactory getSessionFactory(int nIndex) {
         return sessionFactory.get(nIndex);
     }
