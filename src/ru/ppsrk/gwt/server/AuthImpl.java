@@ -145,7 +145,11 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
 
             @Override
             public List<String> run(Session session) {
-                Set<Role> roles = ((User) session.get(User.class, userId2)).getRoles();
+                User user = (User) session.get(User.class, userId2);
+                if (user == null){
+                    return new ArrayList<String>();
+                }
+                Set<Role> roles = user.getRoles();
                 List<String> result = new ArrayList<String>();
                 for (Role role : roles) {
                     result.add(role.getRole());

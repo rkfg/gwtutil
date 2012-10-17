@@ -9,24 +9,26 @@ public class ClientUtils {
         return listBox.getSelectedIndex() >= 0 ? Long.valueOf(listBox.getValue(listBox.getSelectedIndex())) : -1;
     }
 
-    public static String getListboxSelectedText(ListBox listBox) {
-        return listBox.getSelectedIndex() >= 0 ? listBox.getItemText(listBox.getSelectedIndex()) : "";
-    }
-
-    public static int getListboxIndexByValue(ListBox listBox, Long value) {
-        String strValue = value.toString();
+    public static int getListboxIndexByValue(ListBox listBox, String value) {
         for (int i = 0; i < listBox.getItemCount(); i++) {
-            if (listBox.getValue(i).equals(strValue)) {
+            if (listBox.getValue(i).equals(value)) {
                 return i;
             }
         }
         return -1;
     }
+    public static int getListboxIndexByValue(ListBox listBox, Long value) {
+        return getListboxIndexByValue(listBox, value.toString());
+    }
+
+    public static void setListBoxSelectedItemByValue(ListBox listBox, String value) {
+        listBox.setSelectedIndex(getListboxIndexByValue(listBox, value));
+    }
 
     public static void setListBoxSelectedItemByValue(ListBox listBox, Long value) {
         listBox.setSelectedIndex(getListboxIndexByValue(listBox, value));
     }
-
+    
     public static String buildPath(Hierarchic dtoObject, boolean includeLeaf) {
         String path = new String();
         if (includeLeaf)
