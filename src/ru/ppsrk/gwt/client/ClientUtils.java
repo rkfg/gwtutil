@@ -9,6 +9,9 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
+import com.google.gwt.view.client.SingleSelectionModel;
+
+import fr.mikrosimage.gwt.client.ResizableDataGrid;
 
 public class ClientUtils {
     static private HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>> dataProviders = new HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>>();
@@ -90,6 +93,11 @@ public class ClientUtils {
         dataProviders.remove(object);
     }
 
+    public static <T extends Hierarchic> void removeObjectFromDataProvider(T object, SingleSelectionModel<T> selectionModel) {
+        selectionModel.setSelected(object, false);
+        removeObjectFromDataProvider(object);
+    }
+
     private static class PathProvider extends HashMap<String, ListDataProvider<? extends Hierarchic>> {
 
         /**
@@ -140,6 +148,7 @@ public class ClientUtils {
                     } else {
                         listParentDataProvider.getList().add(parentObjectToCreate);
                     }
+                    registerPathProvider(parentObjectToCreate, selectionModel, listParentDataProvider);
                 }
             }
         }
@@ -149,13 +158,30 @@ public class ClientUtils {
         pathDataProviders.clear();
         dataProviders.clear();
     }
-    
+
     public static void openWindow(String url, String name, String features) {
         Window.open(GWT.getModuleBaseURL() + url, name, features);
     }
-    
+
     public static void openWindow(String url) {
         openWindow(url, null, null);
     }
 
+    public static <T extends Hierarchic> void scrollToTheEnd(T newItem, SingleSelectionModel<T> selectionModel,
+            ListDataProvider<? extends Hierarchic> listDataProvider, ResizableDataGrid<? extends Hierarchic> resizableDataGrid) {
+        if (selectionModel.getSelectedObject() != null) {
+            T selectedObject = selectionModel.getSelectedObject();
+            selectionModel.setSelected(selectedObject, false);
+        }
+        Long oldId = newItem.getId();
+        newItem.setId(-1L);
+        selectionModel.setSelected(newItem, true);
+        newItem.setId(oldId);
+        int provSize = listDataProvider.getList().size();
+        int pageSize = resizableDataGrid.getPageSize();
+        int start = provSize < pageSize ? 0 : provSize - pageSize;
+        resizableDataGrid.setVisibleRange(start, pageSize);
+        listDataProvider.refresh();
+        resizableDataGrid.getScrollPanel().scrollToBottom();
+    }
 }
