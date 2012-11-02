@@ -21,6 +21,10 @@ public class ClientUtils {
         return listBox.getSelectedIndex() >= 0 ? Long.valueOf(listBox.getValue(listBox.getSelectedIndex())) : -1;
     }
 
+    public static String getListboxSelectedTextValue(ListBox listBox) {
+        return listBox.getSelectedIndex() >= 0 ? listBox.getValue(listBox.getSelectedIndex()) : null;
+    }
+    
     public static String getListboxSelectedText(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? listBox.getItemText(listBox.getSelectedIndex()) : "";
     }
@@ -148,7 +152,6 @@ public class ClientUtils {
                     } else {
                         listParentDataProvider.getList().add(parentObjectToCreate);
                     }
-                    registerPathProvider(parentObjectToCreate, selectionModel, listParentDataProvider);
                 }
             }
         }

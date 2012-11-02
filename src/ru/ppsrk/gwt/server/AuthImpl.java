@@ -34,6 +34,7 @@ import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AuthImpl extends RemoteServiceServlet implements Auth {
@@ -95,9 +96,36 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         return true;
     }
 
-    public static void requiresAuth() throws ClientAuthenticationException {
+    public static User requiresAuthUser() throws ClientAuthenticationException, LogicException {
         if (!SecurityUtils.getSubject().isAuthenticated() && !SecurityUtils.getSubject().isRemembered())
             throw new ClientAuthenticationException("Not authenticated");
+        UserDTO user = (UserDTO) getSessionAttribute("user");
+        if (user == null) {
+            user = HibernateUtil.exec(new HibernateCallback<UserDTO>() {
+
+                @Override
+                public UserDTO run(Session session) throws LogicException {
+                    @SuppressWarnings("unchecked")
+                    List<User> users = session.createQuery("from User where username = :un").setParameter("un", SecurityUtils.getSubject().getPrincipal())
+                            .list();
+                    if (users.size() != 1) {
+                        return null;
+                    }
+                    return ServerUtils.mapModel(users.get(0), UserDTO.class);
+                }
+            });
+            setSessionAttribute("user", user);
+        }
+        return ServerUtils.mapModel(user, User.class);
+    }
+
+    public static Long requiresAuth() throws ClientAuthenticationException, LogicException {
+        User user = requiresAuthUser();
+        if (user == null) {
+            return 0L;
+        } else {
+            return user.getId();
+        }
     }
 
     public static void requiresPerm(String perm) throws ClientAuthorizationException {
@@ -123,30 +151,19 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
 
     public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
         requiresAuth();
-        Long userId = (Long) getSessionAttribute("userid"); 
-        if (userId == null) {
-            userId = HibernateUtil.exec(new HibernateCallback<Long>() {
 
-                @Override
-                public Long run(Session session) throws LogicException {
-                    @SuppressWarnings("unchecked")
-                    List<User> users = session.createQuery("from User where username = :un").setParameter("un", SecurityUtils.getSubject().getPrincipal())
-                            .list();
-                    if (users.size() != 1) {
-                        return 0L;
-                    }
-                    return users.get(0).getId();
-                }
-            });
+        final Long userId = requiresAuth();
+        @SuppressWarnings("unchecked")
+        List<String> cachedRoles = (List<String>) getSessionAttribute("roles");
+        if (cachedRoles != null) {
+            return cachedRoles;
         }
-
-        final Long userId2 = userId;
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 
             @Override
             public List<String> run(Session session) {
-                User user = (User) session.get(User.class, userId2);
-                if (user == null){
+                User user = (User) session.get(User.class, userId);
+                if (user == null) {
                     return new ArrayList<String>();
                 }
                 Set<Role> roles = user.getRoles();
@@ -154,9 +171,14 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
                 for (Role role : roles) {
                     result.add(role.getRole());
                 }
+                setSessionAttribute("roles", result);
                 return result;
             }
         });
+    }
+
+    public static boolean hasRole(String role) throws LogicException, ClientAuthenticationException {
+        return getRoles().contains(role);
     }
 
     public static void setSessionAttribute(Object key, Object value) {
@@ -169,5 +191,23 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
 
     public static void removeSessionAttribute(Object key) {
         SecurityUtils.getSubject().getSession().removeAttribute(key);
+    }
+
+    public static interface CacheCallback<T> {
+        public T exec() throws LogicException;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getCachedData(String key, CacheCallback<T> callback) throws LogicException {
+        T cachedData;
+        if (GWT.isProdMode()) {
+            cachedData = (T) getSessionAttribute(key);
+            if (cachedData != null) {
+                return cachedData;
+            }
+        }
+        cachedData = callback.exec();
+        setSessionAttribute(key, cachedData);
+        return cachedData;
     }
 }
