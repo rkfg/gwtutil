@@ -40,5 +40,5 @@ public interface Auth extends RemoteService {
 
     public void logout();
 
-    public boolean register(String username, String password) throws LogicException;
+    public boolean register(String username, String password) throws LogicException, ClientAuthenticationException;
 }

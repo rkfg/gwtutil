@@ -10,6 +10,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
+import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
 
 public class HibernateUtil {
@@ -43,7 +44,7 @@ public class HibernateUtil {
         return getSessionFactory(0);
     }
 
-    public static <T> T exec(HibernateCallback<T> callback) throws LogicException {
+    public static <T> T exec(HibernateCallback<T> callback) throws LogicException, ClientAuthenticationException {
         Session session = HibernateUtil.getSessionFactory(0).openSession();
         T result = null;
         try {

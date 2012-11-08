@@ -24,7 +24,7 @@ public class ClientUtils {
     public static String getListboxSelectedTextValue(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? listBox.getValue(listBox.getSelectedIndex()) : null;
     }
-    
+
     public static String getListboxSelectedText(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? listBox.getItemText(listBox.getSelectedIndex()) : "";
     }
@@ -187,4 +187,5 @@ public class ClientUtils {
         listDataProvider.refresh();
         resizableDataGrid.getScrollPanel().scrollToBottom();
     }
+
 }

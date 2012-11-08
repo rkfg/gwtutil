@@ -74,7 +74,7 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     }
 
     @Override
-    public boolean register(String username, String password) throws LogicException {
+    public boolean register(String username, String password) throws LogicException, ClientAuthenticationException {
         if (!registrationEnabled) {
             return false;
         }
@@ -104,12 +104,12 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
             user = HibernateUtil.exec(new HibernateCallback<UserDTO>() {
 
                 @Override
-                public UserDTO run(Session session) throws LogicException {
+                public UserDTO run(Session session) throws LogicException, ClientAuthenticationException {
                     @SuppressWarnings("unchecked")
                     List<User> users = session.createQuery("from User where username = :un").setParameter("un", SecurityUtils.getSubject().getPrincipal())
                             .list();
                     if (users.size() != 1) {
-                        return null;
+                        throw new ClientAuthenticationException("Not authenticated");
                     }
                     return ServerUtils.mapModel(users.get(0), UserDTO.class);
                 }
@@ -150,30 +150,31 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     }
 
     public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
-        requiresAuth();
-
         final Long userId = requiresAuth();
-        @SuppressWarnings("unchecked")
-        List<String> cachedRoles = (List<String>) getSessionAttribute("roles");
-        if (cachedRoles != null) {
-            return cachedRoles;
-        }
-        return HibernateUtil.exec(new HibernateCallback<List<String>>() {
+        return AuthImpl.getCachedData("roles", new CacheCallback<List<String>>() {
 
             @Override
-            public List<String> run(Session session) {
-                User user = (User) session.get(User.class, userId);
-                if (user == null) {
-                    return new ArrayList<String>();
-                }
-                Set<Role> roles = user.getRoles();
-                List<String> result = new ArrayList<String>();
-                for (Role role : roles) {
-                    result.add(role.getRole());
-                }
-                setSessionAttribute("roles", result);
-                return result;
+            public List<String> exec() throws LogicException, ClientAuthenticationException {
+                return HibernateUtil.exec(new HibernateCallback<List<String>>() {
+
+                    @Override
+                    public List<String> run(Session session) {
+                        User user = (User) session.get(User.class, userId);
+                        if (user == null) {
+                            return new ArrayList<String>();
+                        }
+                        Set<Role> roles = user.getRoles();
+                        List<String> result = new ArrayList<String>();
+                        for (Role role : roles) {
+                            result.add(role.getRole());
+                        }
+                        setSessionAttribute("roles", result);
+                        return result;
+                    }
+                });
+
             }
+
         });
     }
 
@@ -194,11 +195,11 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     }
 
     public static interface CacheCallback<T> {
-        public T exec() throws LogicException;
+        public T exec() throws LogicException, ClientAuthenticationException;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getCachedData(String key, CacheCallback<T> callback) throws LogicException {
+    public static <T> T getCachedData(String key, CacheCallback<T> callback) throws LogicException, ClientAuthenticationException {
         T cachedData;
         if (GWT.isProdMode()) {
             cachedData = (T) getSessionAttribute(key);

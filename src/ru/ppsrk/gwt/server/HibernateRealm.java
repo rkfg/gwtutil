@@ -14,6 +14,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.hibernate.Session;
 
+import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
 
 public class HibernateRealm extends AuthorizingRealm {
@@ -43,6 +44,9 @@ public class HibernateRealm extends AuthorizingRealm {
         } catch (LogicException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (ClientAuthenticationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         return null;
     }
@@ -64,6 +68,9 @@ public class HibernateRealm extends AuthorizingRealm {
                 }
             });
         } catch (LogicException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ClientAuthenticationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
