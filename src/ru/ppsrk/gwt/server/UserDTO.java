@@ -12,7 +12,7 @@ public class UserDTO implements Serializable {
     String username;
     String password;
     String salt;
-    Set<Role> roles;
+    Set<RoleDTO> roles;
 
     public Long getId() {
         return id;
@@ -46,11 +46,11 @@ public class UserDTO implements Serializable {
         this.salt = salt;
     }
 
-    public Set<Role> getRoles() {
+    public Set<RoleDTO> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(Set<RoleDTO> roles) {
         this.roles = roles;
     }
 

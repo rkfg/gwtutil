@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
@@ -87,6 +88,10 @@ public class ClientUtils {
         }
     }
 
+    public static ListDataProvider<? extends Hierarchic> getDataProviderByObject(Hierarchic object) {
+        return dataProviders.get(object);
+    }
+
     public static void removeObjectFromDataProvider(Hierarchic object) {
         ListDataProvider<? extends Hierarchic> listDataProvider = dataProviders.get(object);
         if (listDataProvider == null) {
@@ -123,7 +128,7 @@ public class ClientUtils {
         pathProvider.put(buildPath(object, true), listDataProvider);
     }
 
-    public static ListDataProvider<? extends Hierarchic> getProviderByObject(Hierarchic object, SelectionModel<? extends Hierarchic> selectionModel) {
+    public static ListDataProvider<? extends Hierarchic> getPathProviderByObject(Hierarchic object, SelectionModel<? extends Hierarchic> selectionModel) {
         return pathDataProviders.get(selectionModel).get(buildPath(object, true));
     }
 
@@ -186,6 +191,26 @@ public class ClientUtils {
         resizableDataGrid.setVisibleRange(start, pageSize);
         listDataProvider.refresh();
         resizableDataGrid.getScrollPanel().scrollToBottom();
+    }
+
+    static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
+
+        public void errorHandler(Throwable exception) {
+            if (!(exception instanceof ClientAuthenticationException) && !(exception instanceof ClientAuthorizationException)) {
+                if (exception instanceof LogicException) {
+                    Window.alert("Ошибка: " + exception.getMessage());
+                } else {
+                    System.out.println("Stacktrace:");
+                    exception.printStackTrace();
+                    Window.alert("Произошла непредвиденная ошибка. Технические данные: " + exception.getMessage());
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable caught) {
+            errorHandler(caught);
+        }
     }
 
 }

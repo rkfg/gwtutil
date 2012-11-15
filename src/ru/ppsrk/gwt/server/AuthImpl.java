@@ -34,7 +34,6 @@ import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AuthImpl extends RemoteServiceServlet implements Auth {
@@ -198,17 +197,16 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         public T exec() throws LogicException, ClientAuthenticationException;
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T getCachedData(String key, CacheCallback<T> callback) throws LogicException, ClientAuthenticationException {
         T cachedData;
-        if (GWT.isProdMode()) {
-            cachedData = (T) getSessionAttribute(key);
-            if (cachedData != null) {
-                return cachedData;
-            }
-        }
+        // if (GWT.isProdMode()) {
+        // cachedData = (T) getSessionAttribute(key);
+        // if (cachedData != null) {
+        // return cachedData;
+        // }
+        // }
         cachedData = callback.exec();
-        setSessionAttribute(key, cachedData);
+        //setSessionAttribute(key, cachedData);
         return cachedData;
     }
 }
