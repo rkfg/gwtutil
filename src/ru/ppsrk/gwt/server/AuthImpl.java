@@ -73,21 +73,29 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     }
 
     @Override
-    public boolean register(String username, String password) throws LogicException, ClientAuthenticationException {
+    public boolean register(final String username, final String password) throws LogicException, ClientAuthenticationException {
         if (!registrationEnabled) {
             return false;
         }
-        ByteSource salt = rng.nextBytes();
-        String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
-
-        final User user = new User(username, hashedPasswordBase64);
-        // save the salt with the new account. The HashedCredentialsMatcher
-        // will need it later when handling login attempts:
-        user.setSalt(salt.toBase64());
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
             public Void run(Session session) {
+                ByteSource salt = rng.nextBytes();
+                String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
+
+                User user = (User) session.createQuery("from User where username = :username").setParameter("username", username).setMaxResults(1)
+                        .uniqueResult();
+                if (user == null) {
+                    user = new User(username, hashedPasswordBase64);
+                } else {
+                    // change password for existing user
+                    user.setPassword(hashedPasswordBase64);
+                }
+                // save the salt with the new account. The
+                // HashedCredentialsMatcher
+                // will need it later when handling login attempts:
+                user.setSalt(salt.toBase64());
                 session.save(user);
                 return null;
             }
@@ -199,14 +207,13 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
 
     public static <T> T getCachedData(String key, CacheCallback<T> callback) throws LogicException, ClientAuthenticationException {
         T cachedData;
-        // if (GWT.isProdMode()) {
-        // cachedData = (T) getSessionAttribute(key);
-        // if (cachedData != null) {
-        // return cachedData;
-        // }
-        // }
+        // the following code should be used for caching purposes but currently it's too naive to really help
+        /*
+         * if (GWT.isProdMode()) { cachedData = (T) getSessionAttribute(key); if
+         * (cachedData != null) { return cachedData; } }
+         */
         cachedData = callback.exec();
-        //setSessionAttribute(key, cachedData);
+        // setSessionAttribute(key, cachedData);
         return cachedData;
     }
 }

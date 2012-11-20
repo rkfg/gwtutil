@@ -1,5 +1,6 @@
 package ru.ppsrk.gwt.client;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -95,8 +96,13 @@ public class ClientUtils {
     public static void removeObjectFromDataProvider(Hierarchic object) {
         ListDataProvider<? extends Hierarchic> listDataProvider = dataProviders.get(object);
         if (listDataProvider == null) {
-            System.out.println("Object " + object + " isn't registered");
-            return;
+            ArrayList<Hierarchic> tempList = new ArrayList<Hierarchic>(dataProviders.keySet()); // this is to search by equality (i.e. Hierarchic.getId())
+            // instead of hashCode
+            if (tempList.contains(object)) {
+                listDataProvider = dataProviders.get(tempList.get(tempList.indexOf(object)));
+            } else {
+                return;
+            }
         }
         listDataProvider.getList().remove(object);
         dataProviders.remove(object);
@@ -201,7 +207,12 @@ public class ClientUtils {
                     Window.alert("Ошибка: " + exception.getMessage());
                 } else {
                     System.out.println("Stacktrace:");
-                    exception.printStackTrace();
+                    // exception.printStackTrace();
+                    System.out.println("--------------------------");
+                    for (StackTraceElement ste : exception.getStackTrace()) {
+                        System.out.println(ste);
+                    }
+                    System.out.println("--------------------------");
                     Window.alert("Произошла непредвиденная ошибка. Технические данные: " + exception.getMessage());
                 }
             }
