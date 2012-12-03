@@ -11,6 +11,7 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
+import ru.ppsrk.gwt.client.Hierarchic;
 import ru.ppsrk.gwt.client.LogicException;
 
 public class HibernateUtil {
@@ -35,7 +36,7 @@ public class HibernateUtil {
     public static List<SessionFactory> getSessionFactories() {
         return sessionFactory;
     }
-    
+
     public static SessionFactory getSessionFactory(int nIndex) {
         return sessionFactory.get(nIndex);
     }
@@ -59,4 +60,40 @@ public class HibernateUtil {
         }
         return result;
     }
+
+    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException,
+            ClientAuthenticationException {
+        return saveObject(objectDTO, classHIB, false);
+    }
+
+    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId) throws LogicException,
+            ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<HIB>() {
+
+            @Override
+            public HIB run(Session session) throws LogicException {
+                return saveObject(objectDTO, classHIB, setId, session);
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId, Session session) {
+        if (objectDTO.getId() != null) {
+            return (HIB) session.merge(ServerUtils.mapModel(objectDTO, classHIB));
+        } else {
+            Long id = (Long) session.save(ServerUtils.mapModel(objectDTO, classHIB));
+            HIB result = (HIB) session.get(classHIB, id);
+            if (setId) {
+                objectDTO.setId(id);
+            }
+            return result;
+        }
+    }
+    
+    public static void restartTransaction(Session session){
+        session.getTransaction().commit();
+        session.beginTransaction();
+    }
+
 }

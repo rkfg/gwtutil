@@ -158,31 +158,24 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
 
     public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
         final Long userId = requiresAuth();
-        return AuthImpl.getCachedData("roles", new CacheCallback<List<String>>() {
+        return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 
             @Override
-            public List<String> exec() throws LogicException, ClientAuthenticationException {
-                return HibernateUtil.exec(new HibernateCallback<List<String>>() {
-
-                    @Override
-                    public List<String> run(Session session) {
-                        User user = (User) session.get(User.class, userId);
-                        if (user == null) {
-                            return new ArrayList<String>();
-                        }
-                        Set<Role> roles = user.getRoles();
-                        List<String> result = new ArrayList<String>();
-                        for (Role role : roles) {
-                            result.add(role.getRole());
-                        }
-                        setSessionAttribute("roles", result);
-                        return result;
-                    }
-                });
-
+            public List<String> run(Session session) {
+                User user = (User) session.get(User.class, userId);
+                if (user == null) {
+                    return new ArrayList<String>();
+                }
+                Set<Role> roles = user.getRoles();
+                List<String> result = new ArrayList<String>();
+                for (Role role : roles) {
+                    result.add(role.getRole());
+                }
+                setSessionAttribute("roles", result);
+                return result;
             }
-
         });
+
     }
 
     public static boolean hasRole(String role) throws LogicException, ClientAuthenticationException {
@@ -201,19 +194,19 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
         SecurityUtils.getSubject().getSession().removeAttribute(key);
     }
 
-    public static interface CacheCallback<T> {
+    /*public static interface CacheCallback<T> {
         public T exec() throws LogicException, ClientAuthenticationException;
-    }
+    }*/
 
-    public static <T> T getCachedData(String key, CacheCallback<T> callback) throws LogicException, ClientAuthenticationException {
-        T cachedData;
-        // the following code should be used for caching purposes but currently it's too naive to really help
-        /*
-         * if (GWT.isProdMode()) { cachedData = (T) getSessionAttribute(key); if
-         * (cachedData != null) { return cachedData; } }
-         */
-        cachedData = callback.exec();
-        // setSessionAttribute(key, cachedData);
-        return cachedData;
-    }
+    /*
+     * public static <T> T getCachedData(String key, CacheCallback<T> callback)
+     * throws LogicException, ClientAuthenticationException { T cachedData; //
+     * the following code should be used for caching purposes but currently it's
+     * too naive to really help if (GWT.isProdMode()) { cachedData = (T)
+     * getSessionAttribute(key); if (cachedData != null) { return cachedData; }
+     * }
+     * 
+     * cachedData = callback.exec(); // setSessionAttribute(key, cachedData);
+     * return cachedData; }
+     */
 }
