@@ -193,6 +193,10 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     public static void removeSessionAttribute(Object key) {
         SecurityUtils.getSubject().getSession().removeAttribute(key);
     }
+    
+    public boolean isLoggedIn() {
+        return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
+    }
 
     /*public static interface CacheCallback<T> {
         public T exec() throws LogicException, ClientAuthenticationException;

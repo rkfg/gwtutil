@@ -16,11 +16,11 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
             return ResizableDataGrid.this.getTableBodyElement().getOffsetHeight();
         }
 
-        @Override
+        /*@Override
         public void columnResized(int newWidth) {
             super.columnResized(newWidth);
             refreshColumnWidths();
-        }
+        }*/
 
     }
     public ScrollPanel getScrollPanel() {

@@ -12,4 +12,6 @@ public interface AuthAsync {
 
     void isRegistrationEnabled(AsyncCallback<Boolean> callback);
 
+    void isLoggedIn(AsyncCallback<Boolean> callback);
+
 }

@@ -9,6 +9,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -96,7 +97,14 @@ public class ClientUtils {
     public static void removeObjectFromDataProvider(Hierarchic object) {
         ListDataProvider<? extends Hierarchic> listDataProvider = dataProviders.get(object);
         if (listDataProvider == null) {
-            ArrayList<Hierarchic> tempList = new ArrayList<Hierarchic>(dataProviders.keySet()); // this is to search by equality (i.e. Hierarchic.getId())
+            ArrayList<Hierarchic> tempList = new ArrayList<Hierarchic>(dataProviders.keySet()); // this
+                                                                                                // is
+                                                                                                // to
+                                                                                                // search
+                                                                                                // by
+                                                                                                // equality
+                                                                                                // (i.e.
+                                                                                                // Hierarchic.getId())
             // instead of hashCode
             if (tempList.contains(object)) {
                 listDataProvider = dataProviders.get(tempList.get(tempList.indexOf(object)));
@@ -193,7 +201,7 @@ public class ClientUtils {
         newItem.setId(oldId);
         int provSize = listDataProvider.getList().size();
         int pageSize = resizableDataGrid.getPageSize();
-        int start = provSize < pageSize ? 0 : provSize - pageSize;
+        int start = provSize < pageSize ? 0 : provSize - pageSize + 1;
         resizableDataGrid.setVisibleRange(start, pageSize);
         listDataProvider.refresh();
         resizableDataGrid.getScrollPanel().scrollToBottom();
@@ -213,7 +221,9 @@ public class ClientUtils {
                         System.out.println(ste);
                     }
                     System.out.println("--------------------------");
-                    Window.alert("Произошла непредвиденная ошибка. Технические данные: " + exception.getMessage());
+                    if (!exception.getMessage().startsWith("0")) {
+                        Window.alert("Произошла непредвиденная ошибка. Технические данные: " + exception.getMessage());
+                    }
                 }
             }
         }
@@ -222,6 +232,34 @@ public class ClientUtils {
         public void onFailure(Throwable caught) {
             errorHandler(caught);
         }
+    }
+    
+    public static void requireLogin(){
+        Auth.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
+
+            @Override
+            public void onSuccess(Boolean result) {
+                if (!result) {
+                    PopupPanel popupPanel = new Login(false, true);
+                    popupPanel.center();
+                }
+            }
+        });
+    }
+    
+    public static void logout(){
+        Auth.Util.getInstance().logout(new AsyncCallback<Void>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Window.Location.reload();
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                Window.Location.reload();
+            }
+        });
     }
 
 }

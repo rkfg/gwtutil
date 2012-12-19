@@ -1,6 +1,10 @@
 package ru.ppsrk.gwt.server;
 
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.hibernate.HibernateException;
@@ -17,9 +21,9 @@ import ru.ppsrk.gwt.client.LogicException;
 public class HibernateUtil {
 
     private static List<SessionFactory> sessionFactory = new ArrayList<SessionFactory>();
-    private static ServiceRegistry serviceRegistry;
 
     public static void initSessionFactory(String cfgFilename) {
+        ServiceRegistry serviceRegistry;
         try {
             // Create the SessionFactory from hibernate.cfg.xml
             Configuration configuration = new Configuration();
@@ -31,6 +35,28 @@ public class HibernateUtil {
             System.err.println("Initial SessionFactory creation failed: " + ex);
             throw new ExceptionInInitializerError(ex);
         }
+    }
+
+    public static void cleanup() {
+        System.out.println("Cleaning up...");
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+            try {
+                System.out.println(String.format("Deregistering jdbc driver: %s", driver));
+                DriverManager.deregisterDriver(driver);
+            } catch (SQLException e) {
+                System.out.println(String.format("Error deregistering driver %s", driver));
+            }
+        }
+        for (SessionFactory factory : sessionFactory) {
+            System.out.println("Closing factory " + factory);
+            factory.close();
+        }
+        
+        System.out.println("Cleaning up ServerUtils...");
+        ServerUtils.cleanup();
+        sessionFactory = null;
     }
 
     public static List<SessionFactory> getSessionFactories() {
@@ -76,6 +102,17 @@ public class HibernateUtil {
             }
         });
     }
+    
+    public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws ClientAuthenticationException, LogicException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) {
+                session.delete(session.get(objectClass, id));
+                return null;
+            }
+        });
+    }
 
     @SuppressWarnings("unchecked")
     public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId, Session session) {
@@ -90,8 +127,8 @@ public class HibernateUtil {
             return result;
         }
     }
-    
-    public static void restartTransaction(Session session){
+
+    public static void restartTransaction(Session session) {
         session.getTransaction().commit();
         session.beginTransaction();
     }
