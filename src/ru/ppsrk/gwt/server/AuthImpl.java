@@ -33,6 +33,9 @@ import ru.ppsrk.gwt.client.Auth;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.domain.Role;
+import ru.ppsrk.gwt.domain.User;
+import ru.ppsrk.gwt.dto.UserDTO;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -73,14 +76,14 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     }
 
     @Override
-    public boolean register(final String username, final String password) throws LogicException, ClientAuthenticationException {
+    public Long register(final String username, final String password) throws LogicException, ClientAuthenticationException {
         if (!registrationEnabled) {
-            return false;
+            return -1L;
         }
-        HibernateUtil.exec(new HibernateCallback<Void>() {
+        return HibernateUtil.exec(new HibernateCallback<Long>() {
 
             @Override
-            public Void run(Session session) {
+            public Long run(Session session) {
                 ByteSource salt = rng.nextBytes();
                 String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
 
@@ -96,11 +99,10 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
                 // HashedCredentialsMatcher
                 // will need it later when handling login attempts:
                 user.setSalt(salt.toBase64());
-                session.save(user);
-                return null;
+                user = (User) session.merge(user);
+                return user.getId();
             }
         });
-        return true;
     }
 
     public static User requiresAuthUser() throws ClientAuthenticationException, LogicException {
@@ -193,14 +195,15 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
     public static void removeSessionAttribute(Object key) {
         SecurityUtils.getSubject().getSession().removeAttribute(key);
     }
-    
+
     public boolean isLoggedIn() {
         return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
     }
 
-    /*public static interface CacheCallback<T> {
-        public T exec() throws LogicException, ClientAuthenticationException;
-    }*/
+    /*
+     * public static interface CacheCallback<T> { public T exec() throws
+     * LogicException, ClientAuthenticationException; }
+     */
 
     /*
      * public static <T> T getCachedData(String key, CacheCallback<T> callback)

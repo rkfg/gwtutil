@@ -146,11 +146,11 @@ public class Login extends PopupPanel {
 
     private class Button_registerClickHandler implements ClickHandler {
         public void onClick(ClickEvent event) {
-            authservice.register(textBox_login.getText(), textBox_password.getText(), new AsyncCallback<Boolean>() {
+            authservice.register(textBox_login.getText(), textBox_password.getText(), new AsyncCallback<Long>() {
 
                 @Override
-                public void onSuccess(Boolean result) {
-                    if (result) {
+                public void onSuccess(Long result) {
+                    if (result > 0) {
                         Window.alert("Вы успешно зарегистрированы!");
                     } else {
                         Window.alert("Ошибка регистрации.");

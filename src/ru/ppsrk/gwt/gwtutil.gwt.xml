@@ -2,4 +2,5 @@
     <inherits name='com.google.gwt.user.User' />
     <inherits name='com.google.gwt.user.theme.clean.Clean' />
     <source path="client" />
+    <source path="dto" />
 </module>

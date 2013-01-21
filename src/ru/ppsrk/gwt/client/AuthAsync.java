@@ -6,7 +6,7 @@ public interface AuthAsync {
 
     void login(String username, String password, boolean remember, AsyncCallback<Boolean> callback);
 
-    void register(String username, String password, AsyncCallback<Boolean> callback);
+    void register(String username, String password, AsyncCallback<Long> callback);
 
     void logout(AsyncCallback<Void> callback);
 

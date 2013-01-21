@@ -1,9 +1,12 @@
-package ru.ppsrk.gwt.server;
+package ru.ppsrk.gwt.dto;
 
 import java.io.Serializable;
 import java.util.Set;
 
-public class UserDTO implements Serializable {
+import ru.ppsrk.gwt.client.Hierarchic;
+
+
+public class UserDTO extends Hierarchic implements Serializable {
     /**
      * 
      */
@@ -52,6 +55,12 @@ public class UserDTO implements Serializable {
 
     public void setRoles(Set<RoleDTO> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public Hierarchic getParent() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.server;
+package ru.ppsrk.gwt.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,14 +7,23 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "perm")
-public class Perm {
+@Table(name = "role")
+public class Role {
     @Id
     @GeneratedValue
     Long id;
     @ManyToOne
     User user;
-    String permissions;
+    String role;
+
+    public Role() {
+
+    }
+
+    public Role(User user, String role) {
+        this.user = user;
+        this.role = role;
+    }
 
     public Long getId() {
         return id;
@@ -32,11 +41,11 @@ public class Perm {
         this.user = user;
     }
 
-    public String getPermissions() {
-        return permissions;
+    public String getRole() {
+        return role;
     }
 
-    public void setPermissions(String permissions) {
-        this.permissions = permissions;
+    public void setRole(String role) {
+        this.role = role;
     }
 }

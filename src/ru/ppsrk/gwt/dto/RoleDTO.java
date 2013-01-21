@@ -1,6 +1,7 @@
-package ru.ppsrk.gwt.server;
+package ru.ppsrk.gwt.dto;
 
 import java.io.Serializable;
+
 
 public class RoleDTO implements Serializable {
     /**

@@ -16,6 +16,9 @@ import org.hibernate.Session;
 
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.domain.Perm;
+import ru.ppsrk.gwt.domain.Role;
+import ru.ppsrk.gwt.domain.User;
 
 public class HibernateRealm extends AuthorizingRealm {
 
