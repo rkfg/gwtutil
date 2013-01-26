@@ -26,10 +26,10 @@ public class HibernateUtil {
         ServiceRegistry serviceRegistry;
         try {
             // Create the SessionFactory from hibernate.cfg.xml
-            Configuration configuration = new Configuration();
-            configuration.configure(cfgFilename);
-            serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
-            sessionFactory.add(configuration.buildSessionFactory(serviceRegistry));
+             Configuration configuration = new Configuration();
+             configuration.configure(cfgFilename);
+             serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
+             sessionFactory.add(configuration.buildSessionFactory(serviceRegistry));
         } catch (Throwable ex) {
             // Make sure you log the exception, as it might be swallowed
             System.err.println("Initial SessionFactory creation failed: " + ex);
@@ -53,7 +53,7 @@ public class HibernateUtil {
             System.out.println("Closing factory " + factory);
             factory.close();
         }
-        
+
         System.out.println("Cleaning up ServerUtils...");
         ServerUtils.cleanup();
         sessionFactory = null;
@@ -102,7 +102,7 @@ public class HibernateUtil {
             }
         });
     }
-    
+
     public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws ClientAuthenticationException, LogicException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 

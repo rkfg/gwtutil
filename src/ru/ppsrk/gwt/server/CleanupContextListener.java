@@ -1,6 +1,5 @@
 package ru.ppsrk.gwt.server;
 
-import java.lang.reflect.Field;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -9,9 +8,6 @@ import java.util.Set;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import sun.net.www.http.HttpClient;
-import sun.net.www.http.KeepAliveCache;
 
 public class CleanupContextListener implements ServletContextListener {
     @SuppressWarnings("deprecation")
@@ -43,18 +39,6 @@ public class CleanupContextListener implements ServletContextListener {
                     t.stop(); // don't complain, it works
                 }
             }
-        }
-        try {
-            final Field kac = HttpClient.class.getDeclaredField("kac");
-            kac.setAccessible(true);
-            final Field keepAliveTimer = KeepAliveCache.class.getDeclaredField("keepAliveTimer");
-            keepAliveTimer.setAccessible(true);
-
-            final Thread t = (Thread) keepAliveTimer.get(kac.get(null));
-            if (t.getContextClassLoader() == Thread.currentThread().getContextClassLoader()) {
-                t.setContextClassLoader(ClassLoader.getSystemClassLoader());
-            }
-        } catch (final Exception e) {
         }
     }
 

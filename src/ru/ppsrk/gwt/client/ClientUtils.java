@@ -1,6 +1,5 @@
 package ru.ppsrk.gwt.client;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -94,20 +93,23 @@ public class ClientUtils {
         return dataProviders.get(object);
     }
 
+    public static Hierarchic getRegisteredObjectBySample(Hierarchic sample) {
+        for (Hierarchic hierarchic : dataProviders.keySet()) {
+            if (hierarchic.getClass().equals(sample.getClass()) && hierarchic.getId().equals(sample.getId())) {
+                return hierarchic;
+            }
+        }
+        return null;
+    }
+
     public static void removeObjectFromDataProvider(Hierarchic object) {
         ListDataProvider<? extends Hierarchic> listDataProvider = dataProviders.get(object);
         if (listDataProvider == null) {
-            ArrayList<Hierarchic> tempList = new ArrayList<Hierarchic>(dataProviders.keySet()); // this
-                                                                                                // is
-                                                                                                // to
-                                                                                                // search
-                                                                                                // by
-                                                                                                // equality
-                                                                                                // (i.e.
-                                                                                                // Hierarchic.getId())
-            // instead of hashCode
-            if (tempList.contains(object)) {
-                listDataProvider = dataProviders.get(tempList.get(tempList.indexOf(object)));
+            // this is to search by equality (i.e. Hierarchic.getId()) instead
+            // of hashCode
+            Hierarchic key = getRegisteredObjectBySample(object);
+            if (key != null) {
+                listDataProvider = dataProviders.get(key);
             } else {
                 return;
             }
@@ -142,6 +144,12 @@ public class ClientUtils {
         pathProvider.put(buildPath(object, true), listDataProvider);
     }
 
+    public static void registerListWithParentPath(Collection<? extends Hierarchic> list, Hierarchic parent, SelectionModel<? extends Hierarchic> selectionModel,
+            ListDataProvider<? extends Hierarchic> listDataProvider){
+        registerPathProvider(parent, selectionModel, listDataProvider);
+        registerListOfObjects(list, listDataProvider);
+    }
+    
     public static ListDataProvider<? extends Hierarchic> getPathProviderByObject(Hierarchic object, SelectionModel<? extends Hierarchic> selectionModel) {
         return pathDataProviders.get(selectionModel).get(buildPath(object, true));
     }
@@ -233,8 +241,8 @@ public class ClientUtils {
             errorHandler(caught);
         }
     }
-    
-    public static void requireLogin(){
+
+    public static void requireLogin() {
         Auth.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
@@ -246,8 +254,8 @@ public class ClientUtils {
             }
         });
     }
-    
-    public static void logout(){
+
+    public static void logout() {
         Auth.Util.getInstance().logout(new AsyncCallback<Void>() {
 
             @Override
