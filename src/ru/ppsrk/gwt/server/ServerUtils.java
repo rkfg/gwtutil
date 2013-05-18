@@ -1,31 +1,17 @@
 package ru.ppsrk.gwt.server;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import javax.servlet.GenericServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.shiro.config.IniSecurityManagerFactory;
-import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.util.Factory;
-import org.apache.shiro.util.ThreadContext;
 import org.dozer.DozerBeanMapper;
-import org.hibernate.ReplicationMode;
 import org.hibernate.Session;
 
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
-
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.TemplateException;
 
 public class ServerUtils {
 
@@ -61,26 +47,9 @@ public class ServerUtils {
     }
 
     protected static void cleanup() {
+        System.out.println("Cleaning up ServerUtils...");
         mapper.destroy();
         mapper = null;
-    }
-
-    private static Configuration cfg;
-
-    private static Configuration getCfg(GenericServlet servlet) throws IOException {
-        if (cfg == null) {
-            cfg = new Configuration();
-            cfg.setDirectoryForTemplateLoading(new File(servlet.getServletContext().getRealPath("/WEB-INF/templates")));
-            cfg.setObjectWrapper(new DefaultObjectWrapper());
-        }
-        return cfg;
-    }
-
-    public static void processTemplate(GenericServlet servlet, String templateName, Map<String, Object> params, HttpServletResponse resp)
-            throws TemplateException, IOException {
-        resp.setContentType("text/html; charset=utf-8");
-        resp.setHeader("Expires", "Thu, 01 Jan 1970 00:00:00 GMT");
-        getCfg(servlet).getTemplate(templateName).process(params, resp.getWriter());
     }
 
     public static String getParamFromReq(HttpServletRequest req, String paramName) {
@@ -116,39 +85,39 @@ public class ServerUtils {
         elements.add("S");
         return elements;
     }
-    
-    public static void startTest(String originDBConfig, String targetDBConfig, List<String> classnames){
-        HibernateUtil.initSessionFactory(targetDBConfig);
-        HibernateUtil.initSessionFactory(originDBConfig);
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
-        SecurityManager sm = factory.getInstance();
-        ThreadContext.bind(sm);
-        Session session1 = HibernateUtil.getSessionFactory(0).openSession();
-        session1.beginTransaction();
-        session1.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
-        session1.getTransaction().commit();
-        for (String classname : classnames) {
-            Session session2 = HibernateUtil.getSessionFactory(1).openSession();
-            session2.beginTransaction();
-            System.out.println("Copying " + classname);
-            @SuppressWarnings("rawtypes")
-            List items = session2.createQuery("from " + classname).list();
-            session2.getTransaction().commit();
-            session2.close();
-            session1.beginTransaction();
-            for (Object object : items) {
-                session1.replicate(object, ReplicationMode.LATEST_VERSION);
-                session1.saveOrUpdate(object);
-            }
-            session1.getTransaction().commit();
-        }
-        session1.beginTransaction();
-        session1.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
-        session1.getTransaction().commit();
-        session1.close();
-    }
-    
-    public static void resetTables(final String[] tables) throws LogicException, ClientAuthenticationException{
+
+    // public static void startTestCopyDB(String originDBConfig, String
+    // targetDBConfig, List<String> classnames) {
+    // HibernateUtil.initSessionFactory(targetDBConfig);
+    // HibernateUtil.initSessionFactory(originDBConfig);
+    // Factory<SecurityManager> factory = new
+    // IniSecurityManagerFactory("classpath:shiro.ini");
+    // SecurityManager sm = factory.getInstance();
+    // ThreadContext.bind(sm);
+    // StatelessSession session1 =
+    // HibernateUtil.getSessionFactory(0).openStatelessSession();
+    // session1.beginTransaction();
+    // session1.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
+    // for (String classname : classnames) {
+    // Session session2 = HibernateUtil.getSessionFactory(1).openSession();
+    // session2.beginTransaction();
+    // System.out.println("Copying " + classname);
+    // @SuppressWarnings("rawtypes")
+    // List items = session2.createQuery("from " + classname).list();
+    // session2.getTransaction().commit();
+    // session2.close();
+    // for (Object object : items) {
+    // // object = session1.save(object);
+    // session1.insert(object);
+    // // session1.merge(object);
+    // }
+    // }
+    // session1.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
+    // session1.getTransaction().commit();
+    // session1.close();
+    // }
+
+    public static void resetTables(final String[] tables) throws LogicException, ClientAuthenticationException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override

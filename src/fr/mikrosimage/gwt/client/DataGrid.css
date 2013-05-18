@@ -1,0 +1,18 @@
+@CHARSET "UTF-8";
+
+.dataGridKeyboardSelectedCell {
+  border: 2px solid rgba(0, 0, 0, 0) !important;
+}
+
+.dataGridCell select {
+  border: 0px;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.dataGridHoveredRow select {
+	background-color: white;
+}
+
+.dataGridSelectedRow select {
+    background-color: white;
+}

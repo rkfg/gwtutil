@@ -22,11 +22,15 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
+import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
+import org.apache.shiro.util.Factory;
+import org.apache.shiro.util.ThreadContext;
 import org.hibernate.Session;
 
 import ru.ppsrk.gwt.client.Auth;
@@ -40,13 +44,116 @@ import ru.ppsrk.gwt.dto.UserDTO;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AuthImpl extends RemoteServiceServlet implements Auth {
+    public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
+        final Long userId = requiresAuth();
+        return HibernateUtil.exec(new HibernateCallback<List<String>>() {
+
+            @Override
+            public List<String> run(Session session) {
+                User user = (User) session.get(User.class, userId);
+                if (user == null) {
+                    return new ArrayList<String>();
+                }
+                Set<Role> roles = user.getRoles();
+                List<String> result = new ArrayList<String>();
+                for (Role role : roles) {
+                    result.add(role.getRole());
+                }
+                setSessionAttribute("roles", result);
+                return result;
+            }
+        });
+
+    }
+
+    public static Object getSessionAttribute(Object key) {
+        return SecurityUtils.getSubject().getSession().getAttribute(key);
+    }
+
+    public static boolean hasRole(String role) throws LogicException, ClientAuthenticationException {
+        return getRoles().contains(role);
+    }
+
+    public static void removeSessionAttribute(Object key) {
+        SecurityUtils.getSubject().getSession().removeAttribute(key);
+    }
+
+    public static void initShiro() {
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+        SecurityManager securityManager = factory.getInstance();
+        SecurityUtils.setSecurityManager(securityManager);
+    }
+
+    public static Long requiresAuth() throws ClientAuthenticationException, LogicException {
+        User user = requiresAuthUser();
+        if (user == null) {
+            return 0L;
+        } else {
+            return user.getId();
+        }
+    }
+
+    public static User requiresAuthUser() throws ClientAuthenticationException, LogicException {
+        if (!SecurityUtils.getSubject().isAuthenticated() && !SecurityUtils.getSubject().isRemembered())
+            throw new ClientAuthenticationException("Not authenticated");
+        UserDTO user = (UserDTO) getSessionAttribute("user");
+        if (user == null) {
+            user = HibernateUtil.exec(new HibernateCallback<UserDTO>() {
+
+                @Override
+                public UserDTO run(Session session) throws LogicException, ClientAuthenticationException {
+                    @SuppressWarnings("unchecked")
+                    List<User> users = session.createQuery("from User where username = :un").setParameter("un", SecurityUtils.getSubject().getPrincipal())
+                            .list();
+                    if (users.size() != 1) {
+                        throw new ClientAuthenticationException("Not authenticated");
+                    }
+                    return ServerUtils.mapModel(users.get(0), UserDTO.class);
+                }
+            });
+            setSessionAttribute("user", user);
+        }
+        return ServerUtils.mapModel(user, User.class);
+    }
+
+    public static void requiresPerm(String perm) throws ClientAuthorizationException {
+        if (!SecurityUtils.getSubject().isPermitted(perm))
+            throw new ClientAuthorizationException("Not authorized [perm: " + perm + "]");
+    }
+
+    public static void requiresRole(String role) throws ClientAuthorizationException {
+        if (!SecurityUtils.getSubject().hasRole(role))
+            throw new ClientAuthorizationException("Not authorized [role: " + role + "]");
+    }
+
+    public static void setSessionAttribute(Object key, Object value) {
+        SecurityUtils.getSubject().getSession().setAttribute(key, value);
+    }
+
+    public static void startTest(String DBConfig) {
+        HibernateUtil.initSessionFactory(DBConfig);
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+        SecurityManager sm = factory.getInstance();
+        ThreadContext.bind(sm);
+    }
+
     RandomNumberGenerator rng = new SecureRandomNumberGenerator();
 
     /**
      * 
      */
     private static final long serialVersionUID = -5049525086987492554L;
+
     public static boolean registrationEnabled = false;
+
+    public boolean isLoggedIn() {
+        return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
+    }
+
+    @Override
+    public boolean isRegistrationEnabled() {
+        return registrationEnabled;
+    }
 
     @Override
     public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException,
@@ -73,6 +180,12 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
             throw new ClientAuthorizationException(e.getMessage());
         }
         return subject.isAuthenticated();
+    }
+
+    @Override
+    public void logout() {
+        removeSessionAttribute("userid");
+        SecurityUtils.getSubject().logout();
     }
 
     @Override
@@ -103,101 +216,6 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
                 return user.getId();
             }
         });
-    }
-
-    public static User requiresAuthUser() throws ClientAuthenticationException, LogicException {
-        if (!SecurityUtils.getSubject().isAuthenticated() && !SecurityUtils.getSubject().isRemembered())
-            throw new ClientAuthenticationException("Not authenticated");
-        UserDTO user = (UserDTO) getSessionAttribute("user");
-        if (user == null) {
-            user = HibernateUtil.exec(new HibernateCallback<UserDTO>() {
-
-                @Override
-                public UserDTO run(Session session) throws LogicException, ClientAuthenticationException {
-                    @SuppressWarnings("unchecked")
-                    List<User> users = session.createQuery("from User where username = :un").setParameter("un", SecurityUtils.getSubject().getPrincipal())
-                            .list();
-                    if (users.size() != 1) {
-                        throw new ClientAuthenticationException("Not authenticated");
-                    }
-                    return ServerUtils.mapModel(users.get(0), UserDTO.class);
-                }
-            });
-            setSessionAttribute("user", user);
-        }
-        return ServerUtils.mapModel(user, User.class);
-    }
-
-    public static Long requiresAuth() throws ClientAuthenticationException, LogicException {
-        User user = requiresAuthUser();
-        if (user == null) {
-            return 0L;
-        } else {
-            return user.getId();
-        }
-    }
-
-    public static void requiresPerm(String perm) throws ClientAuthorizationException {
-        if (!SecurityUtils.getSubject().isPermitted(perm))
-            throw new ClientAuthorizationException("Not authorized [perm: " + perm + "]");
-    }
-
-    public static void requiresRole(String role) throws ClientAuthorizationException {
-        if (!SecurityUtils.getSubject().hasRole(role))
-            throw new ClientAuthorizationException("Not authorized [role: " + role + "]");
-    }
-
-    @Override
-    public void logout() {
-        removeSessionAttribute("userid");
-        SecurityUtils.getSubject().logout();
-    }
-
-    @Override
-    public boolean isRegistrationEnabled() {
-        return registrationEnabled;
-    }
-
-    public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
-        final Long userId = requiresAuth();
-        return HibernateUtil.exec(new HibernateCallback<List<String>>() {
-
-            @Override
-            public List<String> run(Session session) {
-                User user = (User) session.get(User.class, userId);
-                if (user == null) {
-                    return new ArrayList<String>();
-                }
-                Set<Role> roles = user.getRoles();
-                List<String> result = new ArrayList<String>();
-                for (Role role : roles) {
-                    result.add(role.getRole());
-                }
-                setSessionAttribute("roles", result);
-                return result;
-            }
-        });
-
-    }
-
-    public static boolean hasRole(String role) throws LogicException, ClientAuthenticationException {
-        return getRoles().contains(role);
-    }
-
-    public static void setSessionAttribute(Object key, Object value) {
-        SecurityUtils.getSubject().getSession().setAttribute(key, value);
-    }
-
-    public static Object getSessionAttribute(Object key) {
-        return SecurityUtils.getSubject().getSession().getAttribute(key);
-    }
-
-    public static void removeSessionAttribute(Object key) {
-        SecurityUtils.getSubject().getSession().removeAttribute(key);
-    }
-
-    public boolean isLoggedIn() {
-        return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
     }
 
     /*

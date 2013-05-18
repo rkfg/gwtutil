@@ -3,13 +3,13 @@ package ru.ppsrk.gwt.client;
 public abstract class Hierarchic {
 
     protected boolean equalsById = true;
-    
+
     public abstract Hierarchic getParent();
 
     public abstract Long getId();
 
-    public abstract void setId(Long id);
-
+    public abstract void setId(Long newId);
+    
     @Override
     public boolean equals(Object obj) {
         if (equalsById && obj instanceof Hierarchic) {
@@ -18,5 +18,4 @@ public abstract class Hierarchic {
         }
         return super.equals(obj);
     }
-
 }

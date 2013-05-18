@@ -1,6 +1,6 @@
 package fr.mikrosimage.gwt.client;
 
-import static com.google.gwt.dom.client.Style.Unit.PX;
+import static com.google.gwt.dom.client.Style.Unit.*;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell.Context;
@@ -80,7 +80,7 @@ public abstract class ResizableHeader<T> extends Header<String> {
         void dragFinished();
     }
 
-    private static final int RESIZE_HANDLE_WIDTH = 34;
+    private static final int RESIZE_HANDLE_WIDTH = 20;
 
     private static NativeEvent getEventAndPreventPropagation(NativePreviewEvent event) {
         final NativeEvent nativeEvent = event.getNativeEvent();

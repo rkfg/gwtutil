@@ -15,10 +15,7 @@
  */
 package ru.ppsrk.gwt.client;
 
-import static com.google.gwt.dom.client.BrowserEvents.BLUR;
-import static com.google.gwt.dom.client.BrowserEvents.CLICK;
-import static com.google.gwt.dom.client.BrowserEvents.KEYDOWN;
-import static com.google.gwt.dom.client.BrowserEvents.KEYUP;
+import static com.google.gwt.dom.client.BrowserEvents.*;
 
 import com.google.gwt.cell.client.AbstractEditableCell;
 import com.google.gwt.cell.client.ValueUpdater;

@@ -26,10 +26,10 @@ public class HibernateUtil {
         ServiceRegistry serviceRegistry;
         try {
             // Create the SessionFactory from hibernate.cfg.xml
-             Configuration configuration = new Configuration();
-             configuration.configure(cfgFilename);
-             serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
-             sessionFactory.add(configuration.buildSessionFactory(serviceRegistry));
+            Configuration configuration = new Configuration();
+            configuration.configure(cfgFilename);
+            serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
+            sessionFactory.add(configuration.buildSessionFactory(serviceRegistry));
         } catch (Throwable ex) {
             // Make sure you log the exception, as it might be swallowed
             System.err.println("Initial SessionFactory creation failed: " + ex);
@@ -38,7 +38,7 @@ public class HibernateUtil {
     }
 
     public static void cleanup() {
-        System.out.println("Cleaning up...");
+        System.out.println("Cleaning up hibernate utils...");
         Enumeration<Driver> drivers = DriverManager.getDrivers();
         while (drivers.hasMoreElements()) {
             Driver driver = drivers.nextElement();
@@ -49,13 +49,11 @@ public class HibernateUtil {
                 System.out.println(String.format("Error deregistering driver %s", driver));
             }
         }
+
         for (SessionFactory factory : sessionFactory) {
             System.out.println("Closing factory " + factory);
             factory.close();
         }
-
-        System.out.println("Cleaning up ServerUtils...");
-        ServerUtils.cleanup();
         sessionFactory = null;
     }
 
@@ -64,7 +62,10 @@ public class HibernateUtil {
     }
 
     public static SessionFactory getSessionFactory(int nIndex) {
-        return sessionFactory.get(nIndex);
+        if (nIndex >= 0 && nIndex < sessionFactory.size()) {
+            return sessionFactory.get(nIndex);
+        }
+        return null;
     }
 
     public static SessionFactory getSessionFactory() {
@@ -72,17 +73,58 @@ public class HibernateUtil {
     }
 
     public static <T> T exec(HibernateCallback<T> callback) throws LogicException, ClientAuthenticationException {
-        Session session = HibernateUtil.getSessionFactory(0).openSession();
+        return exec(0, callback);
+    }
+
+    public static <T> T exec(int sessionNumber, HibernateCallback<T> callback) throws LogicException, ClientAuthenticationException {
+        T result = null;
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory(sessionNumber);
+        if (sessionFactory != null) {
+            Session session = sessionFactory.openSession();
+            try {
+                session.beginTransaction();
+                result = callback.run(session);
+                session.getTransaction().commit();
+            } catch (HibernateException e) {
+                session.getTransaction().rollback();
+                throw e;
+            } finally {
+                session.close();
+            }
+        }
+        return result;
+    }
+
+    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException, ClientAuthenticationException {
+        Session[] sessions = new Session[sessionNumbers.length];
         T result = null;
         try {
-            session.beginTransaction();
-            result = callback.run(session);
-            session.getTransaction().commit();
+            for (int number = 0; number < sessionNumbers.length; number++) {
+                SessionFactory sessionFactory = HibernateUtil.getSessionFactory(sessionNumbers[number]);
+                if (sessionFactory != null) {
+                    sessions[number] = sessionFactory.openSession();
+                    sessions[number].beginTransaction();
+                }
+            }
+            result = callback.run(sessions);
+            for (int number = 0; number < sessionNumbers.length; number++) {
+                if (sessions[number] != null) {
+                    sessions[number].getTransaction().commit();
+                }
+            }
         } catch (HibernateException e) {
-            session.getTransaction().rollback();
+            for (int number = 0; number < sessionNumbers.length; number++) {
+                if (sessions[number] != null) {
+                    sessions[number].getTransaction().rollback();
+                }
+            }
             throw e;
         } finally {
-            session.close();
+            for (int number = 0; number < sessionNumbers.length; number++) {
+                if (sessions[number] != null) {
+                    sessions[number].close();
+                }
+            }
         }
         return result;
     }
