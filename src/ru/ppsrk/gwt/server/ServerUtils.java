@@ -17,6 +17,10 @@ public class ServerUtils {
 
     private static DozerBeanMapper mapper = new DozerBeanMapper();
 
+    public static void setMappingFiles(List<String> files){
+        mapper.setMappingFiles(files);
+    }
+    
     public static <ST, DT> List<DT> mapArray(Collection<ST> list, Class<DT> destClass) {
         List<DT> result = new ArrayList<DT>();
         for (ST elem : list) {
