@@ -6,7 +6,8 @@
 <module rename-to="gwtutil">
 	<inherits name='com.google.gwt.user.User' />
 	<inherits name='com.google.gwt.user.theme.clean.Clean' />
-	<inherits name="fr.mikrosimage.gwt.GwtResizableDraggableColumns"/>
+	<inherits name="fr.mikrosimage.gwt.GwtResizableDraggableColumns" />
+	<entry-point class="ru.ppsrk.gwt.client.Dummy" />
 	<source path="client" />
 	<source path="dto" />
 </module>
