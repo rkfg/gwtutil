@@ -39,4 +39,10 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
         final HeaderPanel headerPanel = (HeaderPanel) getWidget();
         return (ScrollPanel) headerPanel.getContentWidget();
     }
+
+    @Override
+    public void addColumn(Column<T, ?> col, String headerString) {
+        super.addColumn(col, new DataGridResizableHeader(headerString, col));
+    }
+
 }

@@ -133,8 +133,8 @@ public class ClientUtils {
     }
 
     /**
-     * Inserts a new object to the data provider specified by the parent
-     * object. If no such provider or parent object exists, creates them.
+     * Inserts a new object to the data provider specified by the parent object.
+     * If no such provider or parent object exists, creates them.
      * 
      * @param object
      *            object to insert
@@ -197,11 +197,15 @@ public class ClientUtils {
     }
 
     public static void openWindow(String url) {
-        openWindow(url, null, null);
+        openWindow(url, null, null, false);
     };
 
-    public static void openWindow(String url, String name, String features) {
-        Window.open(GWT.getModuleBaseURL() + url, name, features);
+    public static void openWindowRootRelative(String url) {
+        openWindow(url, null, null, true);
+    };
+
+    public static void openWindow(String url, String name, String features, boolean rootRelative) {
+        Window.open((rootRelative ? GWT.getHostPageBaseURL() : GWT.getModuleBaseURL()) + url, name, features);
     }
 
     public static void registerListOfObjects(Collection<? extends Hierarchic> list, ListDataProvider<? extends Hierarchic> listDataProvider) {
@@ -310,11 +314,13 @@ public class ClientUtils {
         listBox.setSelectedIndex(getListboxIndexByValue(listBox, value));
     }
 
-    public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget){
+    public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget) {
         panel.setGlassEnabled(true);
         panel.setAnimationEnabled(true);
         panel.center();
-        focusWidget.setFocus(true);
+        if (focusWidget != null) {
+            focusWidget.setFocus(true);
+        }
         panel.setModal(true);
     }
 }
