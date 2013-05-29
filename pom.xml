@@ -18,6 +18,17 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
 				<version>2.5.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>clean</goal>
+							<goal>source-jar</goal>
+						</goals>
+						<configuration>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -38,11 +49,6 @@
 			<version>5.4.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>4.1.4.Final</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-servlet</artifactId>
 			<version>2.5.1</version>
@@ -54,8 +60,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>4.3.1.Final</version>
+			<artifactId>hibernate-core</artifactId>
+			<version>4.2.2.Final</version>
 		</dependency>
 	</dependencies>
 	<properties>
