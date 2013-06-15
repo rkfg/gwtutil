@@ -6,12 +6,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Properties;
 
-
 public class SettingsManager {
     private static SettingsManager instance = new SettingsManager();
 
     private HashMap<String, String> defaults;
-    
+
     Properties properties = new Properties();
 
     public static SettingsManager getInstance() {
@@ -36,8 +35,20 @@ public class SettingsManager {
         }
     }
 
-    public String getSetting(String key) {
+    public String getStringSetting(String key) {
         return properties.getProperty(key, defaults.get(key));
+    }
+
+    public Integer getIntegerSetting(String key) {
+        try {
+            return Integer.valueOf(properties.getProperty(key, defaults.get(key)));
+        } catch (NumberFormatException e) {
+            try {
+                return Integer.valueOf(defaults.get(key));
+            } catch (NumberFormatException e2) {
+                return null;
+            }
+        }
     }
 
     public void setDefaults(HashMap<String, String> defaults) {
