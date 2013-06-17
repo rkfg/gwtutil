@@ -22,21 +22,6 @@ public class HibernateUtil {
 
     private static List<SessionFactory> sessionFactory = new ArrayList<SessionFactory>();
 
-    public static void initSessionFactory(String cfgFilename) {
-        ServiceRegistry serviceRegistry;
-        try {
-            // Create the SessionFactory from hibernate.cfg.xml
-            Configuration configuration = new Configuration();
-            configuration.configure(cfgFilename);
-            serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
-            sessionFactory.add(configuration.buildSessionFactory(serviceRegistry));
-        } catch (Throwable ex) {
-            // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed: " + ex);
-            throw new ExceptionInInitializerError(ex);
-        }
-    }
-
     public static void cleanup() {
         System.out.println("Cleaning up hibernate utils...");
         Enumeration<Driver> drivers = DriverManager.getDrivers();
@@ -57,19 +42,15 @@ public class HibernateUtil {
         sessionFactory = null;
     }
 
-    public static List<SessionFactory> getSessionFactories() {
-        return sessionFactory;
-    }
+    public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws ClientAuthenticationException, LogicException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
 
-    public static SessionFactory getSessionFactory(int nIndex) {
-        if (nIndex >= 0 && nIndex < sessionFactory.size()) {
-            return sessionFactory.get(nIndex);
-        }
-        return null;
-    }
-
-    public static SessionFactory getSessionFactory() {
-        return getSessionFactory(0);
+            @Override
+            public Void run(Session session) {
+                session.delete(session.get(objectClass, id));
+                return null;
+            }
+        });
     }
 
     public static <T> T exec(HibernateCallback<T> callback) throws LogicException, ClientAuthenticationException {
@@ -95,7 +76,8 @@ public class HibernateUtil {
         return result;
     }
 
-    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException, ClientAuthenticationException {
+    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException,
+            ClientAuthenticationException {
         Session[] sessions = new Session[sessionNumbers.length];
         T result = null;
         try {
@@ -129,13 +111,48 @@ public class HibernateUtil {
         return result;
     }
 
+    public static List<SessionFactory> getSessionFactories() {
+        return sessionFactory;
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return getSessionFactory(0);
+    }
+
+    public static SessionFactory getSessionFactory(int nIndex) {
+        if (nIndex >= 0 && nIndex < sessionFactory.size()) {
+            return sessionFactory.get(nIndex);
+        }
+        return null;
+    }
+
+    public static void initSessionFactory(String cfgFilename) {
+        ServiceRegistry serviceRegistry;
+        try {
+            // Create the SessionFactory from hibernate.cfg.xml
+            Configuration configuration = new Configuration();
+            configuration.configure(cfgFilename);
+            serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
+            sessionFactory.add(configuration.buildSessionFactory(serviceRegistry));
+        } catch (Throwable ex) {
+            // Make sure you log the exception, as it might be swallowed
+            System.err.println("Initial SessionFactory creation failed: " + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public static void restartTransaction(Session session) {
+        session.getTransaction().commit();
+        session.beginTransaction();
+    }
+
     public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException,
             ClientAuthenticationException {
         return saveObject(objectDTO, classHIB, false);
     }
 
-    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId) throws LogicException,
-            ClientAuthenticationException {
+    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId)
+            throws LogicException, ClientAuthenticationException {
         return HibernateUtil.exec(new HibernateCallback<HIB>() {
 
             @Override
@@ -145,19 +162,9 @@ public class HibernateUtil {
         });
     }
 
-    public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws ClientAuthenticationException, LogicException {
-        HibernateUtil.exec(new HibernateCallback<Void>() {
-
-            @Override
-            public Void run(Session session) {
-                session.delete(session.get(objectClass, id));
-                return null;
-            }
-        });
-    }
-
     @SuppressWarnings("unchecked")
-    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId, Session session) {
+    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId,
+            Session session) {
         if (objectDTO.getId() != null) {
             return (HIB) session.merge(ServerUtils.mapModel(objectDTO, classHIB));
         } else {
@@ -170,9 +177,15 @@ public class HibernateUtil {
         }
     }
 
-    public static void restartTransaction(Session session) {
-        session.getTransaction().commit();
-        session.beginTransaction();
+    public static <T> T saveObject(final T object) throws LogicException, ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<T>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public T run(Session session) throws LogicException, ClientAuthenticationException {
+                return (T) session.merge(object);
+            }
+        });
     }
 
 }
