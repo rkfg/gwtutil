@@ -21,8 +21,8 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>compile</goal>
 							<goal>clean</goal>
+							<goal>compile</goal>
 							<goal>source-jar</goal>
 						</goals>
 						<configuration>
