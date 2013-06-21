@@ -2,6 +2,7 @@ package ru.ppsrk.gwt.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 
 import javax.servlet.GenericServlet;
@@ -39,7 +40,12 @@ public class Freemarker {
             throws TemplateException, IOException {
         resp.setContentType("text/html; charset=utf-8");
         resp.setHeader("Expires", "Thu, 01 Jan 1970 00:00:00 GMT");
-        getCfg(servlet).getTemplate(templateName).process(params, resp.getWriter());
+        processTemplate(servlet, templateName, params, resp.getWriter());
+    }
+
+    public static void processTemplate(GenericServlet servlet, String templateName, Map<String, Object> params, Writer writer) throws TemplateException,
+            IOException {
+        getCfg(servlet).getTemplate(templateName).process(params, writer);
     }
 
 }
