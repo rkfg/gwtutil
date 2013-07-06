@@ -9,7 +9,7 @@ import java.util.Properties;
 public class SettingsManager {
     private static SettingsManager instance = new SettingsManager();
 
-    private HashMap<String, String> defaults;
+    private HashMap<String, String> defaults = new HashMap<String, String>();
 
     Properties properties = new Properties();
 
@@ -22,7 +22,7 @@ public class SettingsManager {
 
     public void loadSettings(String filename) {
         try {
-            ServerUtils.loadProperties(properties, filename);
+            ServerUtils.loadProperties(properties, ServerUtils.expandHome(filename));
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

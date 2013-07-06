@@ -60,8 +60,7 @@ public class ServerUtils {
             return new ArrayList<String>();
         }
 
-        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL",
-                "LGGLGL");
+        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL");
         ArrayList<String> elements = new ArrayList<String>();
         elements.add("S");
         int pos = 0;
@@ -76,6 +75,13 @@ public class ServerUtils {
         return elements;
     }
 
+    public static String expandHome(String path) {
+        if (path.startsWith("~" + File.separator)) {
+            path = System.getProperty("user.home") + path.substring(1);
+        }
+        return path;
+    }
+
     public static String getParamFromReq(HttpServletRequest req, String paramName) {
         if (req.getParameter(paramName) == null) {
             return "";
@@ -88,18 +94,8 @@ public class ServerUtils {
         return System.getenv("HOME");
     }
 
-    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
-            IOException {
+    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
         properties.load(new InputStreamReader(new FileInputStream(createFileDirs(filename)), "utf-8"));
-    }
-
-    public static <ST, DT> List<DT> mapArray(Collection<ST> list, Class<DT> destClass) {
-        List<DT> result = new ArrayList<DT>();
-        for (ST elem : list) {
-            if (elem != null)
-                result.add(mapper.map(elem, destClass));
-        }
-        return result;
     }
 
     // public static void startTestCopyDB(String originDBConfig, String
@@ -132,6 +128,15 @@ public class ServerUtils {
     // session1.getTransaction().commit();
     // session1.close();
     // }
+
+    public static <ST, DT> List<DT> mapArray(Collection<ST> list, Class<DT> destClass) {
+        List<DT> result = new ArrayList<DT>();
+        for (ST elem : list) {
+            if (elem != null)
+                result.add(mapper.map(elem, destClass));
+        }
+        return result;
+    }
 
     public static <T> T mapModel(Object value, Class<T> classDTO) {
         if (value == null)
@@ -173,8 +178,7 @@ public class ServerUtils {
         mapper.setMappingFiles(files);
     }
 
-    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
-            IOException {
+    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
         properties.store(new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8"), "");
     }
 }
