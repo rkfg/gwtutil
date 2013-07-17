@@ -5,6 +5,7 @@
 	<inherits name='com.google.gwt.user.User' />
 	<inherits name="fr.mikrosimage.gwt.GwtResizableDraggableColumns" />
 	<entry-point class="ru.ppsrk.gwt.client.Dummy" />
+	<stylesheet src="style.css"/>
 	<source path="client" />
 	<source path="dto" />
 </module>
