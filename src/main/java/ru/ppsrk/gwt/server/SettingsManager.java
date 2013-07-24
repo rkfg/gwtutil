@@ -17,7 +17,7 @@ public class SettingsManager {
         return instance;
     }
 
-    private SettingsManager() {
+    public SettingsManager() {
     }
 
     public void loadSettings(String filename) {
@@ -39,16 +39,8 @@ public class SettingsManager {
         return properties.getProperty(key, defaults.get(key));
     }
 
-    public Integer getIntegerSetting(String key) {
-        try {
-            return Integer.valueOf(properties.getProperty(key, defaults.get(key)));
-        } catch (NumberFormatException e) {
-            try {
-                return Integer.valueOf(defaults.get(key));
-            } catch (NumberFormatException e2) {
-                return null;
-            }
-        }
+    public Integer getIntegerSetting(String key) throws NumberFormatException {
+        return Integer.valueOf(properties.getProperty(key, defaults.get(key)));
     }
 
     public void setDefaults(HashMap<String, String> defaults) {
