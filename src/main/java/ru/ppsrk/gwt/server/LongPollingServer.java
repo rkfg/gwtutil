@@ -1,6 +1,6 @@
 package ru.ppsrk.gwt.server;
 
-import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
@@ -17,8 +17,9 @@ public abstract class LongPollingServer<T> {
     }
 
     public T start() throws InterruptedException, LogicException, ClientAuthenticationException {
-        long startTime = new Date().getTime();
-        while (new Date().getTime() - startTime < period) {
+        long startTime = System.nanoTime();
+        long nanoPeriod = TimeUnit.MILLISECONDS.toNanos(period);
+        while (System.nanoTime() - startTime < nanoPeriod) {
             T result = exec();
             if (result != null) {
                 return result;
