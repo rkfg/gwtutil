@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -322,5 +324,10 @@ public class ClientUtils {
             focusWidget.setFocus(true);
         }
         panel.setModal(true);
+    }
+
+    public static <T> void openPopupPanel(ResultPopupPanel<T> panel, ResultPopupPanelCallback<T> callback) {
+        panel.setResultCallback(callback);
+        openPopupPanel(panel, panel.getFocusWidget());
     }
 }
