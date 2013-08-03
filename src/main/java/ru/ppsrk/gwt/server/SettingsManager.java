@@ -16,6 +16,7 @@ public class SettingsManager {
     private HashMap<String, String> defaults = new HashMap<String, String>();
 
     Properties properties = new Properties();
+    String filename = null;
 
     public SettingsManager() {
     }
@@ -32,23 +33,47 @@ public class SettingsManager {
         return properties.getProperty(key, defaults.get(key));
     }
 
-    public void loadSettings(String filename) {
+    public void loadSettings() throws FileNotFoundException, IOException {
+        if (filename == null || filename.isEmpty()) {
+            throw new FileNotFoundException("Set filename first.");
+        }
         try {
             ServerUtils.loadProperties(properties, ServerUtils.expandHome(filename));
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        }
+    }
+
+    public void saveSettings() throws FileNotFoundException, IOException {
+        if (filename == null || filename.isEmpty()) {
+            throw new FileNotFoundException("Set filename first.");
+        }
+        try {
+            ServerUtils.storeProperties(properties, ServerUtils.expandHome(filename));
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
 
     public void setDefaults(HashMap<String, String> defaults) {
         this.defaults = defaults;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public void setIntegerSetting(String key, Integer val) {
+        properties.setProperty(key, val.toString());
+    }
+
+    public void setLongSetting(String key, Long val) {
+        properties.setProperty(key, val.toString());
+    }
+
+    public void setStringSetting(String key, String val) {
+        properties.setProperty(key, val);
     }
 
 }
