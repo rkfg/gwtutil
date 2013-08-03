@@ -9,15 +9,27 @@ import java.util.Properties;
 public class SettingsManager {
     private static SettingsManager instance = new SettingsManager();
 
-    private HashMap<String, String> defaults = new HashMap<String, String>();
-
-    Properties properties = new Properties();
-
     public static SettingsManager getInstance() {
         return instance;
     }
 
+    private HashMap<String, String> defaults = new HashMap<String, String>();
+
+    Properties properties = new Properties();
+
     public SettingsManager() {
+    }
+
+    public Integer getIntegerSetting(String key) throws NumberFormatException {
+        return Integer.valueOf(properties.getProperty(key, defaults.get(key)));
+    }
+
+    public Long getLongSetting(String key) {
+        return Long.valueOf(properties.getProperty(key, defaults.get(key)));
+    }
+
+    public String getStringSetting(String key) {
+        return properties.getProperty(key, defaults.get(key));
     }
 
     public void loadSettings(String filename) {
@@ -33,14 +45,6 @@ public class SettingsManager {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-
-    public String getStringSetting(String key) {
-        return properties.getProperty(key, defaults.get(key));
-    }
-
-    public Integer getIntegerSetting(String key) throws NumberFormatException {
-        return Integer.valueOf(properties.getProperty(key, defaults.get(key)));
     }
 
     public void setDefaults(HashMap<String, String> defaults) {
