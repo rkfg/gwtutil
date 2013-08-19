@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -163,15 +164,41 @@ public class ServerUtils {
 
             @Override
             public Void run(Session session) throws LogicException, ClientAuthenticationException {
-                session.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
+                session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
                 for (String table : tables) {
-                    session.createSQLQuery("truncate table " + table + " restart identity").executeUpdate();
+                    session.createSQLQuery("truncate table " + table).executeUpdate();
+                    session.createSQLQuery("ALTER TABLE " + table + " ALTER COLUMN id RESTART WITH 1").executeUpdate();
                 }
-                session.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
+                session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
                 return null;
             }
         });
 
+    }
+
+    public static void importSQL(String sqlFilename) throws LogicException, ClientAuthenticationException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthenticationException {
+                try {
+                    session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
+                    File sql = new File(Thread.currentThread().getContextClassLoader().getResource("depthier.sql").getPath());
+                    Scanner scan;
+                    scan = new Scanner(sql);
+                    StringBuilder sb = new StringBuilder((int) sql.length());
+                    while (scan.hasNextLine()) {
+                        sb.append(scan.nextLine()).append('\n');
+                    }
+                    scan.close();
+                    session.createSQLQuery(sb.toString()).executeUpdate();
+                    session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
     }
 
     public static void setMappingFiles(List<String> files) {
@@ -180,5 +207,9 @@ public class ServerUtils {
 
     public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
         properties.store(new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8"), "");
+    }
+
+    public static void setMappingFile(String filename) {
+        setMappingFiles(Arrays.asList(filename));
     }
 }
