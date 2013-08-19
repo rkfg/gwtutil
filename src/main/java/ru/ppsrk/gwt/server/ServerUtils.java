@@ -61,7 +61,8 @@ public class ServerUtils {
             return new ArrayList<String>();
         }
 
-        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL");
+        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL",
+                "LGGLGL");
         ArrayList<String> elements = new ArrayList<String>();
         elements.add("S");
         int pos = 0;
@@ -95,7 +96,8 @@ public class ServerUtils {
         return System.getenv("HOME");
     }
 
-    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
+            IOException {
         properties.load(new InputStreamReader(new FileInputStream(createFileDirs(filename)), "utf-8"));
     }
 
@@ -205,7 +207,8 @@ public class ServerUtils {
         mapper.setMappingFiles(files);
     }
 
-    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
+            IOException {
         properties.store(new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8"), "");
     }
 
