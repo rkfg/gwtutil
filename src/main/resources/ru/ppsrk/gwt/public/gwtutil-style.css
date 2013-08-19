@@ -54,3 +54,16 @@ table.grid tr td, table.grid tr th {
 .menu-item-selected {
 	background-color: #CCCCCC;
 }
+
+table tr {
+	page-break-inside: avoid;
+	page-break-after: auto;
+}
+
+thead {
+	display: table-header-group;
+}
+
+tbody {
+	display: table-row-group;
+}
