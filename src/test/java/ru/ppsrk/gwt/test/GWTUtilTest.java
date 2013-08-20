@@ -12,11 +12,11 @@ import org.junit.Test;
 
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.client.NestedSetManagerException;
 import ru.ppsrk.gwt.server.HibernateCallback;
 import ru.ppsrk.gwt.server.HibernateUtil;
 import ru.ppsrk.gwt.server.ServerUtils;
 import ru.ppsrk.gwt.server.nestedset.NestedSetManager;
-import ru.ppsrk.gwt.server.nestedset.NestedSetManagerException;
 import ru.ppsrk.gwt.test.domain.Dept;
 import ru.ppsrk.gwt.test.domain.DeptHier;
 import ru.ppsrk.gwt.test.dto.DeptHierDTO;
@@ -52,23 +52,23 @@ public class GWTUtilTest {
                 List<Dept> depts = session.createQuery("from Dept order by id").list();
                 assertEquals(6, depts.size());
                 // root
-                assertEquals(1, depts.get(0).getLeft().longValue());
-                assertEquals(12, depts.get(0).getRight().longValue());
+                assertEquals(1, depts.get(0).getLeftNum().longValue());
+                assertEquals(12, depts.get(0).getRightNum().longValue());
                 // sq11
-                assertEquals(2, depts.get(1).getLeft().longValue());
-                assertEquals(5, depts.get(1).getRight().longValue());
+                assertEquals(2, depts.get(1).getLeftNum().longValue());
+                assertEquals(5, depts.get(1).getRightNum().longValue());
                 // pch111
-                assertEquals(3, depts.get(2).getLeft().longValue());
-                assertEquals(4, depts.get(2).getRight().longValue());
+                assertEquals(3, depts.get(2).getLeftNum().longValue());
+                assertEquals(4, depts.get(2).getRightNum().longValue());
                 // sq12
-                assertEquals(6, depts.get(3).getLeft().longValue());
-                assertEquals(11, depts.get(3).getRight().longValue());
+                assertEquals(6, depts.get(3).getLeftNum().longValue());
+                assertEquals(11, depts.get(3).getRightNum().longValue());
                 // pch121
-                assertEquals(7, depts.get(4).getLeft().longValue());
-                assertEquals(10, depts.get(4).getRight().longValue());
+                assertEquals(7, depts.get(4).getLeftNum().longValue());
+                assertEquals(10, depts.get(4).getRightNum().longValue());
                 // op1pch121
-                assertEquals(8, depts.get(5).getLeft().longValue());
-                assertEquals(9, depts.get(5).getRight().longValue());
+                assertEquals(8, depts.get(5).getLeftNum().longValue());
+                assertEquals(9, depts.get(5).getRightNum().longValue());
                 return null;
             }
 
@@ -112,17 +112,17 @@ public class GWTUtilTest {
                 nsm.insertHierarchic(mapArray(depts, DeptHierDTO.class), 1L);
                 @SuppressWarnings("unchecked")
                 List<Dept> insertedDepts = session.createQuery(
-                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.left").list();
-                assertEquals(52, insertedDepts.get(0).getLeft().longValue());
-                assertEquals(53, insertedDepts.get(0).getRight().longValue());
-                assertEquals(60, insertedDepts.get(1).getLeft().longValue());
-                assertEquals(75, insertedDepts.get(1).getRight().longValue());
-                assertEquals(64, insertedDepts.get(2).getLeft().longValue());
-                assertEquals(65, insertedDepts.get(2).getRight().longValue());
-                assertEquals(76, insertedDepts.get(3).getLeft().longValue());
-                assertEquals(105, insertedDepts.get(3).getRight().longValue());
-                assertEquals(89, insertedDepts.get(4).getLeft().longValue());
-                assertEquals(90, insertedDepts.get(4).getRight().longValue());
+                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum").list();
+                assertEquals(52, insertedDepts.get(0).getLeftNum().longValue());
+                assertEquals(53, insertedDepts.get(0).getRightNum().longValue());
+                assertEquals(60, insertedDepts.get(1).getLeftNum().longValue());
+                assertEquals(75, insertedDepts.get(1).getRightNum().longValue());
+                assertEquals(64, insertedDepts.get(2).getLeftNum().longValue());
+                assertEquals(65, insertedDepts.get(2).getRightNum().longValue());
+                assertEquals(76, insertedDepts.get(3).getLeftNum().longValue());
+                assertEquals(105, insertedDepts.get(3).getRightNum().longValue());
+                assertEquals(89, insertedDepts.get(4).getLeftNum().longValue());
+                assertEquals(90, insertedDepts.get(4).getRightNum().longValue());
                 return null;
             }
         });
@@ -138,31 +138,31 @@ public class GWTUtilTest {
         }
         nsm.deleteNode(2L, true);
         List<Dept> depts = nsm.getChildren(1L, "id", false);
-        assertEquals(2, depts.get(0).getLeft().longValue());
-        assertEquals(7, depts.get(0).getRight().longValue());
-        assertEquals(3, depts.get(1).getLeft().longValue());
-        assertEquals(6, depts.get(1).getRight().longValue());
-        assertEquals(4, depts.get(2).getLeft().longValue());
-        assertEquals(5, depts.get(2).getRight().longValue());
+        assertEquals(2, depts.get(0).getLeftNum().longValue());
+        assertEquals(7, depts.get(0).getRightNum().longValue());
+        assertEquals(3, depts.get(1).getLeftNum().longValue());
+        assertEquals(6, depts.get(1).getRightNum().longValue());
+        assertEquals(4, depts.get(2).getLeftNum().longValue());
+        assertEquals(5, depts.get(2).getRightNum().longValue());
         init();
         nsm.deleteNode(3L, true);
         depts = nsm.getChildren(1L, "id", false);
-        assertEquals(2, depts.get(0).getLeft().longValue());
-        assertEquals(3, depts.get(0).getRight().longValue());
-        assertEquals(4, depts.get(1).getLeft().longValue());
-        assertEquals(9, depts.get(1).getRight().longValue());
-        assertEquals(5, depts.get(2).getLeft().longValue());
-        assertEquals(8, depts.get(2).getRight().longValue());
-        assertEquals(6, depts.get(3).getLeft().longValue());
-        assertEquals(7, depts.get(3).getRight().longValue());
+        assertEquals(2, depts.get(0).getLeftNum().longValue());
+        assertEquals(3, depts.get(0).getRightNum().longValue());
+        assertEquals(4, depts.get(1).getLeftNum().longValue());
+        assertEquals(9, depts.get(1).getRightNum().longValue());
+        assertEquals(5, depts.get(2).getLeftNum().longValue());
+        assertEquals(8, depts.get(2).getRightNum().longValue());
+        assertEquals(6, depts.get(3).getLeftNum().longValue());
+        assertEquals(7, depts.get(3).getRightNum().longValue());
         init();
         nsm.deleteNode(5L, true);
         depts = nsm.getChildren(1L, "id", false);
-        assertEquals(2, depts.get(0).getLeft().longValue());
-        assertEquals(5, depts.get(0).getRight().longValue());
-        assertEquals(3, depts.get(1).getLeft().longValue());
-        assertEquals(4, depts.get(1).getRight().longValue());
-        assertEquals(6, depts.get(2).getLeft().longValue());
-        assertEquals(7, depts.get(2).getRight().longValue());
+        assertEquals(2, depts.get(0).getLeftNum().longValue());
+        assertEquals(5, depts.get(0).getRightNum().longValue());
+        assertEquals(3, depts.get(1).getLeftNum().longValue());
+        assertEquals(4, depts.get(1).getRightNum().longValue());
+        assertEquals(6, depts.get(2).getLeftNum().longValue());
+        assertEquals(7, depts.get(2).getRightNum().longValue());
     }
 }

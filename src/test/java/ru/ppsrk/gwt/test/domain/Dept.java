@@ -39,7 +39,7 @@ public class Dept extends NestedSetNode {
 
     @Override
     public String toString() {
-        return "Dept [name=" + name + ", dislocation=" + dislocation + ", left=" + getLeft() + ", right=" + getRight() + "]";
+        return "Dept [name=" + name + ", dislocation=" + dislocation + ", left=" + getLeftNum() + ", right=" + getRightNum() + "]";
     }
 
 }

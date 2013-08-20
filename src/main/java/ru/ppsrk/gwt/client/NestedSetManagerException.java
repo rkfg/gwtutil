@@ -1,6 +1,5 @@
-package ru.ppsrk.gwt.server.nestedset;
+package ru.ppsrk.gwt.client;
 
-import ru.ppsrk.gwt.client.LogicException;
 
 public class NestedSetManagerException extends LogicException {
 

@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.Hierarchic;
 import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.client.NestedSetManagerException;
 import ru.ppsrk.gwt.server.HibernateCallback;
 import ru.ppsrk.gwt.server.HibernateUtil;
 import ru.ppsrk.gwt.server.ServerUtils;
@@ -68,8 +69,8 @@ public class NestedSetManager<T extends NestedSetNode> {
                 if (directOnly) {
                     session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
                 }
-                return session.createQuery("from " + entityName + " node where node.left > :left and node.right < :right order by node." + orderField)
-                        .setLong("left", parentNode.getLeft()).setLong("right", parentNode.getRight()).list();
+                return session.createQuery("from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node." + orderField)
+                        .setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum()).list();
             }
         });
     }
@@ -102,8 +103,8 @@ public class NestedSetManager<T extends NestedSetNode> {
                     parentDepth = depth;
                 }
                 try {
-                    return (T) session.createQuery("from " + entityName + " node where node.left < :left and node.right > :right and depth = :depth")
-                            .setLong("left", childNode.getLeft()).setLong("right", childNode.getRight()).setLong("depth", parentDepth).uniqueResult();
+                    return (T) session.createQuery("from " + entityName + " node where node.leftnum < :left and node.rightnum > :right and depth = :depth")
+                            .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum()).setLong("depth", parentDepth).uniqueResult();
                 } catch (NonUniqueResultException e) {
                     throw new NestedSetManagerException("Non-unique parent: " + e.getMessage());
                 }
@@ -132,11 +133,14 @@ public class NestedSetManager<T extends NestedSetNode> {
                     throw new NestedSetManagerException("Parent can't be null. Insert a root node if you have no records yet.");
                 }
                 T parentNode = (T) session.get(entityClass, parentId);
+                if (parentNode == null) {
+                    throw new NestedSetManagerException("Parent node with id=" + parentId + " not found.");
+                }
                 log.debug("Insert; parent node: " + parentNode + " new node: " + node + " to parentNodeId: " + parentId);
-                node.setLeft(parentNode.getRight());
-                node.setRight(node.getLeft() + 1);
+                node.setLeftNum(parentNode.getRightNum());
+                node.setRightNum(node.getLeftNum() + 1);
                 node.setDepth(parentNode.getDepth() + 1);
-                updateNodes(node.getLeft(), 2L, session);
+                updateNodes(node.getLeftNum(), 2L, session);
                 return (T) session.merge(node);
             }
         });
@@ -147,8 +151,8 @@ public class NestedSetManager<T extends NestedSetNode> {
 
             @Override
             public T run(Session session) throws LogicException, ClientAuthenticationException {
-                node.setLeft(1L);
-                node.setRight(2L);
+                node.setLeftNum(1L);
+                node.setRightNum(2L);
                 node.setDepth(0L);
                 Long id = (Long) session.save(node.getClass().getSimpleName(), node);
                 node.setId(id);
@@ -164,21 +168,21 @@ public class NestedSetManager<T extends NestedSetNode> {
             public Void run(Session session) throws LogicException, ClientAuthenticationException {
                 @SuppressWarnings("unchecked")
                 T node = (T) session.get(entityClass, nodeId);
-                if (node.getRight() - node.getLeft() > 1 && !withChildren) {
+                if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
                     throw new NestedSetManagerException("Need to delete more than one node but children deleting was explicitly prohibited.");
                 }
-                session.createQuery("delete from " + entityName + " node where node.left >= :left and node.right <= :right").setLong("left", node.getLeft())
-                        .setLong("right", node.getRight()).executeUpdate();
-                updateNodes(node.getLeft(), node.getLeft() - node.getRight() - 1, session);
+                session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
+                        .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();
+                updateNodes(node.getLeftNum(), node.getLeftNum() - node.getRightNum() - 1, session);
                 return null;
             }
         });
     }
 
     private void updateNodes(Long left, Long shift, Session session) {
-        session.createQuery("update " + entityName + " node set node.left = node.left + :shift where node.left >= :left").setLong("left", left)
+        session.createQuery("update " + entityName + " node set node.leftnum = node.leftnum + :shift where node.leftnum >= :left").setLong("left", left)
                 .setLong("shift", shift).executeUpdate();
-        session.createQuery("update " + entityName + " node set node.right = node.right + :shift where node.right >= :left").setLong("left", left)
+        session.createQuery("update " + entityName + " node set node.rightnum = node.rightnum + :shift where node.rightnum >= :left").setLong("left", left)
                 .setLong("shift", shift).executeUpdate();
     }
 }

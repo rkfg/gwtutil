@@ -15,8 +15,8 @@ public class NestedSetNode {
     @GeneratedValue
     @Id
     Long id;
-    Long left;
-    Long right;
+    Long leftnum;
+    Long rightnum;
     Long depth;
 
     public Long getId() {
@@ -27,20 +27,20 @@ public class NestedSetNode {
         this.id = id;
     }
 
-    public Long getLeft() {
-        return left;
+    public Long getLeftNum() {
+        return leftnum;
     }
 
-    public void setLeft(Long left) {
-        this.left = left;
+    public void setLeftNum(Long left) {
+        this.leftnum = left;
     }
 
-    public Long getRight() {
-        return right;
+    public Long getRightNum() {
+        return rightnum;
     }
 
-    public void setRight(Long right) {
-        this.right = right;
+    public void setRightNum(Long right) {
+        this.rightnum = right;
     }
 
     public Long getDepth() {
