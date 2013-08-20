@@ -167,6 +167,7 @@ public class ServerUtils {
                 session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
                 for (String table : tables) {
                     session.createSQLQuery("truncate table " + table).executeUpdate();
+                    session.createSQLQuery("ALTER TABLE " + table + " ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT").executeUpdate();
                     session.createSQLQuery("ALTER TABLE " + table + " ALTER COLUMN id RESTART WITH 1").executeUpdate();
                 }
                 session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
@@ -176,22 +177,28 @@ public class ServerUtils {
 
     }
 
-    public static void importSQL(String sqlFilename) throws LogicException, ClientAuthenticationException {
+    public static void importSQL(final String sqlFilename) throws LogicException, ClientAuthenticationException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
             public Void run(Session session) throws LogicException, ClientAuthenticationException {
                 try {
                     session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
-                    File sql = new File(Thread.currentThread().getContextClassLoader().getResource("depthier.sql").getPath());
+                    File sql = new File(Thread.currentThread().getContextClassLoader().getResource(sqlFilename).getPath());
                     Scanner scan;
                     scan = new Scanner(sql);
                     StringBuilder sb = new StringBuilder((int) sql.length());
+                    String line;
                     while (scan.hasNextLine()) {
-                        sb.append(scan.nextLine()).append('\n');
+                        line = scan.nextLine();
+                        sb.append(line);
+                        if (line.endsWith(";")) {
+                            session.createSQLQuery(sb.toString()).executeUpdate();
+                            sb.setLength(0);
+                        }
+                        sb.append('\n');
                     }
                     scan.close();
-                    session.createSQLQuery(sb.toString()).executeUpdate();
                     session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
