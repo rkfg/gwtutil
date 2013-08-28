@@ -67,3 +67,20 @@ thead {
 tbody {
 	display: table-row-group;
 }
+
+.nowrap {
+	white-space: nowrap;
+}
+
+@media all {
+	.page-break {
+		display: none;
+	}
+}
+
+@media print {
+	.page-break {
+		display: block;
+		page-break-before: always;
+	}
+}
