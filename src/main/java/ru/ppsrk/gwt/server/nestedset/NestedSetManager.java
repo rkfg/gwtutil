@@ -50,6 +50,7 @@ public class NestedSetManager<T extends NestedSetNode> {
      * Retrieves children by parent node id.
      * 
      * @param parentNodeId
+     *            use null for the root node
      * @param orderField
      *            field name by which the results are sorted; several field may
      *            be supplied, delimited by comma
@@ -71,6 +72,21 @@ public class NestedSetManager<T extends NestedSetNode> {
                 }
                 return session.createQuery("from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node." + orderField)
                         .setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum()).list();
+            }
+        });
+    }
+
+    public T getRootNode() throws LogicException, ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<T>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public T run(Session session) throws LogicException, ClientAuthenticationException {
+                try {
+                    return (T) session.createQuery("from " + entityName + " where leftnum = 1").uniqueResult();
+                } catch (NonUniqueResultException e) {
+                    throw new LogicException("Duplicate root entries, DB is corrupted.");
+                }
             }
         });
     }

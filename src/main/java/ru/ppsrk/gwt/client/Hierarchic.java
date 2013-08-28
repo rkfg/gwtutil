@@ -2,15 +2,11 @@ package ru.ppsrk.gwt.client;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public abstract class Hierarchic implements IsSerializable {
-
-    protected boolean equalsById = true;
+public abstract class Hierarchic implements HasId, IsSerializable {
 
     public abstract Hierarchic getParent();
 
-    public abstract Long getId();
-
-    public abstract void setId(Long newId);
+    protected boolean equalsById = true;
 
     @Override
     public boolean equals(Object obj) {
