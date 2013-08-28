@@ -31,6 +31,28 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
         setWidget(scrollPanel);
     }
 
+    public PopupMenu(String[][] items) {
+        this();
+        for (String[] item : items) {
+            if (item.length < 1) {
+                throw new RuntimeException("Each item should contain 1 or 2 strings, this item has < 1 string.");
+            }
+            if (item.length > 2) {
+                throw new RuntimeException("Each item should contain 1 or 2 strings, this item has > 2 strings.");
+            }
+            if (item.length == 1) {
+                addItem(new PopupMenuItem(item[0], item[0]));
+            } else {
+                addItem(new PopupMenuItem(item[0], item[1]));
+            }
+        }
+    }
+
+    public PopupMenu(String[][] items, SelectionHandler<PopupMenuItem> selectionHandler) {
+        this(items);
+        addSelectionHandler(selectionHandler);
+    }
+
     public void addItem(final PopupMenuItem item) {
         final Label itemLabel = new Label(item.getTitle());
         menuItems.put(itemLabel, item);
