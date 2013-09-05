@@ -18,29 +18,31 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-@RemoteServiceRelativePath("Auth")
-public interface Auth extends RemoteService {
+@RemoteServiceRelativePath("AuthService")
+public interface AuthService extends RemoteService {
     /**
      * Utility class for simplifying access to the instance of async service.
      */
     public static class Util {
-        private static AuthAsync instance;
+        private static AuthServiceAsync instance;
 
-        public static AuthAsync getInstance() {
+        public static AuthServiceAsync getInstance() {
             if (instance == null) {
-                instance = GWT.create(Auth.class);
+                instance = GWT.create(AuthService.class);
             }
             return instance;
         }
     }
 
     public boolean isRegistrationEnabled();
-    public boolean login(String username, String password, boolean remember)
-            throws ClientAuthenticationException, ClientAuthorizationException, LogicException;
+
+    public boolean login(String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException, LogicException;
 
     public void logout();
-    
+
     public boolean isLoggedIn();
 
     public Long register(String username, String password) throws LogicException, ClientAuthenticationException;
+
+    void registerIni(String username, String password);
 }

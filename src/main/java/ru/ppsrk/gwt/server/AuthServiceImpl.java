@@ -33,7 +33,7 @@ import org.apache.shiro.util.Factory;
 import org.apache.shiro.util.ThreadContext;
 import org.hibernate.Session;
 
-import ru.ppsrk.gwt.client.Auth;
+import ru.ppsrk.gwt.client.AuthService;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
@@ -43,7 +43,7 @@ import ru.ppsrk.gwt.dto.UserDTO;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-public class AuthImpl extends RemoteServiceServlet implements Auth {
+public class AuthServiceImpl extends RemoteServiceServlet implements AuthService {
     public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
         final Long userId = requiresAuth();
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
@@ -216,6 +216,12 @@ public class AuthImpl extends RemoteServiceServlet implements Auth {
                 return user.getId();
             }
         });
+    }
+
+    @Override
+    public void registerIni(String username, String password) {
+        SettingsManager sm = new SettingsManager();
+        sm.setFilename("auth.ini");
     }
 
     /*
