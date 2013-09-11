@@ -1,18 +1,11 @@
 package ru.ppsrk.gwt.server;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,23 +26,6 @@ public class ServerUtils {
         mapper = null;
     }
 
-    public static String createFileDirs(String filename) {
-        File parentFile = new File(filename).getParentFile();
-        if (parentFile != null) {
-            parentFile.mkdirs();
-        }
-        File config = new File(filename);
-        if (!config.isFile()) {
-            try {
-                config.createNewFile();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        return filename;
-    }
-
     public static List<String> ean13(String code) {
         if (code.length() == 12) { // calc 13th number
             int n = 0, sum = 0;
@@ -61,8 +37,7 @@ public class ServerUtils {
             return new ArrayList<String>();
         }
 
-        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL",
-                "LGGLGL");
+        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL");
         ArrayList<String> elements = new ArrayList<String>();
         elements.add("S");
         int pos = 0;
@@ -77,28 +52,12 @@ public class ServerUtils {
         return elements;
     }
 
-    public static String expandHome(String path) {
-        if (path.startsWith("~" + File.separator)) {
-            path = System.getProperty("user.home") + path.substring(1);
-        }
-        return path;
-    }
-
     public static String getParamFromReq(HttpServletRequest req, String paramName) {
         if (req.getParameter(paramName) == null) {
             return "";
         } else {
             return req.getParameter(paramName);
         }
-    }
-
-    public static String home() {
-        return System.getenv("HOME");
-    }
-
-    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
-            IOException {
-        properties.load(new InputStreamReader(new FileInputStream(createFileDirs(filename)), "utf-8"));
     }
 
     // public static void startTestCopyDB(String originDBConfig, String
@@ -212,11 +171,6 @@ public class ServerUtils {
 
     public static void setMappingFiles(List<String> files) {
         mapper.setMappingFiles(files);
-    }
-
-    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
-            IOException {
-        properties.store(new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8"), "");
     }
 
     public static void setMappingFile(String filename) {

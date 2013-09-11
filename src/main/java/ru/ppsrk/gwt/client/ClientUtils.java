@@ -2,17 +2,19 @@ package ru.ppsrk.gwt.client;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.cellview.client.CellTree.CellTreeMessages;
+import com.google.gwt.user.cellview.client.CellTree.Resources;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.ValueBoxBase;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -82,14 +84,6 @@ public class ClientUtils {
     public static void clearProvidersMappings() {
         pathDataProviders.clear();
         dataProviders.clear();
-    }
-
-    public static boolean containsObject(List<? extends Hierarchic> objects, final Long id) {
-        for (Hierarchic object : objects) {
-            if (object.getId().equals(id))
-                return true;
-        }
-        return false;
     }
 
     public static ListDataProvider<? extends Hierarchic> getDataProviderByObject(Hierarchic object) {
@@ -184,7 +178,7 @@ public class ClientUtils {
     }
 
     public static void logout() {
-        Auth.Util.getInstance().logout(new AsyncCallback<Void>() {
+        AuthService.Util.getInstance().logout(new AsyncCallback<Void>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -238,24 +232,6 @@ public class ClientUtils {
         pathProvider.put(buildPath(object, true), listDataProvider);
     }
 
-    public static <T extends Hierarchic> void removeObjectFromCollectionById(Collection<T> collection, Long id) {
-        for (T item : collection) {
-            if (item.getId().equals(id)) {
-                collection.remove(item);
-                break;
-            }
-        }
-    }
-
-    public static <T extends Hierarchic> T getObjectFromCollectionById(Collection<T> collection, Long id) {
-        for (T item : collection) {
-            if (item.getId().equals(id)) {
-                return item;
-            }
-        }
-        return null;
-    }
-
     public static void removeObjectFromDataProvider(Hierarchic object) {
         ListDataProvider<? extends Hierarchic> listDataProvider = dataProviders.get(object);
         if (listDataProvider == null) {
@@ -278,12 +254,16 @@ public class ClientUtils {
     }
 
     public static void requireLogin() {
-        Auth.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
+        requireLogin(RealmType.HIBERNATE);
+    }
+
+    public static void requireLogin(final RealmType realmType) {
+        AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
                 if (!result) {
-                    PopupPanel popupPanel = new Login(false, true);
+                    PopupPanel popupPanel = new Login(false, true, realmType);
                     popupPanel.center();
                 }
             }
@@ -329,5 +309,43 @@ public class ClientUtils {
     public static <T> void openPopupPanel(ResultPopupPanel<T> panel, ResultPopupPanelCallback<T> callback) {
         panel.setResultCallback(callback);
         openPopupPanel(panel, panel.getFocusWidget());
+    }
+
+    public static Resources cellTreeResources = GWT.create(Resources.class);
+    public static CellTreeMessages russianCellTreeMessages = new CellTreeMessages() {
+
+        @Override
+        public String emptyTree() {
+            return "Пусто";
+        }
+
+        @Override
+        public String showMore() {
+            return "Ещё...";
+        }
+    };
+
+    public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
+        listBox.addItem(value.getListboxValue(), value.getId().toString());
+    }
+
+    public static void fillListbox(Collection<? extends HasListboxValue> list, ListBox listBox) {
+        for (HasListboxValue listboxValue : list) {
+            addItemToListbox(listboxValue, listBox);
+        }
+    }
+
+    public static void setTextboxValueBySelectionModel(ValueBoxBase<String> textBox, SingleSelectionModel<HasListboxValue> selectionModel) {
+        HasListboxValue selected = selectionModel.getSelectedObject();
+        if (selected == null) {
+            textBox.setValue("");
+        } else {
+            textBox.setValue(selected.getListboxValue());
+        }
+    }
+
+    public static <T, E extends T> void replaceListDataProviderContents(ListDataProvider<T> dataProvider, Collection<E> element) {
+        dataProvider.getList().clear();
+        dataProvider.getList().addAll(element);
     }
 }

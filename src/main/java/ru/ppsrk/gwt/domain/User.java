@@ -13,7 +13,7 @@ import ru.ppsrk.gwt.client.Hierarchic;
 
 @Entity
 @Table(name = "users")
-public class User extends Hierarchic {
+public class User implements Hierarchic {
     @Id
     @GeneratedValue
     Long id;

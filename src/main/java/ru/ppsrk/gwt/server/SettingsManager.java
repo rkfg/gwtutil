@@ -1,7 +1,12 @@
 package ru.ppsrk.gwt.server;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Properties;
@@ -38,7 +43,7 @@ public class SettingsManager {
             throw new FileNotFoundException("Set filename first.");
         }
         try {
-            ServerUtils.loadProperties(properties, ServerUtils.expandHome(filename));
+            loadProperties(properties, expandHome(filename));
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -50,10 +55,42 @@ public class SettingsManager {
             throw new FileNotFoundException("Set filename first.");
         }
         try {
-            ServerUtils.storeProperties(properties, ServerUtils.expandHome(filename));
+            storeProperties(properties, expandHome(filename));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        properties.load(new InputStreamReader(new FileInputStream(createFileDirs(filename)), "utf-8"));
+    }
+
+    public static String expandHome(String path) {
+        if (path.startsWith("~" + File.separator)) {
+            path = System.getProperty("user.home") + path.substring(1);
+        }
+        return path;
+    }
+
+    public static String createFileDirs(String filename) {
+        File parentFile = new File(filename).getParentFile();
+        if (parentFile != null) {
+            parentFile.mkdirs();
+        }
+        File config = new File(filename);
+        if (!config.isFile()) {
+            try {
+                config.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return filename;
+    }
+
+    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+        properties.store(new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8"), "");
     }
 
     public void setDefaults(HashMap<String, String> defaults) {

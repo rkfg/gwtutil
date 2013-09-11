@@ -14,6 +14,8 @@
  *******************************************************************************/
 package ru.ppsrk.gwt.server;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -156,6 +158,20 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
+    public boolean loginIni(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException,
+            LogicException {
+        Subject subject = SecurityUtils.getSubject();
+        try {
+            subject.login(new UsernamePasswordToken(username, password, remember));
+        } catch (AuthenticationException e) {
+            throw new ClientAuthenticationException(e.getMessage());
+        } catch (AuthorizationException e) {
+            throw new ClientAuthorizationException(e.getMessage());
+        }
+        return subject.isAuthenticated();
+    }
+
+    @Override
     public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException,
             LogicException {
         Subject subject = SecurityUtils.getSubject();
@@ -219,9 +235,21 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public void registerIni(String username, String password) {
+    public String registerIni(String username, String password) throws LogicException {
         SettingsManager sm = new SettingsManager();
         sm.setFilename("auth.ini");
+        ByteSource salt = rng.nextBytes();
+        String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
+        String credentials = hashedPasswordBase64 + "|" + salt.toBase64();
+        sm.setStringSetting(username, credentials);
+        try {
+            sm.saveSettings();
+        } catch (FileNotFoundException e) {
+            throw new LogicException("File auth.ini not found.");
+        } catch (IOException e) {
+            throw new LogicException("IOException: " + e.getMessage());
+        }
+        return credentials;
     }
 
     /*

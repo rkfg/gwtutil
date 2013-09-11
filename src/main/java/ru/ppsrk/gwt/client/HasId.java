@@ -1,6 +1,8 @@
 package ru.ppsrk.gwt.client;
 
-public interface HasId {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public interface HasId extends IsSerializable {
 
     public abstract Long getId();
 

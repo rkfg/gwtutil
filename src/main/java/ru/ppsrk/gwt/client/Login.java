@@ -27,13 +27,16 @@ public class Login extends PopupPanel {
     private final PasswordTextBox textBox_password = new PasswordTextBox();
     private final HorizontalPanel horizontalPanel_2 = new HorizontalPanel();
     private final Button button_login = new Button("Вход");
-    private final AuthAsync authservice = Auth.Util.getInstance();
+    private final AuthServiceAsync authservice = AuthService.Util.getInstance();
     private final Button button_register = new Button("Регистрация");
     private final HorizontalPanel horizontalPanel_3 = new HorizontalPanel();
     private final CheckBox checkBox_remember = new CheckBox((String) null);
 
-    public Login(boolean autoHide, boolean modal) {
+    private RealmType realmType;
+
+    public Login(boolean autoHide, boolean modal, RealmType realmType) {
         super(autoHide, modal);
+        this.realmType = realmType;
         setWidget(verticalPanel);
         verticalPanel.setSpacing(5);
         verticalPanel.add(horizontalPanel);
@@ -61,11 +64,11 @@ public class Login extends PopupPanel {
 
         horizontalPanel_1.add(textBox_password);
         textBox_password.setWidth("180px");
-        
+
         verticalPanel.add(horizontalPanel_3);
         checkBox_remember.setValue(true);
         checkBox_remember.setHTML("Запомнить меня");
-        
+
         horizontalPanel_3.add(checkBox_remember);
         verticalPanel.add(horizontalPanel_2);
         horizontalPanel_2.setSpacing(5);
@@ -76,7 +79,7 @@ public class Login extends PopupPanel {
         horizontalPanel_2.setCellWidth(button_login, "50%");
         button_register.addClickHandler(new Button_registerClickHandler());
 
-        Auth.Util.getInstance().isRegistrationEnabled(new AsyncCallback<Boolean>() {
+        AuthService.Util.getInstance().isRegistrationEnabled(new AsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
@@ -121,7 +124,7 @@ public class Login extends PopupPanel {
 
     private class Button_loginClickHandler implements ClickHandler {
         public void onClick(ClickEvent event) {
-            authservice.login(textBox_login.getText(), textBox_password.getText(), checkBox_remember.getValue(), new AsyncCallback<Boolean>() {
+            AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
 
                 @Override
                 public void onSuccess(Boolean result) {
@@ -140,7 +143,14 @@ public class Login extends PopupPanel {
                     System.out.println(caught.getMessage());
                     Window.alert("Неверное имя пользователя или пароль.");
                 }
-            });
+            };
+            switch (realmType) {
+            case HIBERNATE:
+                authservice.login(textBox_login.getText(), textBox_password.getText(), checkBox_remember.getValue(), callback);
+                break;
+            case INI:
+                authservice.loginIni(textBox_login.getText(), textBox_password.getText(), checkBox_remember.getValue(), callback);
+            }
         }
     }
 

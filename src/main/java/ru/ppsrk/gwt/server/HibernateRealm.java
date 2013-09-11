@@ -55,19 +55,17 @@ public class HibernateRealm extends AuthorizingRealm {
     }
 
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(
-            final AuthenticationToken token) throws AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(final AuthenticationToken token) throws AuthenticationException {
         Object principal, credentials;
         ByteSource salt;
         List<User> user = null;
         try {
             user = HibernateUtil.exec(new HibernateCallback<List<User>>() {
-                
+
                 @SuppressWarnings("unchecked")
                 @Override
                 public List<User> run(Session session) {
-                    return session.createQuery("from User where username = :un")
-                            .setParameter("un", token.getPrincipal()).list();
+                    return session.createQuery("from User where username = :un").setParameter("un", token.getPrincipal()).list();
                 }
             });
         } catch (LogicException e) {
@@ -86,8 +84,7 @@ public class HibernateRealm extends AuthorizingRealm {
         principal = user.get(0).getUsername();
         credentials = user.get(0).getPassword();
         salt = ByteSource.Util.bytes(Base64.decode(user.get(0).getSalt()));
-        SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(
-                principal, credentials, salt, "HibernateRealm");
+        SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(principal, credentials, salt, "HibernateRealm");
         if (getCredentialsMatcher().doCredentialsMatch(token, authinfo)) {
             return authinfo;
         } else {

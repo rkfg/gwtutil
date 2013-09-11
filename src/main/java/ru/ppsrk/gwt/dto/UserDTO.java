@@ -1,16 +1,11 @@
 package ru.ppsrk.gwt.dto;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import ru.ppsrk.gwt.client.Hierarchic;
 
+public class UserDTO implements Hierarchic {
 
-public class UserDTO extends Hierarchic implements Serializable {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -6557702564218055053L;
     Long id;
     String username;
     String password;

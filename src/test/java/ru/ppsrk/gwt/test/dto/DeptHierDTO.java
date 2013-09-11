@@ -2,7 +2,7 @@ package ru.ppsrk.gwt.test.dto;
 
 import ru.ppsrk.gwt.client.Hierarchic;
 
-public class DeptHierDTO extends Hierarchic {
+public class DeptHierDTO implements Hierarchic {
     Long id;
     String name;
     String dislocation;

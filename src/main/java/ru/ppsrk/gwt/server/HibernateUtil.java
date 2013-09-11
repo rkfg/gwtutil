@@ -1,5 +1,7 @@
 package ru.ppsrk.gwt.server;
 
+import static ru.ppsrk.gwt.server.ServerUtils.*;
+
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -15,7 +17,7 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
-import ru.ppsrk.gwt.client.Hierarchic;
+import ru.ppsrk.gwt.client.HasId;
 import ru.ppsrk.gwt.client.LogicException;
 
 public class HibernateUtil {
@@ -76,8 +78,7 @@ public class HibernateUtil {
         return result;
     }
 
-    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException,
-            ClientAuthenticationException {
+    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException, ClientAuthenticationException {
         Session[] sessions = new Session[sessionNumbers.length];
         T result = null;
         try {
@@ -146,13 +147,12 @@ public class HibernateUtil {
         session.beginTransaction();
     }
 
-    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException,
-            ClientAuthenticationException {
+    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException, ClientAuthenticationException {
         return saveObject(objectDTO, classHIB, false);
     }
 
-    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId)
-            throws LogicException, ClientAuthenticationException {
+    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId) throws LogicException,
+            ClientAuthenticationException {
         return HibernateUtil.exec(new HibernateCallback<HIB>() {
 
             @Override
@@ -163,8 +163,7 @@ public class HibernateUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <DTO extends Hierarchic, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId,
-            Session session) {
+    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId, Session session) {
         if (objectDTO.getId() != null) {
             return (HIB) session.merge(ServerUtils.mapModel(objectDTO, classHIB));
         } else {
@@ -188,4 +187,14 @@ public class HibernateUtil {
         });
     }
 
+    @SuppressWarnings("unchecked")
+    public static <DTO extends HasId, HIB> DTO saveDTO(final DTO dto, final Class<HIB> targetClass) throws LogicException, ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<DTO>() {
+
+            @Override
+            public DTO run(Session session) throws LogicException, ClientAuthenticationException {
+                return (DTO) mapModel(HibernateUtil.saveObject(dto, targetClass, true, session), dto.getClass());
+            }
+        });
+    }
 }
