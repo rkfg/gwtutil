@@ -1,10 +1,11 @@
 package ru.ppsrk.gwt.shared;
 
 import java.util.Collection;
-
-import com.google.gwt.view.client.ListDataProvider;
+import java.util.List;
 
 import ru.ppsrk.gwt.client.HasId;
+
+import com.google.gwt.view.client.ListDataProvider;
 
 public class SharedUtils {
 
@@ -43,4 +44,18 @@ public class SharedUtils {
         removeObjectFromCollectionById(dataProvider.getList(), object.getId());
     }
 
+    static public <T> String join(List<T> objects, String delim) {
+        StringBuilder sb = new StringBuilder(objects.size() * (10 + delim.length()));
+        for (Object object : objects) {
+            if (sb.length() > 0) {
+                sb.append(delim);
+            }
+            sb.append(object);
+        }
+        return sb.toString();
+    }
+
+    public static <T> String join(List<T> objects) {
+        return join(objects, ",");
+    }
 }

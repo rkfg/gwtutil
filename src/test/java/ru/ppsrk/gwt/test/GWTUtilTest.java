@@ -36,10 +36,10 @@ public class GWTUtilTest {
         ServerUtils.resetTables(new String[] { "terrdepts" });
         Dept rootNode = nsm.insertRootNode(new Dept());
         Dept sq11 = nsm.insertNode(new Dept("11 Отряд", "Краснозатонский"), rootNode.getId());
-        Dept pch111 = nsm.insertNode(new Dept("111 ПЧ", "Краснозатонский"), sq11.getId());
+        nsm.insertNode(new Dept("111 ПЧ", "Краснозатонский"), sq11.getId());
         Dept sq12 = nsm.insertNode(new Dept("12 Отряд", "Микунь"), rootNode.getId());
         Dept pch121 = nsm.insertNode(new Dept("121 ПЧ", "Микунь"), sq12.getId());
-        Dept op1pch121 = nsm.insertNode(new Dept("1 ОП 121 ПЧ", "Кожмудор"), pch121.getId());
+        nsm.insertNode(new Dept("1 ОП 121 ПЧ", "Кожмудор"), pch121.getId());
     }
 
     @Test
@@ -112,7 +112,8 @@ public class GWTUtilTest {
                 nsm.insertHierarchic(mapArray(depts, DeptHierDTO.class), 1L);
                 @SuppressWarnings("unchecked")
                 List<Dept> insertedDepts = session.createQuery(
-                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum").list();
+                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum")
+                        .list();
                 assertEquals(52, insertedDepts.get(0).getLeftNum().longValue());
                 assertEquals(53, insertedDepts.get(0).getRightNum().longValue());
                 assertEquals(60, insertedDepts.get(1).getLeftNum().longValue());
