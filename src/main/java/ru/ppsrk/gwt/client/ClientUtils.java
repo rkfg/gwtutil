@@ -7,6 +7,8 @@ import java.util.Set;
 import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
+import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.cellview.client.CellTree.CellTreeMessages;
 import com.google.gwt.user.cellview.client.CellTree.Resources;
 import com.google.gwt.user.client.Window;
@@ -22,6 +24,46 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import fr.mikrosimage.gwt.client.ResizableDataGrid;
 
 public class ClientUtils {
+
+    public static class SilentException extends RuntimeException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -5304271527831179883L;
+
+        public SilentException(String failText) {
+            super(failText);
+        }
+
+    }
+
+    public static class SelectionModelInvalidClassException extends SilentException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -7104376777000165144L;
+
+        public SelectionModelInvalidClassException(String invalidSelection) {
+            super(invalidSelection);
+        }
+
+    }
+
+    public static class SelectionModelNullException extends SilentException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 6186225237335362700L;
+
+        public SelectionModelNullException(String failText) {
+            super(failText);
+        }
+
+    }
+
     static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
 
         public void errorHandler(Throwable exception) {
@@ -335,7 +377,7 @@ public class ClientUtils {
         }
     }
 
-    public static void setTextboxValueBySelectionModel(ValueBoxBase<String> textBox, SingleSelectionModel<HasListboxValue> selectionModel) {
+    public static void setTextboxValueBySelectionModel(ValueBoxBase<String> textBox, SingleSelectionModel<? extends HasListboxValue> selectionModel) {
         HasListboxValue selected = selectionModel.getSelectedObject();
         if (selected == null) {
             textBox.setValue("");
@@ -347,5 +389,46 @@ public class ClientUtils {
     public static <T, E extends T> void replaceListDataProviderContents(ListDataProvider<T> dataProvider, Collection<E> element) {
         dataProvider.getList().clear();
         dataProvider.getList().addAll(element);
+    }
+
+    public static void setupExceptionHandler() {
+        GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+
+            @Override
+            public void onUncaughtException(Throwable e) {
+                if (e instanceof UmbrellaException) {
+                    Window.alert(e.getCause().getMessage());
+                } else {
+                    if (e.getMessage() != null) {
+                        Window.alert(e.getMessage());
+                    } else {
+                        if (e instanceof SilentException) {
+                            return;
+                        }
+                        StackTraceElement[] stackTraceElements = e.getStackTrace();
+                        StringBuilder trace = new StringBuilder();
+                        trace.append(e).append('\n');
+                        for (StackTraceElement element : stackTraceElements) {
+                            trace.append(element.toString()).append('\n');
+                        }
+                        Window.alert(trace.toString());
+                    }
+                }
+            }
+        });
+
+    }
+
+    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText) {
+        try {
+            @SuppressWarnings("unchecked")
+            T result = (T) selectionModel.getSelectedObject();
+            if (result == null) {
+                throw new SelectionModelNullException(failText);
+            }
+            return result;
+        } catch (ClassCastException e) {
+            throw new SelectionModelInvalidClassException(failText);
+        }
     }
 }
