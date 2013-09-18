@@ -9,6 +9,7 @@ import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.event.shared.UmbrellaException;
+import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.CellTree.CellTreeMessages;
 import com.google.gwt.user.cellview.client.CellTree.Resources;
 import com.google.gwt.user.client.Window;
@@ -20,6 +21,7 @@ import com.google.gwt.user.client.ui.ValueBoxBase;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.gwt.view.client.TreeViewModel;
 
 import fr.mikrosimage.gwt.client.ResizableDataGrid;
 
@@ -246,6 +248,14 @@ public class ClientUtils {
         Window.open((rootRelative ? GWT.getHostPageBaseURL() : GWT.getModuleBaseURL()) + url, name, features);
     }
 
+    /**
+     * Registers the objects with the provider. Used to find sibling nodes or
+     * the provider by object to remove that object or modify it. Call this on
+     * adding or setting objects to the data provider.
+     * 
+     * @param list
+     * @param listDataProvider
+     */
     public static void registerListOfObjects(Collection<? extends Hierarchic> list, ListDataProvider<? extends Hierarchic> listDataProvider) {
         for (Hierarchic element : list) {
             registerObjectDataProvider(element, listDataProvider);
@@ -262,6 +272,20 @@ public class ClientUtils {
         dataProviders.put(object, listDataProvider);
     }
 
+    /**
+     * Registers the supplied {@link ListDataProvider} with
+     * {@link SelectionModel} and parent object to which this data provider
+     * belongs to. It's used to find the data provider later having the parent
+     * object, for example to add a new child node. Use after creating a new
+     * data provider.
+     * 
+     * @param object
+     *            parent object
+     * @param selectionModel
+     *            used to distinguish between trees
+     * @param listDataProvider
+     *            the data provider to register
+     */
     public static void registerPathProvider(Hierarchic object, SelectionModel<? extends Hierarchic> selectionModel,
             ListDataProvider<? extends Hierarchic> listDataProvider) {
         PathProvider pathProvider;
@@ -367,6 +391,14 @@ public class ClientUtils {
         }
     };
 
+    public static class RuCellTree extends CellTree {
+
+        public RuCellTree(TreeViewModel viewModel) {
+            super(viewModel, null, cellTreeResources, russianCellTreeMessages);
+        }
+
+    }
+
     public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
     }
@@ -419,7 +451,19 @@ public class ClientUtils {
 
     }
 
-    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText) {
+    /**
+     * Returns the selected object by selection model
+     * 
+     * @param selectionModel
+     * @param failText
+     *            text to throw in case of cast exception
+     * @param selectedClass
+     *            expected class
+     * @return selectionModel's selected object
+     * @throws SelectionModelInvalidClassException
+     *             if the object has unexpected type.
+     */
+    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText, Class<T> selectedClass) {
         try {
             @SuppressWarnings("unchecked")
             T result = (T) selectionModel.getSelectedObject();
