@@ -1,5 +1,7 @@
 package ru.ppsrk.gwt.server.nestedset;
 
+import static ru.ppsrk.gwt.server.ServerUtils.*;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,19 +13,40 @@ import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.Hierarchic;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.NestedSetManagerException;
+import ru.ppsrk.gwt.client.SettableParent;
 import ru.ppsrk.gwt.server.HibernateCallback;
 import ru.ppsrk.gwt.server.HibernateUtil;
 import ru.ppsrk.gwt.server.ServerUtils;
 
-public class NestedSetManager<T extends NestedSetNode> {
+public class NestedSetManager<T extends NestedSetNode, D extends SettableParent> {
     private Logger log = Logger.getLogger(this.getClass());
     private Class<T> entityClass;
+    private Class<D> dtoClass;
     private String entityName;
 
-    public NestedSetManager(Class<T> entityClass) {
+    public NestedSetManager(Class<T> entityClass, Class<D> dtoClass) {
         super();
         this.entityClass = entityClass;
+        this.dtoClass = dtoClass;
         entityName = entityClass.getSimpleName();
+    }
+
+    public void deleteNode(final Long nodeId, final boolean withChildren) throws LogicException, ClientAuthenticationException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthenticationException {
+                @SuppressWarnings("unchecked")
+                T node = (T) session.get(entityClass, nodeId);
+                if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
+                    throw new NestedSetManagerException("Need to delete more than one node but children deleting was explicitly prohibited.");
+                }
+                session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
+                        .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();
+                updateNodes(node.getLeftNum(), node.getLeftNum() - node.getRightNum() - 1, session);
+                return null;
+            }
+        });
     }
 
     private List<? extends Hierarchic> getByParentIdAndInsert(List<? extends Hierarchic> hierarchics, Long hierarchicRootId, Long parentNodeId, Session session)
@@ -76,19 +99,22 @@ public class NestedSetManager<T extends NestedSetNode> {
         });
     }
 
-    public T getRootNode() throws LogicException, ClientAuthenticationException {
-        return HibernateUtil.exec(new HibernateCallback<T>() {
+    public List<D> getHierarchicByParent(D parent) throws LogicException, ClientAuthenticationException {
+        return getHierarchicByParent(parent, "name");
+    }
 
-            @SuppressWarnings("unchecked")
-            @Override
-            public T run(Session session) throws LogicException, ClientAuthenticationException {
-                try {
-                    return (T) session.createQuery("from " + entityName + " where leftnum = 1").uniqueResult();
-                } catch (NonUniqueResultException e) {
-                    throw new LogicException("Duplicate root entries, DB is corrupted.");
-                }
-            }
-        });
+    public List<D> getHierarchicByParent(D parent, String orderField) throws LogicException, ClientAuthenticationException {
+        Long parentId;
+        if (parent == null || parent.getId().equals(0L)) {
+            parentId = getRootNode().getId();
+        } else {
+            parentId = parent.getId();
+        }
+        List<D> dtos = mapArray(getChildren(parentId, orderField, true), dtoClass);
+        for (D dto : dtos) {
+            dto.setParent(parent);
+        }
+        return dtos;
     }
 
     /**
@@ -123,6 +149,21 @@ public class NestedSetManager<T extends NestedSetNode> {
                             .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum()).setLong("depth", parentDepth).uniqueResult();
                 } catch (NonUniqueResultException e) {
                     throw new NestedSetManagerException("Non-unique parent: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    public T getRootNode() throws LogicException, ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<T>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public T run(Session session) throws LogicException, ClientAuthenticationException {
+                try {
+                    return (T) session.createQuery("from " + entityName + " where leftnum = 1").uniqueResult();
+                } catch (NonUniqueResultException e) {
+                    throw new LogicException("Duplicate root entries, DB is corrupted.");
                 }
             }
         });
@@ -177,28 +218,25 @@ public class NestedSetManager<T extends NestedSetNode> {
         });
     }
 
-    public void deleteNode(final Long nodeId, final boolean withChildren) throws LogicException, ClientAuthenticationException {
-        HibernateUtil.exec(new HibernateCallback<Void>() {
-
-            @Override
-            public Void run(Session session) throws LogicException, ClientAuthenticationException {
-                @SuppressWarnings("unchecked")
-                T node = (T) session.get(entityClass, nodeId);
-                if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
-                    throw new NestedSetManagerException("Need to delete more than one node but children deleting was explicitly prohibited.");
-                }
-                session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
-                        .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();
-                updateNodes(node.getLeftNum(), node.getLeftNum() - node.getRightNum() - 1, session);
-                return null;
-            }
-        });
-    }
-
     private void updateNodes(Long left, Long shift, Session session) {
         session.createQuery("update " + entityName + " node set node.leftnum = node.leftnum + :shift where node.leftnum >= :left").setLong("left", left)
                 .setLong("shift", shift).executeUpdate();
         session.createQuery("update " + entityName + " node set node.rightnum = node.rightnum + :shift where node.rightnum >= :left").setLong("left", left)
                 .setLong("shift", shift).executeUpdate();
     }
+
+    public D saveDTONode(D dto) throws LogicException, ClientAuthenticationException {
+        Long parentId = null;
+        if (dto.getParent() != null) {
+            parentId = dto.getParent().getId();
+        } else {
+            T rootNode = getRootNode();
+            if (rootNode == null) {
+                rootNode = insertRootNode(mapModel(dto, entityClass));
+            }
+            parentId = rootNode.getId();
+        }
+        return mapModel(insertNode(mapModel(dto, entityClass), parentId), dtoClass);
+    }
+
 }

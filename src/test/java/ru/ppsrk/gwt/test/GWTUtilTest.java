@@ -22,7 +22,7 @@ import ru.ppsrk.gwt.test.domain.DeptHier;
 import ru.ppsrk.gwt.test.dto.DeptHierDTO;
 
 public class GWTUtilTest {
-    NestedSetManager<Dept> nsm = new NestedSetManager<Dept>(Dept.class);
+    NestedSetManager<Dept, DeptHierDTO> nsm = new NestedSetManager<Dept, DeptHierDTO>(Dept.class, DeptHierDTO.class);
 
     @BeforeClass
     public static void login() throws LogicException, ClientAuthenticationException {
@@ -112,8 +112,7 @@ public class GWTUtilTest {
                 nsm.insertHierarchic(mapArray(depts, DeptHierDTO.class), 1L);
                 @SuppressWarnings("unchecked")
                 List<Dept> insertedDepts = session.createQuery(
-                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum")
-                        .list();
+                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum").list();
                 assertEquals(52, insertedDepts.get(0).getLeftNum().longValue());
                 assertEquals(53, insertedDepts.get(0).getRightNum().longValue());
                 assertEquals(60, insertedDepts.get(1).getLeftNum().longValue());

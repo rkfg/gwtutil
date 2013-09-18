@@ -1,8 +1,9 @@
 package ru.ppsrk.gwt.test.dto;
 
 import ru.ppsrk.gwt.client.Hierarchic;
+import ru.ppsrk.gwt.client.SettableParent;
 
-public class DeptHierDTO implements Hierarchic {
+public class DeptHierDTO implements SettableParent {
     Long id;
     String name;
     String dislocation;
@@ -62,6 +63,11 @@ public class DeptHierDTO implements Hierarchic {
     @Override
     public String toString() {
         return String.format("Id: %d Name: %s Parent: %d", id, name, parent == null ? null : parent.getId());
+    }
+
+    @Override
+    public void setParent(Hierarchic parent) {
+        this.parent = (DeptHierDTO) parent;
     }
 
 }
