@@ -1,6 +1,8 @@
 package ru.ppsrk.gwt.client;
 
-public class ClientAuthenticationException extends Exception {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class ClientAuthenticationException extends Exception implements IsSerializable {
 
     /**
      * 
@@ -10,7 +12,7 @@ public class ClientAuthenticationException extends Exception {
     public ClientAuthenticationException() {
         super();
     }
-    
+
     public ClientAuthenticationException(String message) {
         super(message);
     }
