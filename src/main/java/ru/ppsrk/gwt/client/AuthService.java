@@ -14,6 +14,8 @@
  *******************************************************************************/
 package ru.ppsrk.gwt.client;
 
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -44,7 +46,5 @@ public interface AuthService extends RemoteService {
 
     public Long register(String username, String password) throws LogicException, ClientAuthenticationException;
 
-    public String registerIni(String username, String password) throws LogicException;
-
-    boolean loginIni(String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException, LogicException;
+    public List<String> getUserRoles() throws ClientAuthenticationException, LogicException;
 }

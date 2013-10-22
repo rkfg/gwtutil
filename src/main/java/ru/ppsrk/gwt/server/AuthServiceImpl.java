@@ -14,32 +14,23 @@
  *******************************************************************************/
 package ru.ppsrk.gwt.server;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
-import org.apache.shiro.crypto.hash.Sha256Hash;
+import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ByteSource;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.util.Factory;
 import org.apache.shiro.util.ThreadContext;
-import org.hibernate.Session;
 
 import ru.ppsrk.gwt.client.AuthService;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
-import ru.ppsrk.gwt.domain.Role;
 import ru.ppsrk.gwt.domain.User;
 import ru.ppsrk.gwt.dto.UserDTO;
 
@@ -47,25 +38,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AuthServiceImpl extends RemoteServiceServlet implements AuthService {
     public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
-        final Long userId = requiresAuth();
-        return HibernateUtil.exec(new HibernateCallback<List<String>>() {
-
-            @Override
-            public List<String> run(Session session) {
-                User user = (User) session.get(User.class, userId);
-                if (user == null) {
-                    return new ArrayList<String>();
-                }
-                Set<Role> roles = user.getRoles();
-                List<String> result = new ArrayList<String>();
-                for (Role role : roles) {
-                    result.add(role.getRole());
-                }
-                setSessionAttribute("roles", result);
-                return result;
-            }
-        });
-
+        return getRealm().getRoles(requiresAuthUser().getUsername());
     }
 
     public static Object getSessionAttribute(Object key) {
@@ -76,14 +49,14 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRoles().contains(role);
     }
 
-    public static void removeSessionAttribute(Object key) {
-        SecurityUtils.getSubject().getSession().removeAttribute(key);
-    }
-
     public static void initShiro() {
         Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
         SecurityManager securityManager = factory.getInstance();
         SecurityUtils.setSecurityManager(securityManager);
+    }
+
+    public static void removeSessionAttribute(Object key) {
+        SecurityUtils.getSubject().getSession().removeAttribute(key);
     }
 
     public static Long requiresAuth() throws ClientAuthenticationException, LogicException {
@@ -100,19 +73,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
             throw new ClientAuthenticationException("Not authenticated");
         UserDTO user = (UserDTO) getSessionAttribute("user");
         if (user == null) {
-            user = HibernateUtil.exec(new HibernateCallback<UserDTO>() {
-
-                @Override
-                public UserDTO run(Session session) throws LogicException, ClientAuthenticationException {
-                    @SuppressWarnings("unchecked")
-                    List<User> users = session.createQuery("from User where username = :un").setParameter("un", SecurityUtils.getSubject().getPrincipal())
-                            .list();
-                    if (users.size() != 1) {
-                        throw new ClientAuthenticationException("Not authenticated");
-                    }
-                    return ServerUtils.mapModel(users.get(0), UserDTO.class);
-                }
-            });
+            user = getRealm().getUser((String) SecurityUtils.getSubject().getPrincipal());
             setSessionAttribute("user", user);
         }
         return ServerUtils.mapModel(user, User.class);
@@ -148,6 +109,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
 
     public static boolean registrationEnabled = false;
 
+    @Override
+    public List<String> getUserRoles() throws ClientAuthenticationException, LogicException {
+        requiresAuth();
+        return getRoles();
+    }
+
     public boolean isLoggedIn() {
         return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
     }
@@ -158,44 +125,9 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public boolean loginIni(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException,
-            LogicException {
-        Subject subject = SecurityUtils.getSubject();
-        try {
-            subject.login(new UsernamePasswordToken(username, password, remember));
-        } catch (AuthenticationException e) {
-            throw new ClientAuthenticationException(e.getMessage());
-        } catch (AuthorizationException e) {
-            throw new ClientAuthorizationException(e.getMessage());
-        }
-        return subject.isAuthenticated();
-    }
-
-    @Override
     public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException,
             LogicException {
-        Subject subject = SecurityUtils.getSubject();
-        try {
-            subject.login(new UsernamePasswordToken(username, password, remember));
-            if (subject.isAuthenticated()) {
-                List<User> user = HibernateUtil.exec(new HibernateCallback<List<User>>() {
-
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public List<User> run(Session session) {
-                        // TODO Auto-generated method stub
-                        return session.createQuery("from User where username = :un").setParameter("un", username).list();
-                    }
-                });
-                setSessionAttribute("userid", user.get(0).getId());
-                return true;
-            }
-        } catch (AuthenticationException e) {
-            throw new ClientAuthenticationException(e.getMessage());
-        } catch (AuthorizationException e) {
-            throw new ClientAuthorizationException(e.getMessage());
-        }
-        return subject.isAuthenticated();
+        return getRealm().login(username, password, remember);
     }
 
     @Override
@@ -209,47 +141,16 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         if (!registrationEnabled) {
             return -1L;
         }
-        return HibernateUtil.exec(new HibernateCallback<Long>() {
-
-            @Override
-            public Long run(Session session) {
-                ByteSource salt = rng.nextBytes();
-                String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
-
-                User user = (User) session.createQuery("from User where username = :username").setParameter("username", username).setMaxResults(1)
-                        .uniqueResult();
-                if (user == null) {
-                    user = new User(username, hashedPasswordBase64);
-                } else {
-                    // change password for existing user
-                    user.setPassword(hashedPasswordBase64);
-                }
-                // save the salt with the new account. The
-                // HashedCredentialsMatcher
-                // will need it later when handling login attempts:
-                user.setSalt(salt.toBase64());
-                user = (User) session.merge(user);
-                return user.getId();
-            }
-        });
+        return getRealm().register(username, password, rng);
     }
 
-    @Override
-    public String registerIni(String username, String password) throws LogicException {
-        SettingsManager sm = new SettingsManager();
-        sm.setFilename("auth.ini");
-        ByteSource salt = rng.nextBytes();
-        String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
-        String credentials = hashedPasswordBase64 + "|" + salt.toBase64();
-        sm.setStringSetting(username, credentials);
-        try {
-            sm.saveSettings();
-        } catch (FileNotFoundException e) {
-            throw new LogicException("File auth.ini not found.");
-        } catch (IOException e) {
-            throw new LogicException("IOException: " + e.getMessage());
+    public static GwtUtilRealm getRealm() throws LogicException {
+        Iterator<Realm> realms = ((RealmSecurityManager) SecurityUtils.getSecurityManager()).getRealms().iterator();
+        Realm realm = realms.next();
+        if (!(realm instanceof GwtUtilRealm)) {
+            throw new LogicException("Realm " + realm.getName() + " isn't compatible to GwtUtilRealm, its type is: " + realm.getClass().getSimpleName());
         }
-        return credentials;
+        return (GwtUtilRealm) realm;
     }
 
     /*

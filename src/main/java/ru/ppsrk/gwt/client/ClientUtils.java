@@ -320,16 +320,12 @@ public class ClientUtils {
     }
 
     public static void requireLogin() {
-        requireLogin(RealmType.HIBERNATE);
-    }
-
-    public static void requireLogin(final RealmType realmType) {
         AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
                 if (!result) {
-                    PopupPanel popupPanel = new Login(false, true, realmType);
+                    PopupPanel popupPanel = new Login(false, true);
                     popupPanel.center();
                 }
             }

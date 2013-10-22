@@ -32,11 +32,8 @@ public class Login extends PopupPanel {
     private final HorizontalPanel horizontalPanel_3 = new HorizontalPanel();
     private final CheckBox checkBox_remember = new CheckBox((String) null);
 
-    private RealmType realmType;
-
-    public Login(boolean autoHide, boolean modal, RealmType realmType) {
+    public Login(boolean autoHide, boolean modal) {
         super(autoHide, modal);
-        this.realmType = realmType;
         setWidget(verticalPanel);
         verticalPanel.setSpacing(5);
         verticalPanel.add(horizontalPanel);
@@ -144,13 +141,7 @@ public class Login extends PopupPanel {
                     Window.alert("Неверное имя пользователя или пароль.");
                 }
             };
-            switch (realmType) {
-            case HIBERNATE:
-                authservice.login(textBox_login.getText(), textBox_password.getText(), checkBox_remember.getValue(), callback);
-                break;
-            case INI:
-                authservice.loginIni(textBox_login.getText(), textBox_password.getText(), checkBox_remember.getValue(), callback);
-            }
+            authservice.login(textBox_login.getText(), textBox_password.getText(), checkBox_remember.getValue(), callback);
         }
     }
 
