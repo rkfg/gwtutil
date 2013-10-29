@@ -52,6 +52,7 @@ public class SharedUtils {
             T item = list.get(i);
             if (item.getId().equals(id)) {
                 list.set(i, newElement);
+                break;
             }
         }
     }
