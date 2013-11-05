@@ -27,45 +27,6 @@ import fr.mikrosimage.gwt.client.ResizableDataGrid;
 
 public class ClientUtils {
 
-    public static class SilentException extends RuntimeException {
-
-        /**
-         * 
-         */
-        private static final long serialVersionUID = -5304271527831179883L;
-
-        public SilentException(String failText) {
-            super(failText);
-        }
-
-    }
-
-    public static class SelectionModelInvalidClassException extends SilentException {
-
-        /**
-         * 
-         */
-        private static final long serialVersionUID = -7104376777000165144L;
-
-        public SelectionModelInvalidClassException(String invalidSelection) {
-            super(invalidSelection);
-        }
-
-    }
-
-    public static class SelectionModelNullException extends SilentException {
-
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 6186225237335362700L;
-
-        public SelectionModelNullException(String failText) {
-            super(failText);
-        }
-
-    }
-
     static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
 
         public void errorHandler(Throwable exception) {
@@ -102,9 +63,146 @@ public class ClientUtils {
 
     }
 
+    public static class RuCellTree extends CellTree {
+
+        public RuCellTree(TreeViewModel viewModel) {
+            super(viewModel, null, cellTreeResources, russianCellTreeMessages);
+        }
+
+    }
+
+    public static class SelectionModelInvalidClassException extends SilentException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -7104376777000165144L;
+
+        public SelectionModelInvalidClassException(String invalidSelection) {
+            super(invalidSelection);
+        }
+
+    }
+
+    public static class SelectionModelNullException extends SilentException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 6186225237335362700L;
+
+        public SelectionModelNullException(String failText) {
+            super(failText);
+        }
+
+    }
+
+    public static class SilentException extends RuntimeException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -5304271527831179883L;
+
+        public SilentException(String failText) {
+            super(failText);
+        }
+
+    }
+
+    public static class ValueBoxEmptyException extends SilentException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -2721839951524306048L;
+
+        public ValueBoxEmptyException(String failText) {
+            super(failText);
+            // TODO Auto-generated constructor stub
+        }
+
+    }
+
+    /**
+     * Tests the entered value against some condition and throws ValueConditionException if it hasn't been met.
+     * 
+     * @param <T>
+     *            the type of the value
+     * @throws ValueConditionException
+     *             if the condition fails
+     */
+    public abstract static class ValueCondition<T> {
+
+        /**
+         * Tests if the number value isn't negative.
+         * 
+         * @param <T>
+         *            value type
+         * @throws ValueConditionException
+         *             if the value is negative or isn't a number
+         */
+        public static class NonNegativeValueCondition<T extends Number> extends ValueCondition<T> {
+
+            private String failText;
+
+            public NonNegativeValueCondition(String failText) {
+                super();
+                this.failText = failText;
+            }
+
+            @Override
+            public void test(T value) {
+                try {
+                    Number numVal = (Number) value;
+                    if (numVal.longValue() < 0) {
+                        throw new ValueConditionException(failText);
+                    }
+                } catch (ClassCastException e) {
+                    throw new ValueConditionException("Введённое значение не является числом.");
+                }
+            }
+        }
+
+        public static class ValueConditionException extends RuntimeException {
+
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 1644860720447547515L;
+
+            public ValueConditionException(String string) {
+                super(string);
+            }
+
+        }
+
+        public abstract void test(T value);
+
+    }
+
     static private HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>> dataProviders = new HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>>();
 
     static private HashMap<SelectionModel<? extends Hierarchic>, PathProvider> pathDataProviders = new HashMap<SelectionModel<? extends Hierarchic>, ClientUtils.PathProvider>();
+
+    public static Resources cellTreeResources = GWT.create(Resources.class);
+
+    public static CellTreeMessages russianCellTreeMessages = new CellTreeMessages() {
+
+        @Override
+        public String emptyTree() {
+            return "Пусто";
+        }
+
+        @Override
+        public String showMore() {
+            return "Ещё...";
+        }
+    };
+
+    public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
+        listBox.addItem(value.getListboxValue(), value.getId().toString());
+    }
 
     public static String buildPath(Hierarchic dtoObject, boolean includeLeaf) {
         String path = new String();
@@ -128,6 +226,12 @@ public class ClientUtils {
     public static void clearProvidersMappings() {
         pathDataProviders.clear();
         dataProviders.clear();
+    }
+
+    public static void fillListbox(Collection<? extends HasListboxValue> list, ListBox listBox) {
+        for (HasListboxValue listboxValue : list) {
+            addItemToListbox(listboxValue, listBox);
+        }
     }
 
     public static ListDataProvider<? extends Hierarchic> getDataProviderByObject(Hierarchic object) {
@@ -157,11 +261,12 @@ public class ClientUtils {
 
     public static Long getListboxSelectedValue(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? Long.valueOf(listBox.getValue(listBox.getSelectedIndex())) : -1;
-    }
+    };
 
-    public static ListDataProvider<? extends Hierarchic> getPathProviderByObject(Hierarchic object, SelectionModel<? extends Hierarchic> selectionModel) {
+    public static ListDataProvider<? extends Hierarchic> getPathProviderByObject(Hierarchic object,
+            SelectionModel<? extends Hierarchic> selectionModel) {
         return pathDataProviders.get(selectionModel).get(buildPath(object, true));
-    }
+    };
 
     public static Hierarchic getRegisteredObjectBySample(Hierarchic sample) {
         for (Hierarchic hierarchic : dataProviders.keySet()) {
@@ -173,8 +278,7 @@ public class ClientUtils {
     }
 
     /**
-     * Inserts a new object to the data provider specified by the parent object.
-     * If no such provider or parent object exists, creates them.
+     * Inserts a new object to the data provider specified by the parent object. If no such provider or parent object exists, creates them.
      * 
      * @param object
      *            object to insert
@@ -183,13 +287,12 @@ public class ClientUtils {
      * @param selectionModel
      *            selection model which is used in the target CellTree
      * @param createFirst
-     *            if true, insert the parent object to the beginning of the
-     *            parent's parent list. If false, add it to the end of the list.
+     *            if true, insert the parent object to the beginning of the parent's parent list. If false, add it to the end of the list.
      */
 
     @SuppressWarnings("unchecked")
-    public static void insertObjectToParentProvider(Hierarchic object, Hierarchic parentObjectToCreate, SelectionModel<? extends Hierarchic> selectionModel,
-            boolean createFirst) {
+    public static void insertObjectToParentProvider(Hierarchic object, Hierarchic parentObjectToCreate,
+            SelectionModel<? extends Hierarchic> selectionModel, boolean createFirst) {
         if (selectionModel == null || parentObjectToCreate == null || object == null || pathDataProviders.get(selectionModel) == null) {
             return;
         }
@@ -236,22 +339,36 @@ public class ClientUtils {
         });
     }
 
+    public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget) {
+        panel.setGlassEnabled(true);
+        panel.setAnimationEnabled(true);
+        panel.center();
+        if (focusWidget != null) {
+            focusWidget.setFocus(true);
+        }
+        panel.setModal(true);
+    }
+
+    public static <T> void openPopupPanel(ResultPopupPanel<T> panel, ResultPopupPanelCallback<T> callback) {
+        panel.setResultCallback(callback);
+        openPopupPanel(panel, panel.getFocusWidget());
+    }
+
     public static void openWindow(String url) {
         openWindow(url, null, null, false);
-    };
-
-    public static void openWindowRootRelative(String url) {
-        openWindow(url, null, null, true);
-    };
+    }
 
     public static void openWindow(String url, String name, String features, boolean rootRelative) {
         Window.open((rootRelative ? GWT.getHostPageBaseURL() : GWT.getModuleBaseURL()) + url, name, features);
     }
 
+    public static void openWindowRootRelative(String url) {
+        openWindow(url, null, null, true);
+    }
+
     /**
-     * Registers the objects with the provider. Used to find sibling nodes or
-     * the provider by object to remove that object or modify it. Call this on
-     * adding or setting objects to the data provider.
+     * Registers the objects with the provider. Used to find sibling nodes or the provider by object to remove that object or modify it.
+     * Call this on adding or setting objects to the data provider.
      * 
      * @param list
      * @param listDataProvider
@@ -273,10 +390,8 @@ public class ClientUtils {
     }
 
     /**
-     * Registers the supplied {@link ListDataProvider} with
-     * {@link SelectionModel} and parent object to which this data provider
-     * belongs to. It's used to find the data provider later having the parent
-     * object, for example to add a new child node. Use after creating a new
+     * Registers the supplied {@link ListDataProvider} with {@link SelectionModel} and parent object to which this data provider belongs to.
+     * It's used to find the data provider later having the parent object, for example to add a new child node. Use after creating a new
      * data provider.
      * 
      * @param object
@@ -319,6 +434,11 @@ public class ClientUtils {
         removeObjectFromDataProvider(object);
     }
 
+    public static <T, E extends T> void replaceListDataProviderContents(ListDataProvider<T> dataProvider, Collection<E> element) {
+        dataProvider.getList().clear();
+        dataProvider.getList().addAll(element);
+    }
+
     public static void requireLogin() {
         AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
@@ -358,65 +478,14 @@ public class ClientUtils {
         listBox.setSelectedIndex(getListboxIndexByValue(listBox, value));
     }
 
-    public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget) {
-        panel.setGlassEnabled(true);
-        panel.setAnimationEnabled(true);
-        panel.center();
-        if (focusWidget != null) {
-            focusWidget.setFocus(true);
-        }
-        panel.setModal(true);
-    }
-
-    public static <T> void openPopupPanel(ResultPopupPanel<T> panel, ResultPopupPanelCallback<T> callback) {
-        panel.setResultCallback(callback);
-        openPopupPanel(panel, panel.getFocusWidget());
-    }
-
-    public static Resources cellTreeResources = GWT.create(Resources.class);
-    public static CellTreeMessages russianCellTreeMessages = new CellTreeMessages() {
-
-        @Override
-        public String emptyTree() {
-            return "Пусто";
-        }
-
-        @Override
-        public String showMore() {
-            return "Ещё...";
-        }
-    };
-
-    public static class RuCellTree extends CellTree {
-
-        public RuCellTree(TreeViewModel viewModel) {
-            super(viewModel, null, cellTreeResources, russianCellTreeMessages);
-        }
-
-    }
-
-    public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
-        listBox.addItem(value.getListboxValue(), value.getId().toString());
-    }
-
-    public static void fillListbox(Collection<? extends HasListboxValue> list, ListBox listBox) {
-        for (HasListboxValue listboxValue : list) {
-            addItemToListbox(listboxValue, listBox);
-        }
-    }
-
-    public static void setTextboxValueBySelectionModel(ValueBoxBase<String> textBox, SingleSelectionModel<? extends HasListboxValue> selectionModel) {
+    public static void setTextboxValueBySelectionModel(ValueBoxBase<String> textBox,
+            SingleSelectionModel<? extends HasListboxValue> selectionModel) {
         HasListboxValue selected = selectionModel.getSelectedObject();
         if (selected == null) {
             textBox.setValue("");
         } else {
             textBox.setValue(selected.getListboxValue());
         }
-    }
-
-    public static <T, E extends T> void replaceListDataProviderContents(ListDataProvider<T> dataProvider, Collection<E> element) {
-        dataProvider.getList().clear();
-        dataProvider.getList().addAll(element);
     }
 
     public static void setupExceptionHandler() {
@@ -466,9 +535,28 @@ public class ClientUtils {
             if (result == null) {
                 throw new SelectionModelNullException(failText);
             }
+            if (!result.getClass().getName().equals(selectedClass.getName())) {
+                throw new SelectionModelInvalidClassException(failText);
+            }
             return result;
         } catch (ClassCastException e) {
             throw new SelectionModelInvalidClassException(failText);
         }
+    }
+
+    public static <T> T tryValueBoxValue(ValueBoxBase<T> valueBox, String failText) {
+        return tryValueBoxValue(valueBox, failText, null);
+    }
+
+    public static <T> T tryValueBoxValue(ValueBoxBase<T> valueBox, String onEmptyFailText, ValueCondition<T> condition) {
+        T result = valueBox.getValue();
+        if (result == null || result instanceof String && ((String) result).isEmpty()) {
+            valueBox.setFocus(true);
+            throw new ValueBoxEmptyException(onEmptyFailText);
+        }
+        if (condition != null) {
+            condition.test(result);
+        }
+        return result;
     }
 }
