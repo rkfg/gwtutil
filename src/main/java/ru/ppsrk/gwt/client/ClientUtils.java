@@ -2,6 +2,8 @@ package ru.ppsrk.gwt.client;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
@@ -15,6 +17,7 @@ import com.google.gwt.user.cellview.client.CellTree.Resources;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FocusWidget;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ValueBoxBase;
@@ -340,18 +343,22 @@ public class ClientUtils {
     }
 
     public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget) {
+        openPopupPanel(panel, focusWidget, true, true);
+    }
+
+    public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget, boolean animate, boolean modal) {
         panel.setGlassEnabled(true);
-        panel.setAnimationEnabled(true);
+        panel.setAnimationEnabled(animate);
         panel.center();
         if (focusWidget != null) {
             focusWidget.setFocus(true);
         }
-        panel.setModal(true);
+        panel.setModal(modal);
     }
 
     public static <T> void openPopupPanel(ResultPopupPanel<T> panel, ResultPopupPanelCallback<T> callback) {
         panel.setResultCallback(callback);
-        openPopupPanel(panel, panel.getFocusWidget());
+        openPopupPanel(panel, panel.getFocusWidget(), false, false);
     }
 
     public static void openWindow(String url) {
@@ -558,5 +565,28 @@ public class ClientUtils {
             condition.test(result);
         }
         return result;
+    }
+
+    public static class FormPanelLDP extends FormPanel {
+
+        private List<ListDataProvider<?>> fpDataProviders = new LinkedList<ListDataProvider<?>>();
+
+        @Override
+        public void reset() {
+            super.reset();
+            for (ListDataProvider<?> dataProvider : fpDataProviders) {
+                dataProvider.getList().clear();
+            }
+        }
+
+        public void addDataProvider(ListDataProvider<?> listDataProvider) {
+            fpDataProviders.add(listDataProvider);
+        }
+
+        public void addDataProviders(ListDataProvider<?>... listDataProviders) {
+            for (ListDataProvider<?> dataProvider : listDataProviders) {
+                fpDataProviders.add(dataProvider);
+            }
+        }
     }
 }

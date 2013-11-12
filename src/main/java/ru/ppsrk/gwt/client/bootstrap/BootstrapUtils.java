@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.client;
+package ru.ppsrk.gwt.client.bootstrap;
 
 import java.util.LinkedList;
 import java.util.List;

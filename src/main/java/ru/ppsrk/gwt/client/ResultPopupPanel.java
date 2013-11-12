@@ -16,7 +16,9 @@ public abstract class ResultPopupPanel<T> extends PopupPanel {
     }
 
     public void done() {
-        callback.done(getResult());
+        if (callback != null) {
+            callback.done(getResult());
+        }
     }
 
     @Override
