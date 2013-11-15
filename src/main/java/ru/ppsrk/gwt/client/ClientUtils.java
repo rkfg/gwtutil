@@ -74,7 +74,20 @@ public class ClientUtils {
 
     }
 
-    public static class SelectionModelInvalidClassException extends SilentException {
+    public static class SelectionModelException extends SilentException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -9071020761687115990L;
+
+        public SelectionModelException(String failText) {
+            super(failText);
+        }
+
+    }
+
+    public static class SelectionModelInvalidClassException extends SelectionModelException {
 
         /**
          * 
@@ -87,7 +100,7 @@ public class ClientUtils {
 
     }
 
-    public static class SelectionModelNullException extends SilentException {
+    public static class SelectionModelNullException extends SelectionModelException {
 
         /**
          * 

@@ -11,7 +11,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
 public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> {
-    protected final HorizontalPanel horizontalPanel_buttons = new HorizontalPanel();
+    protected final HorizontalPanel horizontalPanel_buttons = new HorizontalPanel() {
+    };
     private final Button button_ok = new Button();
     private final Button button_cancel = new Button();
     private final ButtonGroup buttonGroup = new ButtonGroup(button_ok, button_cancel);
@@ -28,9 +29,15 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> {
         horizontalPanel_buttons.add(buttonGroup);
     }
 
+    protected boolean preventOk() {
+        return false;
+    }
+
     private class Button_okClickHandler implements ClickHandler {
         public void onClick(ClickEvent event) {
-            hide();
+            if (!preventOk()) {
+                hide();
+            }
         }
     }
 
@@ -40,4 +47,11 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> {
         }
     }
 
+    protected Button getOkButton() {
+        return button_ok;
+    }
+
+    protected Button getCancelButton() {
+        return button_cancel;
+    }
 }
