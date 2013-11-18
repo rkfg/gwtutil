@@ -11,6 +11,7 @@ import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.event.shared.UmbrellaException;
+import com.google.gwt.user.cellview.client.AbstractCellTree;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.CellTree.CellTreeMessages;
 import com.google.gwt.user.cellview.client.CellTree.Resources;
@@ -29,6 +30,33 @@ import com.google.gwt.view.client.TreeViewModel;
 import fr.mikrosimage.gwt.client.ResizableDataGrid;
 
 public class ClientUtils {
+
+    public static class FormPanelLDP extends FormPanel {
+
+        private List<ListDataProvider<?>> fpDataProviders = new LinkedList<ListDataProvider<?>>();
+
+        public void addDataProvider(ListDataProvider<?> listDataProvider) {
+            fpDataProviders.add(listDataProvider);
+        }
+
+        public void addDataProviders(ListDataProvider<?>... listDataProviders) {
+            for (ListDataProvider<?> dataProvider : listDataProviders) {
+                fpDataProviders.add(dataProvider);
+            }
+        }
+
+        @Override
+        public void reset() {
+            super.reset();
+            for (ListDataProvider<?> dataProvider : fpDataProviders) {
+                dataProvider.getList().clear();
+            }
+        }
+    }
+
+    public static abstract class LoadCellCallback<H extends Hierarchic> {
+        public abstract void load(H parent, MyAsyncCallback<List<H>> callback);
+    }
 
     static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
 
@@ -269,20 +297,25 @@ public class ClientUtils {
 
     public static String getListboxSelectedText(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? listBox.getItemText(listBox.getSelectedIndex()) : "";
-    }
+    };
 
     public static String getListboxSelectedTextValue(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? listBox.getValue(listBox.getSelectedIndex()) : null;
-    }
+    };
 
     public static Long getListboxSelectedValue(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? Long.valueOf(listBox.getValue(listBox.getSelectedIndex())) : -1;
-    };
+    }
 
     public static ListDataProvider<? extends Hierarchic> getPathProviderByObject(Hierarchic object,
             SelectionModel<? extends Hierarchic> selectionModel) {
+        PathProvider pp = pathDataProviders.get(selectionModel);
+        if (pp == null) {
+            pathDataProviders.put(selectionModel, new PathProvider());
+            return null;
+        }
         return pathDataProviders.get(selectionModel).get(buildPath(object, true));
-    };
+    }
 
     public static Hierarchic getRegisteredObjectBySample(Hierarchic sample) {
         for (Hierarchic hierarchic : dataProviders.keySet()) {
@@ -291,6 +324,19 @@ public class ClientUtils {
             }
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <H extends Hierarchic> H getReloadParent(AbstractCellTree cellTree, H parent) {
+        if (parent == null || !cellTree.getTreeViewModel().isLeaf(parent)) {
+            return parent;
+        } else {
+            H reloadParent = (H) parent.getParent();
+            if (reloadParent != null && reloadParent.getId().equals(0L)) {
+                reloadParent = null;
+            }
+            return reloadParent;
+        }
     }
 
     /**
@@ -338,6 +384,38 @@ public class ClientUtils {
 
     public static Set<Hierarchic> listRegisteredObjects() {
         return dataProviders.keySet();
+    }
+
+    public static <S extends Hierarchic, H extends SettableParent> ListDataProvider<H> loadCellTree(final H parent, SelectionModel<S> selectionModel,
+            ListDataProvider<H> defaultDataProvider, LoadCellCallback<H> loadCallback) {
+        final ListDataProvider<H> dataProvider;
+        if (parent != null) {
+            @SuppressWarnings("unchecked")
+            ListDataProvider<H> tmpDataProvider = (ListDataProvider<H>) getPathProviderByObject(parent, selectionModel);
+            if (tmpDataProvider != null) {
+                dataProvider = tmpDataProvider;
+            } else {
+                dataProvider = new ListDataProvider<H>();
+            }
+        } else {
+            dataProvider = defaultDataProvider;
+        }
+        if (parent != null) {
+            registerPathProvider(parent, selectionModel, dataProvider);
+        }
+        loadCallback.load(parent, new MyAsyncCallback<List<H>>() {
+
+            @Override
+            public void onSuccess(List<H> result) {
+                for (H elem : result) {
+                    elem.setParent(parent);
+                }
+                registerListOfObjects(result, dataProvider);
+                dataProvider.getList().clear();
+                dataProvider.getList().addAll(result);
+            }
+        });
+        return dataProvider;
     }
 
     public static void logout() {
@@ -580,26 +658,4 @@ public class ClientUtils {
         return result;
     }
 
-    public static class FormPanelLDP extends FormPanel {
-
-        private List<ListDataProvider<?>> fpDataProviders = new LinkedList<ListDataProvider<?>>();
-
-        @Override
-        public void reset() {
-            super.reset();
-            for (ListDataProvider<?> dataProvider : fpDataProviders) {
-                dataProvider.getList().clear();
-            }
-        }
-
-        public void addDataProvider(ListDataProvider<?> listDataProvider) {
-            fpDataProviders.add(listDataProvider);
-        }
-
-        public void addDataProviders(ListDataProvider<?>... listDataProviders) {
-            for (ListDataProvider<?> dataProvider : listDataProviders) {
-                fpDataProviders.add(dataProvider);
-            }
-        }
-    }
 }
