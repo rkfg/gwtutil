@@ -39,7 +39,8 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 @SuppressWarnings("unchecked")
                 T node = (T) session.get(entityClass, nodeId);
                 if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
-                    throw new NestedSetManagerException("Need to delete more than one node but children deleting was explicitly prohibited.");
+                    throw new NestedSetManagerException(
+                            "Need to delete more than one node but children deleting was explicitly prohibited.");
                 }
                 session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
                         .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();
@@ -49,8 +50,8 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    private List<? extends Hierarchic> getByParentIdAndInsert(List<? extends Hierarchic> hierarchics, Long hierarchicRootId, Long parentNodeId, Session session)
-            throws LogicException, ClientAuthenticationException {
+    private List<? extends Hierarchic> getByParentIdAndInsert(List<? extends Hierarchic> hierarchics, Long hierarchicRootId,
+            Long parentNodeId, Session session) throws LogicException, ClientAuthenticationException {
         LinkedList<Hierarchic> selectedChildren = new LinkedList<Hierarchic>();
         for (Hierarchic hierarchic : hierarchics) {
             if (hierarchic.getParent() == null && hierarchicRootId.equals(0L) || hierarchic.getParent() != null
@@ -75,15 +76,15 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * @param parentNodeId
      *            use null for the root node
      * @param orderField
-     *            field name by which the results are sorted; several field may
-     *            be supplied, delimited by comma
+     *            field name by which the results are sorted; several field may be supplied, delimited by comma
      * @param directOnly
      *            retrieve only direct descendants
      * @return list of children nodes
      * @throws LogicException
      * @throws ClientAuthenticationException
      */
-    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly) throws LogicException, ClientAuthenticationException {
+    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly) throws LogicException,
+            ClientAuthenticationException {
         return HibernateUtil.exec(new HibernateCallback<List<T>>() {
 
             @SuppressWarnings("unchecked")
@@ -93,8 +94,11 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 if (directOnly) {
                     session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
                 }
-                return session.createQuery("from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node." + orderField)
-                        .setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum()).list();
+                return session
+                        .createQuery(
+                                "from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node."
+                                        + orderField).setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum())
+                        .list();
             }
         });
     }
@@ -104,12 +108,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
     }
 
     public List<D> getHierarchicByParent(D parent, String orderField) throws LogicException, ClientAuthenticationException {
-        Long parentId;
-        if (parent == null || parent.getId().equals(0L)) {
-            parentId = getRootNode().getId();
-        } else {
-            parentId = parent.getId();
-        }
+        Long parentId = getParentId(parent);
         List<D> dtos = mapArray(getChildren(parentId, orderField, true), dtoClass);
         for (D dto : dtos) {
             dto.setParent(parent);
@@ -122,8 +121,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * 
      * @param childId
      * @param depth
-     *            negative values mean parent by Math.abs(depth) levels above,
-     *            non-negative values mean absolute depth.
+     *            negative values mean parent by Math.abs(depth) levels above, non-negative values mean absolute depth.
      * @return parent node
      * @throws ClientAuthenticationException
      * @throws LogicException
@@ -139,19 +137,35 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 if (depth < 0) {
                     parentDepth = childNode.getDepth() + depth;
                     if (parentDepth < 0) {
-                        throw new NestedSetManagerException("parentDepth < 0, childDepth = " + childNode.getDepth() + " requested depth = " + depth);
+                        throw new NestedSetManagerException("parentDepth < 0, childDepth = " + childNode.getDepth() + " requested depth = "
+                                + depth);
                     }
                 } else {
                     parentDepth = depth;
                 }
                 try {
-                    return (T) session.createQuery("from " + entityName + " node where node.leftnum < :left and node.rightnum > :right and depth = :depth")
-                            .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum()).setLong("depth", parentDepth).uniqueResult();
+                    return (T) session
+                            .createQuery(
+                                    "from " + entityName + " node where node.leftnum < :left and node.rightnum > :right and depth = :depth")
+                            .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum())
+                            .setLong("depth", parentDepth).uniqueResult();
                 } catch (NonUniqueResultException e) {
                     throw new NestedSetManagerException("Non-unique parent: " + e.getMessage());
                 }
             }
         });
+    }
+
+    public Long getParentId(D parent) throws LogicException, ClientAuthenticationException {
+        if (parent != null && parent.getParent() != null) {
+            return parent.getParent().getId();
+        } else {
+            T rootNode = getRootNode();
+            if (rootNode == null) {
+                rootNode = insertRootNode(mapModel(parent, entityClass));
+            }
+            return rootNode.getId();
+        }
     }
 
     public T getRootNode() throws LogicException, ClientAuthenticationException {
@@ -169,7 +183,8 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public void insertHierarchic(final List<? extends Hierarchic> hierarchics, final Long parentNodeId) throws LogicException, ClientAuthenticationException {
+    public void insertHierarchic(final List<? extends Hierarchic> hierarchics, final Long parentNodeId) throws LogicException,
+            ClientAuthenticationException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
@@ -218,25 +233,16 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    private void updateNodes(Long left, Long shift, Session session) {
-        session.createQuery("update " + entityName + " node set node.leftnum = node.leftnum + :shift where node.leftnum >= :left").setLong("left", left)
-                .setLong("shift", shift).executeUpdate();
-        session.createQuery("update " + entityName + " node set node.rightnum = node.rightnum + :shift where node.rightnum >= :left").setLong("left", left)
-                .setLong("shift", shift).executeUpdate();
+    public D saveDTONode(D dto) throws LogicException, ClientAuthenticationException {
+        Long parentId = getParentId(dto);
+        return mapModel(insertNode(mapModel(dto, entityClass), parentId), dtoClass);
     }
 
-    public D saveDTONode(D dto) throws LogicException, ClientAuthenticationException {
-        Long parentId = null;
-        if (dto.getParent() != null) {
-            parentId = dto.getParent().getId();
-        } else {
-            T rootNode = getRootNode();
-            if (rootNode == null) {
-                rootNode = insertRootNode(mapModel(dto, entityClass));
-            }
-            parentId = rootNode.getId();
-        }
-        return mapModel(insertNode(mapModel(dto, entityClass), parentId), dtoClass);
+    private void updateNodes(Long left, Long shift, Session session) {
+        session.createQuery("update " + entityName + " node set node.leftnum = node.leftnum + :shift where node.leftnum >= :left")
+                .setLong("left", left).setLong("shift", shift).executeUpdate();
+        session.createQuery("update " + entityName + " node set node.rightnum = node.rightnum + :shift where node.rightnum >= :left")
+                .setLong("left", left).setLong("shift", shift).executeUpdate();
     }
 
 }
