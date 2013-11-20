@@ -4,11 +4,9 @@
 <module rename-to="gwtutil">
 	<inherits name='com.google.gwt.user.User' />
 	<inherits name="fr.mikrosimage.gwt.GwtResizableDraggableColumns" />
-    <inherits name="com.github.gwtbootstrap.Bootstrap" />
-    <inherits name="com.github.gwtbootstrap.datepicker.Datepicker" />
 	<entry-point class="ru.ppsrk.gwt.client.Dummy" />
-	<stylesheet src="gwtutil-style.css"/>
+	<stylesheet src="gwtutil-style.css" />
 	<source path="client" />
-    <source path="shared" />
+	<source path="shared" />
 	<source path="dto" />
 </module>
