@@ -386,8 +386,8 @@ public class ClientUtils {
         return dataProviders.keySet();
     }
 
-    public static <S extends Hierarchic, H extends SettableParent> ListDataProvider<H> loadCellTree(final H parent, SelectionModel<S> selectionModel,
-            ListDataProvider<H> defaultDataProvider, LoadCellCallback<H> loadCallback) {
+    public static <S extends Hierarchic, H extends SettableParent> ListDataProvider<H> loadCellTree(final H parent,
+            SelectionModel<S> selectionModel, ListDataProvider<H> defaultDataProvider, LoadCellCallback<H> loadCallback) {
         final ListDataProvider<H> dataProvider;
         if (parent != null) {
             @SuppressWarnings("unchecked")
@@ -656,6 +656,12 @@ public class ClientUtils {
             condition.test(result);
         }
         return result;
+    }
+
+    public static <T> void autoSelect(SelectionModel<T> selectionModel, ListDataProvider<T> dataProvider) {
+        if (dataProvider.getList().size() == 1) {
+            selectionModel.setSelected(dataProvider.getList().get(0), true);
+        }
     }
 
 }
