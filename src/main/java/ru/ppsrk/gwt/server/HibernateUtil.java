@@ -7,8 +7,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
+import org.hibernate.Filter;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -21,6 +24,36 @@ import ru.ppsrk.gwt.client.HasId;
 import ru.ppsrk.gwt.client.LogicException;
 
 public class HibernateUtil {
+
+    public static class ListQueryFilter {
+        private List<String> filterNames = new ArrayList<String>();
+        private List<HashMap<String, Object>> filterParams = new ArrayList<HashMap<String, Object>>();
+
+        public ListQueryFilter addFilter(String name, String[] paramNames, Object[] paramValues) throws LogicException {
+            filterNames.add(name);
+            HashMap<String, Object> tmpParams = new HashMap<String, Object>();
+            if (paramNames != null && paramValues != null) {
+                if (paramNames.length != paramValues.length) {
+                    throw new LogicException("paramNames.length != paramValues.length in ListQueryFilter");
+                }
+                for (int i = 0; i < paramNames.length; i++) {
+                    tmpParams.put(paramNames[i], paramValues[i]);
+                }
+            }
+            filterParams.add(tmpParams);
+            return this;
+        }
+
+        public void applyFilter(Session session) {
+            for (int i = 0; i < filterNames.size(); i++) {
+                Filter filter = session.enableFilter(filterNames.get(i));
+                HashMap<String, Object> params = filterParams.get(i);
+                for (Entry<String, Object> filterParam : params.entrySet()) {
+                    filter.setParameter(filterParam.getKey(), filterParam.getValue());
+                }
+            }
+        }
+    }
 
     private static List<SessionFactory> sessionFactory = new ArrayList<SessionFactory>();
 
@@ -78,7 +111,8 @@ public class HibernateUtil {
         return result;
     }
 
-    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException, ClientAuthenticationException {
+    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException,
+            ClientAuthenticationException {
         Session[] sessions = new Session[sessionNumbers.length];
         T result = null;
         try {
@@ -142,17 +176,57 @@ public class HibernateUtil {
         }
     }
 
+    public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues,
+            final Class<DTO> clazz) throws LogicException, ClientAuthenticationException {
+        return queryList(query, paramNames, paramValues, clazz, null);
+    }
+
+    public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues,
+            final Class<DTO> clazz, final ListQueryFilter filter) throws LogicException, ClientAuthenticationException {
+        if (paramNames.length != paramValues.length) {
+            throw new LogicException("paramNames.length != paramValues.length");
+        }
+        final HashMap<String, Object> params = new HashMap<String, Object>();
+        for (int i = 0; i < paramNames.length; i++) {
+            params.put(paramNames[i], paramValues[i]);
+        }
+        return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public List<DTO> run(Session session) throws LogicException, ClientAuthenticationException {
+                if (filter != null) {
+                    filter.applyFilter(session);
+                }
+                return mapArray(session.createQuery(query).setProperties(params).list(), clazz);
+            }
+        });
+    }
+
     public static void restartTransaction(Session session) {
         session.getTransaction().commit();
         session.beginTransaction();
     }
 
-    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException, ClientAuthenticationException {
+    @SuppressWarnings("unchecked")
+    public static <DTO extends HasId, HIB> DTO saveDTO(final DTO dto, final Class<HIB> targetClass) throws LogicException,
+            ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<DTO>() {
+
+            @Override
+            public DTO run(Session session) throws LogicException, ClientAuthenticationException {
+                return (DTO) mapModel(HibernateUtil.saveObject(dto, targetClass, true, session), dto.getClass());
+            }
+        });
+    }
+
+    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException,
+            ClientAuthenticationException {
         return saveObject(objectDTO, classHIB, false);
     }
 
-    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId) throws LogicException,
-            ClientAuthenticationException {
+    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId)
+            throws LogicException, ClientAuthenticationException {
         return HibernateUtil.exec(new HibernateCallback<HIB>() {
 
             @Override
@@ -163,7 +237,8 @@ public class HibernateUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId, Session session) {
+    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId,
+            Session session) {
         if (objectDTO.getId() != null) {
             return (HIB) session.merge(ServerUtils.mapModel(objectDTO, classHIB));
         } else {
@@ -183,17 +258,6 @@ public class HibernateUtil {
             @Override
             public T run(Session session) throws LogicException, ClientAuthenticationException {
                 return (T) session.merge(object);
-            }
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <DTO extends HasId, HIB> DTO saveDTO(final DTO dto, final Class<HIB> targetClass) throws LogicException, ClientAuthenticationException {
-        return HibernateUtil.exec(new HibernateCallback<DTO>() {
-
-            @Override
-            public DTO run(Session session) throws LogicException, ClientAuthenticationException {
-                return (DTO) mapModel(HibernateUtil.saveObject(dto, targetClass, true, session), dto.getClass());
             }
         });
     }
