@@ -108,7 +108,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
     }
 
     public List<D> getHierarchicByParent(D parent, String orderField) throws LogicException, ClientAuthenticationException {
-        Long parentId = getParentId(parent);
+        Long parentId = getId(parent, false);
         List<D> dtos = mapArray(getChildren(parentId, orderField, true), dtoClass);
         for (D dto : dtos) {
             dto.setParent(parent);
@@ -156,16 +156,21 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public Long getParentId(D parent) throws LogicException, ClientAuthenticationException {
-        if (parent != null && parent.getParent() != null) {
-            return parent.getParent().getId();
-        } else {
-            T rootNode = getRootNode();
-            if (rootNode == null) {
-                rootNode = insertRootNode(mapModel(parent, entityClass));
+    public Long getId(D parent, boolean getParent) throws LogicException, ClientAuthenticationException {
+        if (parent != null) {
+            if (getParent) {
+                if (parent.getParent() != null) {
+                    return parent.getParent().getId();
+                }
+            } else {
+                return parent.getId();
             }
-            return rootNode.getId();
         }
+        T rootNode = getRootNode();
+        if (rootNode == null) {
+            rootNode = insertRootNode(mapModel(parent, entityClass));
+        }
+        return rootNode.getId();
     }
 
     public T getRootNode() throws LogicException, ClientAuthenticationException {
@@ -234,7 +239,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
     }
 
     public D saveDTONode(D dto) throws LogicException, ClientAuthenticationException {
-        Long parentId = getParentId(dto);
+        Long parentId = getId(dto, true);
         return mapModel(insertNode(mapModel(dto, entityClass), parentId), dtoClass);
     }
 
