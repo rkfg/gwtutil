@@ -460,6 +460,10 @@ public class ClientUtils {
         });
     }
 
+    public static void openPopupPanel(PopupPanel panel) {
+        openPopupPanel(panel, null);
+    }
+
     public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget) {
         openPopupPanel(panel, focusWidget, true, true);
     }
