@@ -8,6 +8,7 @@ public class RussianDateBoxAppended extends DateBoxAppended {
         super();
         setLanguage("ru");
         setFormat("dd.mm.yyyy");
+        setAutoClose(true);
     }
 
 }
