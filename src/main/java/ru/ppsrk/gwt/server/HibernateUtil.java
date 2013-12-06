@@ -261,4 +261,13 @@ public class HibernateUtil {
             }
         });
     }
+
+    public static <T> T tryGetObject(Long id, Class<T> clazz, Session session, String failText) throws LogicException {
+        @SuppressWarnings("unchecked")
+        T result = (T) session.get(clazz, id);
+        if (result == null){
+            throw new LogicException(failText);
+        }
+        return result;
+    }
 }
