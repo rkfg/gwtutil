@@ -9,11 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import ru.ppsrk.gwt.client.Hierarchic;
+import ru.ppsrk.gwt.client.EqualsById;
+import ru.ppsrk.gwt.client.HasId;
 
 @Entity
 @Table(name = "users")
-public class User implements Hierarchic {
+public class User extends EqualsById implements HasId {
     @Id
     @GeneratedValue
     Long id;
@@ -72,8 +73,4 @@ public class User implements Hierarchic {
         this.roles = roles;
     }
 
-    @Override
-    public Hierarchic getParent() {
-        return null;
-    }
 }
