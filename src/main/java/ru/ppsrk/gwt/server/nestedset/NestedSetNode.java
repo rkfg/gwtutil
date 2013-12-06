@@ -8,10 +8,12 @@ import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 
+import ru.ppsrk.gwt.client.EqualsById;
+
 @MappedSuperclass
 @FilterDef(name = "depthFilter", parameters = @ParamDef(name = "depth", type = "long"))
 @Filter(name = "depthFilter", condition = "depth = :depth")
-public class NestedSetNode {
+public class NestedSetNode extends EqualsById {
     @GeneratedValue
     @Id
     Long id;
