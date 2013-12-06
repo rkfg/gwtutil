@@ -1,5 +1,6 @@
 package ru.ppsrk.gwt.client;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,6 +27,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ValueBoxBase;
 import com.google.gwt.view.client.HasRows;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -154,6 +156,19 @@ public class ClientUtils {
 
     }
 
+    public static class SelectionModelMultiException extends SelectionModelException {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -3454980779778151279L;
+
+        public SelectionModelMultiException(String failText) {
+            super(failText);
+        }
+
+    }
+
     public static class SelectionModelNullException extends SelectionModelException {
 
         /**
@@ -274,6 +289,12 @@ public class ClientUtils {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
     }
 
+    public static <T> void autoSelect(SelectionModel<T> selectionModel, ListDataProvider<T> dataProvider) {
+        if (dataProvider.getList().size() == 1) {
+            selectionModel.setSelected(dataProvider.getList().get(0), true);
+        }
+    }
+
     public static String buildPath(Hierarchic dtoObject, boolean includeLeaf) {
         String path = new String();
         if (dtoObject != null) {
@@ -320,7 +341,7 @@ public class ClientUtils {
             }
         }
         return -1;
-    }
+    };
 
     public static String getListboxSelectedText(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? listBox.getItemText(listBox.getSelectedIndex()) : "";
@@ -328,7 +349,7 @@ public class ClientUtils {
 
     public static String getListboxSelectedTextValue(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? listBox.getValue(listBox.getSelectedIndex()) : null;
-    };
+    }
 
     public static Long getListboxSelectedValue(ListBox listBox) {
         return listBox.getSelectedIndex() >= 0 ? Long.valueOf(listBox.getValue(listBox.getSelectedIndex())) : -1;
@@ -645,6 +666,34 @@ public class ClientUtils {
 
     }
 
+    public static <S, T extends S> List<T> trySelectionModelValue(MultiSelectionModel<S> selectionModel, String failText,
+            Class<T> selectedClass) {
+        @SuppressWarnings("unchecked")
+        List<T> result = new ArrayList<T>((Collection<? extends T>) selectionModel.getSelectedSet());
+        if (result.isEmpty()) {
+            throw new SelectionModelNullException(failText);
+        }
+        for (T elem : result) {
+            if (!elem.getClass().getName().equals(selectedClass.getName())) {
+                throw new SelectionModelInvalidClassException(failText);
+            }
+        }
+        return result;
+    }
+
+    public static <S, T extends S> T trySelectionModelValue(MultiSelectionModel<S> selectionModel, String failText, String multiFailText,
+            Class<T> selectedClass) {
+        try {
+            List<T> result = trySelectionModelValue(selectionModel, failText, selectedClass);
+            if (multiFailText != null && result.size() > 1) {
+                throw new SelectionModelMultiException(multiFailText);
+            }
+            return result.get(0);
+        } catch (ClassCastException e) {
+            throw new SelectionModelInvalidClassException(failText);
+        }
+    }
+
     /**
      * Returns the selected object by selection model
      * 
@@ -687,12 +736,6 @@ public class ClientUtils {
             condition.test(result);
         }
         return result;
-    }
-
-    public static <T> void autoSelect(SelectionModel<T> selectionModel, ListDataProvider<T> dataProvider) {
-        if (dataProvider.getList().size() == 1) {
-            selectionModel.setSelected(dataProvider.getList().get(0), true);
-        }
     }
 
 }
