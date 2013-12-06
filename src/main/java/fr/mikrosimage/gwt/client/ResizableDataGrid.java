@@ -35,6 +35,16 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
 
     }
 
+    public ResizableDataGrid(int pageSize, Resources resources) {
+        super(pageSize, resources);
+        setStyleName("border-bs");
+    }
+
+    public ResizableDataGrid() {
+        super();
+        setStyleName("border-bs");
+    }
+
     public ScrollPanel getScrollPanel() {
         final HeaderPanel headerPanel = (HeaderPanel) getWidget();
         return (ScrollPanel) headerPanel.getContentWidget();
