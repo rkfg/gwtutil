@@ -53,9 +53,15 @@ public class ClientUtils {
 
         @Override
         public void reset() {
+            reset(true);
+        }
+
+        public void reset(boolean resetDataProviders) {
             super.reset();
-            for (ListDataProvider<?> dataProvider : fpDataProviders) {
-                dataProvider.getList().clear();
+            if (resetDataProviders) {
+                for (ListDataProvider<?> dataProvider : fpDataProviders) {
+                    dataProvider.getList().clear();
+                }
             }
         }
     }
