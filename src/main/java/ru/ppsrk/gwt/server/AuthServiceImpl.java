@@ -37,6 +37,16 @@ import ru.ppsrk.gwt.dto.UserDTO;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AuthServiceImpl extends RemoteServiceServlet implements AuthService {
+    public static GwtUtilRealm getRealm() throws LogicException {
+        Iterator<Realm> realms = ((RealmSecurityManager) SecurityUtils.getSecurityManager()).getRealms().iterator();
+        Realm realm = realms.next();
+        if (!(realm instanceof GwtUtilRealm)) {
+            throw new LogicException("Realm " + realm.getName() + " isn't compatible to GwtUtilRealm, its type is: "
+                    + realm.getClass().getSimpleName());
+        }
+        return (GwtUtilRealm) realm;
+    }
+
     public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
         return getRealm().getRoles(requiresAuthUser().getUsername());
     }
@@ -110,11 +120,17 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     public static boolean registrationEnabled = false;
 
     @Override
+    public String getUsername() {
+        return (String) SecurityUtils.getSubject().getPrincipal();
+    }
+
+    @Override
     public List<String> getUserRoles() throws ClientAuthenticationException, LogicException {
         requiresAuth();
         return getRoles();
     }
 
+    @Override
     public boolean isLoggedIn() {
         return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
     }
@@ -125,8 +141,8 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException,
-            LogicException {
+    public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException,
+            ClientAuthorizationException, LogicException {
         return getRealm().login(username, password, remember);
     }
 
@@ -144,29 +160,4 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRealm().register(username, password, rng);
     }
 
-    public static GwtUtilRealm getRealm() throws LogicException {
-        Iterator<Realm> realms = ((RealmSecurityManager) SecurityUtils.getSecurityManager()).getRealms().iterator();
-        Realm realm = realms.next();
-        if (!(realm instanceof GwtUtilRealm)) {
-            throw new LogicException("Realm " + realm.getName() + " isn't compatible to GwtUtilRealm, its type is: " + realm.getClass().getSimpleName());
-        }
-        return (GwtUtilRealm) realm;
-    }
-
-    /*
-     * public static interface CacheCallback<T> { public T exec() throws
-     * LogicException, ClientAuthenticationException; }
-     */
-
-    /*
-     * public static <T> T getCachedData(String key, CacheCallback<T> callback)
-     * throws LogicException, ClientAuthenticationException { T cachedData; //
-     * the following code should be used for caching purposes but currently it's
-     * too naive to really help if (GWT.isProdMode()) { cachedData = (T)
-     * getSessionAttribute(key); if (cachedData != null) { return cachedData; }
-     * }
-     * 
-     * cachedData = callback.exec(); // setSessionAttribute(key, cachedData);
-     * return cachedData; }
-     */
 }
