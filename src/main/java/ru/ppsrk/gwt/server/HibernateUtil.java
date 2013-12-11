@@ -181,8 +181,31 @@ public class HibernateUtil {
         return queryList(query, paramNames, paramValues, clazz, null);
     }
 
-    public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues,
+    public static <DTO extends HasId> List<DTO> queryList(final String query, final String[] paramNames, final Object[] paramValues,
             final Class<DTO> clazz, final ListQueryFilter filter) throws LogicException, ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
+
+            @Override
+            public List<DTO> run(Session session) throws LogicException, ClientAuthenticationException {
+                return mapArray(queryList(query, paramNames, paramValues, session, filter), clazz);
+            }
+        });
+    }
+
+    public static <HIB> List<HIB> queryList(final String query, final String[] paramNames, final Object[] paramValues,
+            final ListQueryFilter filter) throws LogicException, ClientAuthenticationException {
+        return HibernateUtil.exec(new HibernateCallback<List<HIB>>() {
+
+            @Override
+            public List<HIB> run(Session session) throws LogicException, ClientAuthenticationException {
+                return queryList(query, paramNames, paramValues, session, filter);
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <HIB> List<HIB> queryList(final String query, String[] paramNames, Object[] paramValues, Session session,
+            final ListQueryFilter filter) throws LogicException {
         if (paramNames.length != paramValues.length) {
             throw new LogicException("paramNames.length != paramValues.length");
         }
@@ -190,17 +213,10 @@ public class HibernateUtil {
         for (int i = 0; i < paramNames.length; i++) {
             params.put(paramNames[i], paramValues[i]);
         }
-        return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public List<DTO> run(Session session) throws LogicException, ClientAuthenticationException {
-                if (filter != null) {
-                    filter.applyFilter(session);
-                }
-                return mapArray(session.createQuery(query).setProperties(params).list(), clazz);
-            }
-        });
+        if (filter != null) {
+            filter.applyFilter(session);
+        }
+        return (List<HIB>) session.createQuery(query).setProperties(params).list();
     }
 
     public static void restartTransaction(Session session) {
@@ -265,7 +281,7 @@ public class HibernateUtil {
     public static <T> T tryGetObject(Long id, Class<T> clazz, Session session, String failText) throws LogicException {
         @SuppressWarnings("unchecked")
         T result = (T) session.get(clazz, id);
-        if (result == null){
+        if (result == null) {
             throw new LogicException(failText);
         }
         return result;
