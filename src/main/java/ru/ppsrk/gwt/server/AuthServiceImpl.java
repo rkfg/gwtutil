@@ -26,6 +26,8 @@ import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.util.Factory;
 import org.apache.shiro.util.ThreadContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ru.ppsrk.gwt.client.AuthService;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
@@ -37,6 +39,8 @@ import ru.ppsrk.gwt.dto.UserDTO;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AuthServiceImpl extends RemoteServiceServlet implements AuthService {
+    private static Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+
     public static GwtUtilRealm getRealm() throws LogicException {
         Iterator<Realm> realms = ((RealmSecurityManager) SecurityUtils.getSecurityManager()).getRealms().iterator();
         Realm realm = realms.next();
@@ -143,11 +147,13 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     @Override
     public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException,
             ClientAuthorizationException, LogicException {
+        logger.info("User \"{}\" logged in, {}remembered.", username, (remember ? "" : "not "));
         return getRealm().login(username, password, remember);
     }
 
     @Override
     public void logout() {
+        logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
         removeSessionAttribute("userid");
         SecurityUtils.getSubject().logout();
     }
