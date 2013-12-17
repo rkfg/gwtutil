@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.client.bootstrap;
+package ru.ppsrk.gwt.bootstrap.client;
 
 import com.google.gwt.user.client.ui.ScrollPanel;
 

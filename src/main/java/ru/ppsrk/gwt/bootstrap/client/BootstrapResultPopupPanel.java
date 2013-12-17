@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.client.bootstrap;
+package ru.ppsrk.gwt.bootstrap.client;
 
 import ru.ppsrk.gwt.client.ResultPopupPanel;
 

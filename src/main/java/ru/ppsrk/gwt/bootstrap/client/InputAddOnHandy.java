@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.client.bootstrap;
+package ru.ppsrk.gwt.bootstrap.client;
 
 import com.github.gwtbootstrap.client.ui.InputAddOn;
 import com.google.gwt.user.client.ui.IsWidget;
