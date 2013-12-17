@@ -286,4 +286,14 @@ public class HibernateUtil {
         }
         return result;
     }
+    
+    public static <T> T tryGetObject(final Long id, final Class<T> clazz, final String failText) throws LogicException, ClientAuthenticationException {
+        return exec(new HibernateCallback<T>() {
+
+            @Override
+            public T run(Session session) throws LogicException, ClientAuthenticationException {
+                return tryGetObject(id, clazz, session, failText);
+            }
+        });
+    }
 }
