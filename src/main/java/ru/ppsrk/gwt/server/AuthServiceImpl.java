@@ -147,13 +147,14 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     @Override
     public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException,
             ClientAuthorizationException, LogicException {
-        logger.info("User \"{}\" logged in, {}remembered.", username, (remember ? "" : "not "));
+        logger.info("User \"{}\" logged in from {}, {}remembered.", username, perThreadRequest.get().getRemoteHost(), (remember ? ""
+                : "not "));
         return getRealm().login(username, password, remember);
     }
 
     @Override
     public void logout() {
-        logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
+        logger.info("User \"{}\" logged out from {}.", SecurityUtils.getSubject().getPrincipal(), perThreadRequest.get().getRemoteHost());
         removeSessionAttribute("userid");
         SecurityUtils.getSubject().logout();
     }
