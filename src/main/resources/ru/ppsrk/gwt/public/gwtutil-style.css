@@ -91,3 +91,13 @@ tbody {
 	-moz-border-radius: 4px;
 	border-radius: 4px
 }
+
+.vert {
+	display: inline-block;
+	-webkit-writing-mode: vertical-rl;
+	-ms-writing-mode: tb-rl;
+	text-align: left;
+	-moz-transform: rotate(-180deg); /* FF3.5+ */
+	-o-transform: rotate(-180deg); /* Opera 10.5 */
+	-webkit-transform: rotate(-180deg); /* Saf3.1+, Chrome */
+}
