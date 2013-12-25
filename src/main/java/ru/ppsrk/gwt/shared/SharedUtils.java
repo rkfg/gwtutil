@@ -1,6 +1,7 @@
 package ru.ppsrk.gwt.shared;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import ru.ppsrk.gwt.client.HasId;
@@ -40,8 +41,7 @@ public class SharedUtils {
     }
 
     /**
-     * Replaces the list element with the new element that has the same id.
-     * Retains the element position.
+     * Replaces the list element with the new element that has the same id. Retains the element position.
      * 
      * @param list
      * @param newElement
@@ -58,8 +58,7 @@ public class SharedUtils {
     }
 
     /**
-     * Removes the collection element that has the id of the new element and
-     * adds the new element to the end of the collection.
+     * Removes the collection element that has the id of the new element and adds the new element to the end of the collection.
      * 
      * @param collection
      * @param newElement
@@ -116,5 +115,13 @@ public class SharedUtils {
      */
     public static <T> String join(List<T> objects) {
         return join(objects, ",");
+    }
+
+    public static List<Long> splitToLong(String line) {
+        List<Long> list = new LinkedList<Long>();
+        for (String num : line.split(",")) {
+            list.add(Long.valueOf(num));
+        }
+        return list;
     }
 }
