@@ -54,7 +54,7 @@ public class HttpServletRequestReportWrapper extends HttpServletRequestWrapper {
     }
 
     public Boolean getBooleanParameter(String key) {
-        return getParameter(key).equals("1");
+        return "1".equals(getParameter(key));
     }
     
     public boolean hasParameter(String key){
