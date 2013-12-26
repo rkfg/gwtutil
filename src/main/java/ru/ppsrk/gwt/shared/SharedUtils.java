@@ -119,8 +119,10 @@ public class SharedUtils {
 
     public static List<Long> splitToLong(String line) {
         List<Long> list = new LinkedList<Long>();
-        for (String num : line.split(",")) {
-            list.add(Long.valueOf(num));
+        if (!line.isEmpty()) {
+            for (String num : line.split(",")) {
+                list.add(Long.valueOf(num));
+            }
         }
         return list;
     }
