@@ -17,6 +17,8 @@ package ru.ppsrk.gwt.server;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.crypto.RandomNumberGenerator;
@@ -28,8 +30,10 @@ import org.apache.shiro.util.Factory;
 import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import ru.ppsrk.gwt.client.AuthService;
+import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
@@ -145,16 +149,25 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public boolean login(final String username, String password, boolean remember) throws ClientAuthenticationException,
-            ClientAuthorizationException, LogicException {
-        logger.info("User \"{}\" logged in from {}, {}remembered.", username, perThreadRequest.get().getRemoteHost(), (remember ? ""
-                : "not "));
-        return getRealm().login(username, password, remember);
+    public boolean login(final String username, String password, boolean remember) throws LogicException, ClientAuthException {
+        try {
+            setMDCIP();
+            boolean result = getRealm().login(username, password, remember);
+            if (result) {
+                logger.info("User \"{}\" logged in, {}remembered.", username, (remember ? "" : "not "));
+                return result;
+            }
+        } catch (ClientAuthException e) {
+            logger.warn("User \"{}\" failed to login.", username);
+            throw e;
+        }
+        return false;
     }
 
     @Override
     public void logout() {
-        logger.info("User \"{}\" logged out from {}.", SecurityUtils.getSubject().getPrincipal(), perThreadRequest.get().getRemoteHost());
+        setMDCIP();
+        logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
         removeSessionAttribute("userid");
         SecurityUtils.getSubject().logout();
     }
@@ -167,4 +180,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRealm().register(username, password, rng);
     }
 
+    private void setMDCIP() {
+        HttpServletRequest req = getThreadLocalRequest();
+        if (req != null) {
+            MDC.put("ip", req.getRemoteAddr().toString());
+        } else {
+            MDC.put("ip", "---");
+        }
+    }
 }

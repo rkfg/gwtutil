@@ -48,8 +48,8 @@ public class IniRealm extends GwtUtilRealm {
                 throw new AuthenticationException("Invalid creds");
             }
             String[] credentials = passData.split("\\|");
-            SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(token.getPrincipal(), credentials[0], ByteSource.Util.bytes(Base64
-                    .decode(credentials[1])), "IniRealm");
+            SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(token.getPrincipal(), credentials[0],
+                    ByteSource.Util.bytes(Base64.decode(credentials[1])), "IniRealm");
             if (getCredentialsMatcher().doCredentialsMatch(token, authinfo)) {
                 return authinfo;
             } else {
@@ -97,7 +97,8 @@ public class IniRealm extends GwtUtilRealm {
     }
 
     @Override
-    public boolean login(String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException {
+    public boolean login(String username, String password, boolean remember) throws ClientAuthenticationException,
+            ClientAuthorizationException {
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(new UsernamePasswordToken(username, password, remember));

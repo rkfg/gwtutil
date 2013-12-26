@@ -38,7 +38,7 @@ public interface AuthService extends RemoteService {
 
     public boolean isRegistrationEnabled();
 
-    public boolean login(String username, String password, boolean remember) throws ClientAuthenticationException, ClientAuthorizationException, LogicException;
+    public boolean login(String username, String password, boolean remember) throws LogicException, ClientAuthException;
 
     public void logout();
 
