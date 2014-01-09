@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.dozer.DozerBeanMapper;
 import org.hibernate.Session;
 
@@ -37,7 +35,8 @@ public class ServerUtils {
             return new ArrayList<String>();
         }
 
-        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL");
+        List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL",
+                "LGGLGL");
         ArrayList<String> elements = new ArrayList<String>();
         elements.add("S");
         int pos = 0;
@@ -50,14 +49,6 @@ public class ServerUtils {
         }
         elements.add("S");
         return elements;
-    }
-
-    public static String getParamFromReq(HttpServletRequest req, String paramName) {
-        if (req.getParameter(paramName) == null) {
-            return "";
-        } else {
-            return req.getParameter(paramName);
-        }
     }
 
     // public static void startTestCopyDB(String originDBConfig, String
