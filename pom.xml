@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.ppsrk.gwt</groupId>
 	<artifactId>gwtutil</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<build>
 		<plugins>
 			<plugin>
@@ -114,4 +114,9 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<parent>
+		<groupId>ru.rkfg</groupId>
+		<artifactId>distribution</artifactId>
+		<version>1.0.0</version>
+	</parent>
 </project>
