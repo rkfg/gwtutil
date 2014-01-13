@@ -4,7 +4,6 @@ import ru.ppsrk.gwt.client.ResultPopupPanel;
 
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.ButtonGroup;
-import com.github.gwtbootstrap.client.ui.constants.DismissType;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -23,7 +22,6 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> {
         button_ok.setIcon(IconType.OK);
         button_ok.setText("ОК");
         button_cancel.addClickHandler(new Button_cancelClickHandler());
-        button_cancel.setDismiss(DismissType.MODAL);
         button_cancel.setIcon(IconType.REMOVE);
         button_cancel.setText("Отмена");
         horizontalPanel_buttons.add(buttonGroup);
