@@ -21,7 +21,7 @@ public class BootstrapUtils {
     @SuppressWarnings("rawtypes")
     public static void tooltipify(Widget myWidget, String tooltipText) {
         myWidget.getElement().setAttribute("data-original-title", tooltipText);
-        Tooltip.configure(myWidget, true, Placement.TOP, Trigger.HOVER, 0, 0);
+        Tooltip.configure(myWidget, true, Placement.TOP, Trigger.HOVER, 0, 0, null);
         if (myWidget instanceof ValueBoxBase) {
             ((ValueBoxBase) myWidget).setPlaceholder(tooltipText);
         }
