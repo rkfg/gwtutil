@@ -100,7 +100,9 @@ public class HibernateUtil {
             try {
                 session.beginTransaction();
                 result = callback.run(session);
-                session.getTransaction().commit();
+                if (session.getTransaction().isActive()) {
+                    session.getTransaction().commit();
+                }
             } catch (HibernateException e) {
                 session.getTransaction().rollback();
                 throw e;
@@ -126,7 +128,9 @@ public class HibernateUtil {
             result = callback.run(sessions);
             for (int number = 0; number < sessionNumbers.length; number++) {
                 if (sessions[number] != null) {
-                    sessions[number].getTransaction().commit();
+                    if (!sessions[number].getTransaction().wasCommitted()) {
+                        sessions[number].getTransaction().commit();
+                    }
                 }
             }
         } catch (HibernateException e) {
@@ -286,8 +290,9 @@ public class HibernateUtil {
         }
         return result;
     }
-    
-    public static <T> T tryGetObject(final Long id, final Class<T> clazz, final String failText) throws LogicException, ClientAuthenticationException {
+
+    public static <T> T tryGetObject(final Long id, final Class<T> clazz, final String failText) throws LogicException,
+            ClientAuthenticationException {
         return exec(new HibernateCallback<T>() {
 
             @Override
