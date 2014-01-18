@@ -2,9 +2,9 @@ package ru.ppsrk.gwt.dto;
 
 import java.util.Set;
 
-import ru.ppsrk.gwt.client.Hierarchic;
+import ru.ppsrk.gwt.client.HasId;
 
-public class UserDTO implements Hierarchic {
+public class UserDTO implements HasId {
 
     Long id;
     String username;
@@ -51,11 +51,4 @@ public class UserDTO implements Hierarchic {
     public void setRoles(Set<RoleDTO> roles) {
         this.roles = roles;
     }
-
-    @Override
-    public Hierarchic getParent() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }
