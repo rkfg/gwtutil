@@ -61,7 +61,8 @@ public class SettingsManager {
         }
     }
 
-    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+    public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
+            IOException {
         properties.load(new InputStreamReader(new FileInputStream(createFileDirs(filename)), "utf-8"));
     }
 
@@ -89,12 +90,17 @@ public class SettingsManager {
         return filename;
     }
 
-    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+    public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
+            IOException {
         properties.store(new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8"), "");
     }
 
     public void setDefaults(HashMap<String, String> defaults) {
         this.defaults = defaults;
+    }
+
+    public HashMap<String, String> getDefaults() {
+        return defaults;
     }
 
     public void setFilename(String filename) {

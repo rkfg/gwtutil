@@ -1,8 +1,8 @@
 package ru.ppsrk.gwt.client;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
-public class LogicException extends Exception implements IsSerializable {
+public class LogicException extends Exception implements Serializable {
 
     public LogicException(String string) {
         super(string);

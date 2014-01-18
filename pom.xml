@@ -114,7 +114,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<parent>
-		<groupId>ru.rkfg</groupId>
+		<groupId>me.rkfg</groupId>
 		<artifactId>distribution</artifactId>
 		<version>1.0.0</version>
 	</parent>

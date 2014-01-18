@@ -26,49 +26,6 @@ public class SharedUtils {
     }
 
     /**
-     * Removes the element with specified id from the collection.
-     * 
-     * @param collection
-     * @param id
-     */
-    public static <T extends HasId> void removeObjectFromCollectionById(Collection<T> collection, Long id) {
-        for (T item : collection) {
-            if (item.getId().equals(id)) {
-                collection.remove(item);
-                break;
-            }
-        }
-    }
-
-    /**
-     * Replaces the list element with the new element that has the same id. Retains the element position.
-     * 
-     * @param list
-     * @param newElement
-     */
-    public static <T extends HasId> void updateListElement(List<T> list, T newElement) {
-        Long id = newElement.getId();
-        for (int i = 0; i < list.size(); i++) {
-            T item = list.get(i);
-            if (item.getId().equals(id)) {
-                list.set(i, newElement);
-                break;
-            }
-        }
-    }
-
-    /**
-     * Removes the collection element that has the id of the new element and adds the new element to the end of the collection.
-     * 
-     * @param collection
-     * @param newElement
-     */
-    public static <T extends HasId> void updateCollectionElement(Collection<T> collection, T newElement) {
-        removeObjectFromCollectionById(collection, newElement.getId());
-        collection.add(newElement);
-    }
-
-    /**
      * Search the collection for the element by id.
      * 
      * @param collection
@@ -82,10 +39,6 @@ public class SharedUtils {
             }
         }
         return null;
-    }
-
-    public static <T extends HasId> void removeObjectFromDataProvider(ListDataProvider<T> dataProvider, T object) {
-        removeObjectFromCollectionById(dataProvider.getList(), object.getId());
     }
 
     /**
@@ -117,6 +70,36 @@ public class SharedUtils {
         return join(objects, ",");
     }
 
+    public static <T> String join(T[] objects, String delim) {
+        StringBuilder sb = new StringBuilder(objects.length * (10 + delim.length()));
+        for (Object object : objects) {
+            if (sb.length() > 0) {
+                sb.append(delim);
+            }
+            sb.append(object);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Removes the element with specified id from the collection.
+     * 
+     * @param collection
+     * @param id
+     */
+    public static <T extends HasId> void removeObjectFromCollectionById(Collection<T> collection, Long id) {
+        for (T item : collection) {
+            if (item.getId().equals(id)) {
+                collection.remove(item);
+                break;
+            }
+        }
+    }
+
+    public static <T extends HasId> void removeObjectFromDataProvider(ListDataProvider<T> dataProvider, T object) {
+        removeObjectFromCollectionById(dataProvider.getList(), object.getId());
+    }
+
     public static List<Long> splitToLong(String line) {
         List<Long> list = new LinkedList<Long>();
         if (!line.isEmpty()) {
@@ -125,5 +108,33 @@ public class SharedUtils {
             }
         }
         return list;
+    }
+
+    /**
+     * Removes the collection element that has the id of the new element and adds the new element to the end of the collection.
+     * 
+     * @param collection
+     * @param newElement
+     */
+    public static <T extends HasId> void updateCollectionElement(Collection<T> collection, T newElement) {
+        removeObjectFromCollectionById(collection, newElement.getId());
+        collection.add(newElement);
+    }
+
+    /**
+     * Replaces the list element with the new element that has the same id. Retains the element position.
+     * 
+     * @param list
+     * @param newElement
+     */
+    public static <T extends HasId> void updateListElement(List<T> list, T newElement) {
+        Long id = newElement.getId();
+        for (int i = 0; i < list.size(); i++) {
+            T item = list.get(i);
+            if (item.getId().equals(id)) {
+                list.set(i, newElement);
+                break;
+            }
+        }
     }
 }
