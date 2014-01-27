@@ -596,12 +596,16 @@ public class ClientUtils {
     }
 
     public static void requireLogin() {
+        requireLogin(true);
+    }
+
+    public static void requireLogin(final boolean rememberMe) {
         AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
                 if (!result) {
-                    PopupPanel popupPanel = new Login(false, true);
+                    PopupPanel popupPanel = new Login(rememberMe);
                     popupPanel.center();
                 }
             }
