@@ -146,7 +146,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 try {
                     return (T) session
                             .createQuery(
-                                    "from " + entityName + " node where node.leftnum < :left and node.rightnum > :right and depth = :depth")
+                                    "from " + entityName + " node where node.leftnum <= :left and node.rightnum >= :right and depth = :depth")
                             .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum())
                             .setLong("depth", parentDepth).uniqueResult();
                 } catch (NonUniqueResultException e) {
