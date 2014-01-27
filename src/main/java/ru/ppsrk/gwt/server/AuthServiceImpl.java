@@ -55,7 +55,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return (GwtUtilRealm) realm;
     }
 
-    public static List<String> getRoles() throws LogicException, ClientAuthenticationException {
+    public static List<String> getRoles() throws LogicException, ClientAuthException {
         return getRealm().getRoles(requiresAuthUser().getUsername());
     }
 
@@ -63,7 +63,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return SecurityUtils.getSubject().getSession().getAttribute(key);
     }
 
-    public static boolean hasRole(String role) throws LogicException, ClientAuthenticationException {
+    public static boolean hasRole(String role) throws LogicException, ClientAuthException {
         return getRoles().contains(role);
     }
 
@@ -77,7 +77,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         SecurityUtils.getSubject().getSession().removeAttribute(key);
     }
 
-    public static Long requiresAuth() throws ClientAuthenticationException, LogicException {
+    public static Long requiresAuth() throws LogicException, ClientAuthException {
         User user = requiresAuthUser();
         if (user == null) {
             return 0L;
@@ -86,7 +86,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         }
     }
 
-    public static User requiresAuthUser() throws ClientAuthenticationException, LogicException {
+    public static User requiresAuthUser() throws LogicException, ClientAuthException {
         if (!SecurityUtils.getSubject().isAuthenticated() && !SecurityUtils.getSubject().isRemembered())
             throw new ClientAuthenticationException("Not authenticated");
         UserDTO user = (UserDTO) getSessionAttribute("user");
@@ -133,7 +133,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public List<String> getUserRoles() throws ClientAuthenticationException, LogicException {
+    public List<String> getUserRoles() throws LogicException, ClientAuthException {
         requiresAuth();
         return getRoles();
     }
@@ -173,7 +173,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public Long register(final String username, final String password) throws LogicException, ClientAuthenticationException {
+    public Long register(final String username, final String password) throws LogicException, ClientAuthException {
         if (!registrationEnabled) {
             return -1L;
         }

@@ -44,9 +44,9 @@ public interface AuthService extends RemoteService {
 
     public boolean isLoggedIn();
 
-    public Long register(String username, String password) throws LogicException, ClientAuthenticationException;
+    public Long register(String username, String password) throws LogicException, ClientAuthException;
 
-    public List<String> getUserRoles() throws ClientAuthenticationException, LogicException;
+    public List<String> getUserRoles() throws LogicException, ClientAuthException;
 
     public String getUsername();
 }

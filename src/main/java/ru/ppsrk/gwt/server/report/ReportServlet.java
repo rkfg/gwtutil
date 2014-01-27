@@ -8,8 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.ppsrk.gwt.client.ClientAuthenticationException;
-import ru.ppsrk.gwt.client.ClientAuthorizationException;
+import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.server.Freemarker;
 import freemarker.template.TemplateException;
@@ -56,10 +55,7 @@ public abstract class ReportServlet extends HttpServlet {
         } catch (TemplateException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (ClientAuthenticationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClientAuthorizationException e) {
+        } catch (ClientAuthException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

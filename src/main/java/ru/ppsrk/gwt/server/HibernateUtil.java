@@ -19,6 +19,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
+import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.HasId;
 import ru.ppsrk.gwt.client.LogicException;
@@ -77,7 +78,7 @@ public class HibernateUtil {
         sessionFactory = null;
     }
 
-    public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws ClientAuthenticationException, LogicException {
+    public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws LogicException, ClientAuthException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
@@ -88,11 +89,11 @@ public class HibernateUtil {
         });
     }
 
-    public static <T> T exec(HibernateCallback<T> callback) throws LogicException, ClientAuthenticationException {
+    public static <T> T exec(HibernateCallback<T> callback) throws LogicException, ClientAuthException {
         return exec(0, callback);
     }
 
-    public static <T> T exec(int sessionNumber, HibernateCallback<T> callback) throws LogicException, ClientAuthenticationException {
+    public static <T> T exec(int sessionNumber, HibernateCallback<T> callback) throws LogicException, ClientAuthException {
         T result = null;
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory(sessionNumber);
         if (sessionFactory != null) {
@@ -114,7 +115,7 @@ public class HibernateUtil {
     }
 
     public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException,
-            ClientAuthenticationException {
+            ClientAuthException {
         Session[] sessions = new Session[sessionNumbers.length];
         T result = null;
         try {
@@ -181,12 +182,12 @@ public class HibernateUtil {
     }
 
     public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues,
-            final Class<DTO> clazz) throws LogicException, ClientAuthenticationException {
+            final Class<DTO> clazz) throws LogicException, ClientAuthException {
         return queryList(query, paramNames, paramValues, clazz, null);
     }
 
     public static <DTO extends HasId> List<DTO> queryList(final String query, final String[] paramNames, final Object[] paramValues,
-            final Class<DTO> clazz, final ListQueryFilter filter) throws LogicException, ClientAuthenticationException {
+            final Class<DTO> clazz, final ListQueryFilter filter) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
 
             @Override
@@ -197,7 +198,7 @@ public class HibernateUtil {
     }
 
     public static <HIB> List<HIB> queryList(final String query, final String[] paramNames, final Object[] paramValues,
-            final ListQueryFilter filter) throws LogicException, ClientAuthenticationException {
+            final ListQueryFilter filter) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<HIB>>() {
 
             @Override
@@ -230,7 +231,7 @@ public class HibernateUtil {
 
     @SuppressWarnings("unchecked")
     public static <DTO extends HasId, HIB> DTO saveDTO(final DTO dto, final Class<HIB> targetClass) throws LogicException,
-            ClientAuthenticationException {
+            ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<DTO>() {
 
             @Override
@@ -241,12 +242,12 @@ public class HibernateUtil {
     }
 
     public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException,
-            ClientAuthenticationException {
+            ClientAuthException {
         return saveObject(objectDTO, classHIB, false);
     }
 
     public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId)
-            throws LogicException, ClientAuthenticationException {
+            throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<HIB>() {
 
             @Override
@@ -271,7 +272,7 @@ public class HibernateUtil {
         }
     }
 
-    public static <T> T saveObject(final T object) throws LogicException, ClientAuthenticationException {
+    public static <T> T saveObject(final T object) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
@@ -291,8 +292,7 @@ public class HibernateUtil {
         return result;
     }
 
-    public static <T> T tryGetObject(final Long id, final Class<T> clazz, final String failText) throws LogicException,
-            ClientAuthenticationException {
+    public static <T> T tryGetObject(final Long id, final Class<T> clazz, final String failText) throws LogicException, ClientAuthException {
         return exec(new HibernateCallback<T>() {
 
             @Override

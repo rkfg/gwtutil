@@ -11,6 +11,7 @@ import java.util.Scanner;
 import org.dozer.DozerBeanMapper;
 import org.hibernate.Session;
 
+import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
 
@@ -111,7 +112,7 @@ public class ServerUtils {
         System.out.println("--------------------------");
     }
 
-    public static void resetTables(final String[] tables) throws LogicException, ClientAuthenticationException {
+    public static void resetTables(final String[] tables) throws LogicException, ClientAuthException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
@@ -129,7 +130,7 @@ public class ServerUtils {
 
     }
 
-    public static void importSQL(final String sqlFilename) throws LogicException, ClientAuthenticationException {
+    public static void importSQL(final String sqlFilename) throws LogicException, ClientAuthException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override

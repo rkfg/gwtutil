@@ -20,6 +20,7 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
 import org.hibernate.Session;
 
+import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
@@ -36,7 +37,7 @@ public class HibernateRealm extends GwtUtilRealm {
             return HibernateUtil.exec(new HibernateCallback<SimpleAuthorizationInfo>() {
 
                 @Override
-                public SimpleAuthorizationInfo run(Session session) throws LogicException, ClientAuthenticationException {
+                public SimpleAuthorizationInfo run(Session session) throws LogicException, ClientAuthException {
                     SimpleAuthorizationInfo sai = new SimpleAuthorizationInfo();
                     String principal = (String) principals.getPrimaryPrincipal();
                     for (String perm : getPerms(principal)) {
@@ -51,7 +52,7 @@ public class HibernateRealm extends GwtUtilRealm {
         } catch (LogicException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (ClientAuthenticationException e) {
+        } catch (ClientAuthException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -75,7 +76,7 @@ public class HibernateRealm extends GwtUtilRealm {
         } catch (LogicException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (ClientAuthenticationException e) {
+        } catch (ClientAuthException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -97,8 +98,7 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public boolean login(final String username, String password, boolean remember) throws LogicException, ClientAuthenticationException,
-            ClientAuthorizationException {
+    public boolean login(final String username, String password, boolean remember) throws LogicException, ClientAuthException {
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(new UsernamePasswordToken(username, password, remember));
@@ -124,7 +124,8 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public Long register(final String username, final String password, final RandomNumberGenerator rng) throws LogicException, ClientAuthenticationException {
+    public Long register(final String username, final String password, final RandomNumberGenerator rng) throws LogicException,
+            ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<Long>() {
 
             @Override
@@ -132,8 +133,8 @@ public class HibernateRealm extends GwtUtilRealm {
                 ByteSource salt = rng.nextBytes();
                 String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
 
-                User user = (User) session.createQuery("from User where username = :username").setParameter("username", username).setMaxResults(1)
-                        .uniqueResult();
+                User user = (User) session.createQuery("from User where username = :username").setParameter("username", username)
+                        .setMaxResults(1).uniqueResult();
                 if (user == null) {
                     user = new User(username, hashedPasswordBase64);
                 } else {
@@ -151,7 +152,7 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public List<String> getRoles(final String principal) throws LogicException, ClientAuthenticationException {
+    public List<String> getRoles(final String principal) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 
             @Override
@@ -168,7 +169,7 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public List<String> getPerms(final String principal) throws LogicException, ClientAuthenticationException {
+    public List<String> getPerms(final String principal) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 
             @Override
@@ -185,7 +186,7 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public UserDTO getUser(final String principal) throws LogicException, ClientAuthenticationException {
+    public UserDTO getUser(final String principal) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<UserDTO>() {
 
             @Override

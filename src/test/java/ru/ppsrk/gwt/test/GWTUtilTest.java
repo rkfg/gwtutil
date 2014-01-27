@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.NestedSetManagerException;
@@ -25,14 +26,14 @@ public class GWTUtilTest {
     NestedSetManager<Dept, DeptHierDTO> nsm = new NestedSetManager<Dept, DeptHierDTO>(Dept.class, DeptHierDTO.class);
 
     @BeforeClass
-    public static void login() throws LogicException, ClientAuthenticationException {
+    public static void login() throws LogicException, ClientAuthException {
         HibernateUtil.initSessionFactory("hibernate.gwtutil_testmem.cfg.xml");
         ServerUtils.importSQL("depthier.sql");
 
     }
 
     @Before
-    public void init() throws LogicException, ClientAuthenticationException {
+    public void init() throws LogicException, ClientAuthException {
         ServerUtils.resetTables(new String[] { "terrdepts" });
         Dept rootNode = nsm.insertRootNode(new Dept());
         Dept sq11 = nsm.insertNode(new Dept("11 Отряд", "Краснозатонский"), rootNode.getId());
@@ -43,7 +44,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testNestedSetInsert() throws LogicException, ClientAuthenticationException {
+    public void testNestedSetInsert() throws LogicException, ClientAuthException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @SuppressWarnings("unchecked")
@@ -76,7 +77,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testChildrenByParent() throws LogicException, ClientAuthenticationException {
+    public void testChildrenByParent() throws LogicException, ClientAuthException {
         List<Dept> depts = nsm.getChildren(1L, "id", true);
         assertEquals(2L, depts.size());
         assertEquals("11 Отряд", depts.get(0).getName());
@@ -92,7 +93,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testParentByChild() throws LogicException, ClientAuthenticationException {
+    public void testParentByChild() throws LogicException, ClientAuthException {
         Dept parent = nsm.getParentByChild(6L, 0L);
         assertEquals(1L, parent.getId().longValue());
         parent = nsm.getParentByChild(6L, -1L);
@@ -102,17 +103,18 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testImportHier() throws LogicException, ClientAuthenticationException {
+    public void testImportHier() throws LogicException, ClientAuthException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthenticationException {
+            public Void run(Session session) throws LogicException, ClientAuthException {
                 @SuppressWarnings("unchecked")
                 List<DeptHier> depts = session.createQuery("from DeptHier d where d.name != 'Default' order by d.id").list();
                 nsm.insertHierarchic(mapArray(depts, DeptHierDTO.class), 1L);
                 @SuppressWarnings("unchecked")
                 List<Dept> insertedDepts = session.createQuery(
-                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum").list();
+                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum")
+                        .list();
                 assertEquals(52, insertedDepts.get(0).getLeftNum().longValue());
                 assertEquals(53, insertedDepts.get(0).getRightNum().longValue());
                 assertEquals(60, insertedDepts.get(1).getLeftNum().longValue());
@@ -129,7 +131,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testDeleteNode() throws LogicException, ClientAuthenticationException {
+    public void testDeleteNode() throws LogicException, ClientAuthException {
         try {
             nsm.deleteNode(2L, false);
             fail();
