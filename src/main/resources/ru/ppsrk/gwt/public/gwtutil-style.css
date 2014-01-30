@@ -101,3 +101,7 @@ tbody {
 	-o-transform: rotate(-180deg); /* Opera 10.5 */
 	-webkit-transform: rotate(-180deg); /* Saf3.1+, Chrome */
 }
+
+.flow-margin>* {
+    margin: 2px;
+}
