@@ -103,5 +103,5 @@ tbody {
 }
 
 .flow-margin>* {
-    margin: 2px;
+	margin: 2px !important;
 }
