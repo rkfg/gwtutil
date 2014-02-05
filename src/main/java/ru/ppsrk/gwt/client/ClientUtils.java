@@ -118,6 +118,7 @@ public class ClientUtils {
 
         public RuSimplePager() {
             super(TextLocation.CENTER, false, true);
+            getElement().getStyle().setProperty("display", "inline-table");
         }
 
         protected String createText() {
