@@ -281,9 +281,9 @@ public class HibernateUtil {
     public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId,
             Session session) {
         if (objectDTO.getId() != null) {
-            return (HIB) session.merge(ServerUtils.mapModel(objectDTO, classHIB));
+            return (HIB) session.merge(mapModel(objectDTO, classHIB));
         } else {
-            Long id = (Long) session.save(ServerUtils.mapModel(objectDTO, classHIB));
+            Long id = (Long) session.save(mapModel(objectDTO, classHIB));
             HIB result = (HIB) session.get(classHIB, id);
             if (setId) {
                 objectDTO.setId(id);
