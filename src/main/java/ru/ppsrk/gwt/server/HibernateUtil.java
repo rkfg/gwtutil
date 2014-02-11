@@ -107,6 +107,12 @@ public class HibernateUtil {
             } catch (HibernateException e) {
                 session.getTransaction().rollback();
                 throw e;
+            } catch (LogicException e) {
+                session.getTransaction().rollback();
+                throw e;
+            } catch (ClientAuthException e) {
+                session.getTransaction().rollback();
+                throw e;
             } finally {
                 session.close();
             }
@@ -135,6 +141,20 @@ public class HibernateUtil {
                 }
             }
         } catch (HibernateException e) {
+            for (int number = 0; number < sessionNumbers.length; number++) {
+                if (sessions[number] != null) {
+                    sessions[number].getTransaction().rollback();
+                }
+            }
+            throw e;
+        } catch (LogicException e) {
+            for (int number = 0; number < sessionNumbers.length; number++) {
+                if (sessions[number] != null) {
+                    sessions[number].getTransaction().rollback();
+                }
+            }
+            throw e;
+        } catch (ClientAuthException e) {
             for (int number = 0; number < sessionNumbers.length; number++) {
                 if (sessions[number] != null) {
                     sessions[number].getTransaction().rollback();
