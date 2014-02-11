@@ -206,6 +206,11 @@ public class HibernateUtil {
         return queryList(query, paramNames, paramValues, clazz, null);
     }
 
+    public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues, Session session,
+            final Class<DTO> clazz) throws LogicException, ClientAuthException {
+        return mapArray(queryList(query, paramNames, paramValues, session, (ListQueryFilter) null), clazz);
+    }
+
     public static <DTO extends HasId> List<DTO> queryList(final String query, final String[] paramNames, final Object[] paramValues,
             final Class<DTO> clazz, final ListQueryFilter filter) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
