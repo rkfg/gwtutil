@@ -120,8 +120,7 @@ public class HibernateUtil {
         return result;
     }
 
-    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException,
-            ClientAuthException {
+    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException, ClientAuthException {
         Session[] sessions = new Session[sessionNumbers.length];
         T result = null;
         try {
@@ -252,6 +251,17 @@ public class HibernateUtil {
     public static void restartTransaction(Session session) {
         session.getTransaction().commit();
         session.beginTransaction();
+    }
+
+    public static <DTO extends HasId, HIB> DTO saveObject(final HIB hib, final Class<DTO> targetClass) throws LogicException,
+            ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<DTO>() {
+
+            @Override
+            public DTO run(Session session) throws LogicException, ClientAuthException {
+                return mapModel(session.merge(hib), targetClass);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
