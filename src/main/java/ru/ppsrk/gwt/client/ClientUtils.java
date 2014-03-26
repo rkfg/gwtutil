@@ -40,6 +40,7 @@ public class ClientUtils {
     public static class FormPanelLDP extends FormPanel {
 
         private List<ListDataProvider<?>> fpDataProviders = new LinkedList<ListDataProvider<?>>();
+        private List<SelectionModel<?>> fpSelectionModels = new LinkedList<SelectionModel<?>>();
 
         public void addDataProvider(ListDataProvider<?> listDataProvider) {
             fpDataProviders.add(listDataProvider);
@@ -51,16 +52,31 @@ public class ClientUtils {
             }
         }
 
-        @Override
-        public void reset() {
-            reset(true);
+        public void addSelectionModel(SelectionModel<?> selectionModel) {
+            fpSelectionModels.add(selectionModel);
         }
 
-        public void reset(boolean resetDataProviders) {
+        public void addSelectionModels(SelectionModel<?>... selectionModels) {
+            for (SelectionModel<?> selectionModel : selectionModels) {
+                fpSelectionModels.add(selectionModel);
+            }
+        }
+
+        @Override
+        public void reset() {
+            reset(true, true);
+        }
+
+        public void reset(boolean resetDataProviders, boolean resetSelectionModels) {
             super.reset();
             if (resetDataProviders) {
                 for (ListDataProvider<?> dataProvider : fpDataProviders) {
                     dataProvider.getList().clear();
+                }
+            }
+            if (resetSelectionModels) {
+                for (SelectionModel<?> selectionModel : fpSelectionModels) {
+                    selectionModel.setSelected(null, true);
                 }
             }
         }
