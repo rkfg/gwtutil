@@ -55,4 +55,8 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
         super.addColumn(col, new DataGridResizableHeader(headerString, col));
     }
 
+    public void scrollToElement(T element) {
+        getRowElement(getVisibleItems().indexOf(element)).getCells().getItem(0).scrollIntoView();
+    }
+
 }
