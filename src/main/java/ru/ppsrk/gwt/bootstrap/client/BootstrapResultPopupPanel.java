@@ -7,6 +7,8 @@ import com.github.gwtbootstrap.client.ui.ButtonGroup;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
 public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> {
@@ -51,5 +53,17 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> {
 
     protected Button getCancelButton() {
         return button_cancel;
+    }
+
+    protected void placeButtons(FlexTable flexTable, int row, int col, int colspan) {
+        placeButtons(flexTable, row, col, colspan, true);
+    }
+
+    protected void placeButtons(FlexTable flexTable, int row, int col, int colspan, boolean center) {
+        flexTable.setWidget(row, col, horizontalPanel_buttons);
+        flexTable.getFlexCellFormatter().setColSpan(row, col, colspan);
+        if (center) {
+            flexTable.getCellFormatter().setHorizontalAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER);
+        }
     }
 }
