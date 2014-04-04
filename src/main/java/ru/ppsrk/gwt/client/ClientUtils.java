@@ -721,6 +721,10 @@ public class ClientUtils {
         }
     }
 
+    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText, Class<T> selectedClass) {
+        return trySelectionModelValue(selectionModel, failText, selectedClass, false);
+    }
+
     /**
      * Returns the selected object by selection model
      * 
@@ -729,18 +733,21 @@ public class ClientUtils {
      *            text to throw in case of cast exception
      * @param selectedClass
      *            expected class
+     * @param allowSubclasses
+     *            don't throw exception if the result is a subclass of the specified class
      * @return selectionModel's selected object
      * @throws SelectionModelInvalidClassException
      *             if the object has unexpected type.
      */
-    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText, Class<T> selectedClass) {
+    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText,
+            Class<T> selectedClass, boolean allowSubclasses) {
         try {
             @SuppressWarnings("unchecked")
             T result = (T) selectionModel.getSelectedObject();
             if (result == null) {
                 throw new SelectionModelNullException(failText);
             }
-            if (!result.getClass().getName().equals(selectedClass.getName())) {
+            if (!allowSubclasses && !result.getClass().getName().equals(selectedClass.getName())) {
                 throw new SelectionModelInvalidClassException(failText);
             }
             return result;
