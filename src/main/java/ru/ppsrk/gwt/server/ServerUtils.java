@@ -56,37 +56,6 @@ public class ServerUtils {
         return elements;
     }
 
-    // public static void startTestCopyDB(String originDBConfig, String
-    // targetDBConfig, List<String> classnames) {
-    // HibernateUtil.initSessionFactory(targetDBConfig);
-    // HibernateUtil.initSessionFactory(originDBConfig);
-    // Factory<SecurityManager> factory = new
-    // IniSecurityManagerFactory("classpath:shiro.ini");
-    // SecurityManager sm = factory.getInstance();
-    // ThreadContext.bind(sm);
-    // StatelessSession session1 =
-    // HibernateUtil.getSessionFactory(0).openStatelessSession();
-    // session1.beginTransaction();
-    // session1.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY FALSE").executeUpdate();
-    // for (String classname : classnames) {
-    // Session session2 = HibernateUtil.getSessionFactory(1).openSession();
-    // session2.beginTransaction();
-    // System.out.println("Copying " + classname);
-    // @SuppressWarnings("rawtypes")
-    // List items = session2.createQuery("from " + classname).list();
-    // session2.getTransaction().commit();
-    // session2.close();
-    // for (Object object : items) {
-    // // object = session1.save(object);
-    // session1.insert(object);
-    // // session1.merge(object);
-    // }
-    // }
-    // session1.createSQLQuery("SET DATABASE REFERENTIAL INTEGRITY TRUE").executeUpdate();
-    // session1.getTransaction().commit();
-    // session1.close();
-    // }
-
     public static <ST, DT> List<DT> mapArray(Collection<ST> list, Class<DT> destClass) {
         List<DT> result = new ArrayList<DT>();
         for (ST elem : list) {
