@@ -200,9 +200,20 @@ public class HibernateUtil {
         }
     }
 
+    public static <DTO, H extends MapperHint> List<DTO> queryList(final String query, final String[] paramNames,
+            final Object[] paramValues, final Class<DTO> clazz, final Class<H> hintClass) throws LogicException, ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
+
+            @Override
+            public List<DTO> run(Session session) throws LogicException, ClientAuthenticationException {
+                return mapArray(queryList(query, paramNames, paramValues, session, (ListQueryFilter) null), clazz, hintClass);
+            }
+        });
+    }
+
     public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues,
             final Class<DTO> clazz) throws LogicException, ClientAuthException {
-        return queryList(query, paramNames, paramValues, clazz, null);
+        return queryList(query, paramNames, paramValues, clazz, (ListQueryFilter) null);
     }
 
     public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues, Session session,

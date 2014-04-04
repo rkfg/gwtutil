@@ -19,6 +19,10 @@ public class ServerUtils {
 
     private static DozerBeanMapper mapper = new DozerBeanMapper();
 
+    public interface MapperHint {
+        public Class<?>[][] getMapperHints();
+    };
+
     protected static void cleanup() {
         System.out.println("Cleaning up ServerUtils...");
         mapper.destroy();
@@ -86,14 +90,25 @@ public class ServerUtils {
     public static <ST, DT> List<DT> mapArray(Collection<ST> list, Class<DT> destClass) {
         List<DT> result = new ArrayList<DT>();
         for (ST elem : list) {
-            if (elem != null)
-                result.add(mapper.map(elem, destClass));
+            if (elem != null) {
+                result.add(mapModel(elem, destClass));
+            }
+        }
+        return result;
+    }
+
+    public static <ST, DT, H extends MapperHint> List<DT> mapArray(Collection<ST> list, Class<DT> destClass, Class<H> hintClass) {
+        List<DT> result = new ArrayList<DT>();
+        for (ST elem : list) {
+            if (elem != null) {
+                result.add(mapModel(elem, destClass, hintClass));
+            }
         }
         return result;
     }
 
     public static <T> T mapModel(Object value, Class<T> classDTO) {
-        if (value == null)
+        if (value == null) {
             try {
                 return classDTO.newInstance();
             } catch (InstantiationException e) {
@@ -101,7 +116,33 @@ public class ServerUtils {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+        }
         return mapper.map(value, classDTO);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T, H extends MapperHint> T mapModel(Object value, Class<T> classDTO, Class<H> hintClass) {
+        try {
+            Class<?>[][] mapping = hintClass.newInstance().getMapperHints();
+            if (mapping.length != 2) {
+                throw new RuntimeException("Invalid MapperHint class size, expected 2, got: " + mapping.length);
+            }
+            if (mapping[0].length != mapping[1].length) {
+                throw new RuntimeException("Non-equal MapperHint class sizes: " + mapping[0].length + " / " + mapping[1].length);
+            }
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < mapping[i].length; j++) {
+                    if (mapping[i][j].equals(value.getClass())) {
+                        return (T) mapper.map(value, mapping[1 - i][j]);
+                    }
+                }
+            }
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException("Couldn't find the valid mapping class for " + value.toString());
     }
 
     public static void printStackTrace() {
