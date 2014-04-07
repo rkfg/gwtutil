@@ -2,6 +2,7 @@ package ru.ppsrk.gwt.server.report;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,7 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.server.Freemarker;
+
+import com.programmisty.numerals.Numerals;
+
 import freemarker.template.TemplateException;
+import freemarker.template.TemplateMethodModel;
+import freemarker.template.TemplateModelException;
 
 public abstract class ReportServlet extends HttpServlet {
     /**
@@ -41,6 +47,21 @@ public abstract class ReportServlet extends HttpServlet {
                         }
                     }
                     HashMap<String, Object> params = new HashMap<String, Object>();
+                    params.put("num2textru", new TemplateMethodModel() {
+
+                        @Override
+                        public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
+                            return Numerals.russian(Long.valueOf(arguments.get(0).toString()));
+                        }
+                    });
+                    params.put("num2rubles", new TemplateMethodModel() {
+
+                        @Override
+                        public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
+                            return Numerals.russianRubles(Long.valueOf(arguments.get(0).toString()));
+                        }
+                    });
+
                     String template = handler.exec(new HttpServletRequestReportWrapper(req), resp, params);
                     if (template != null) {
                         Freemarker.processTemplate(this, template, params, resp);
