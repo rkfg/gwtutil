@@ -2,6 +2,7 @@ package ru.ppsrk.gwt.bootstrap.client;
 
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
+import com.github.gwtbootstrap.client.ui.Typeahead.MatcherCallback;
 import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
@@ -29,6 +30,13 @@ public abstract class TypeaheadBox extends TextBox {
             public String onSelection(Suggestion selectedSuggestion) {
                 enterAllowed = true;
                 return updater(selectedSuggestion);
+            }
+        });
+        typeahead.setMatcherCallback(new MatcherCallback() {
+
+            @Override
+            public boolean compareQueryToItem(String query, String item) {
+                return item.toLowerCase().replaceAll("</?strong>", "").contains(query.toLowerCase());
             }
         });
     }
@@ -60,6 +68,6 @@ public abstract class TypeaheadBox extends TextBox {
     public abstract void fillOracle();
 
     public void doEnter() {
-        
+
     }
 }
