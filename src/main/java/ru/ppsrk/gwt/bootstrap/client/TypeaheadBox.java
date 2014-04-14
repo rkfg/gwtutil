@@ -22,6 +22,7 @@ public abstract class TypeaheadBox extends TextBox {
 
     public TypeaheadBox(int suggestOnLength) {
         super();
+        this.suggestOnLength = suggestOnLength;
         addKeyPressHandler(new ThisKeyPressHandler());
         typeahead.add(this);
         typeahead.setUpdaterCallback(new UpdaterCallback() {
