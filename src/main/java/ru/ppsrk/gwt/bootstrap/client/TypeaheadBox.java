@@ -4,17 +4,25 @@ import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
 import com.github.gwtbootstrap.client.ui.Typeahead.MatcherCallback;
 import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
+import com.google.gwt.user.client.ui.Widget;
 
-public abstract class TypeaheadBox extends TextBox {
+public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardClose {
 
     private Typeahead typeahead = new Typeahead();
     private int suggestOnLength;
     private boolean enterAllowed = true;
+    private KeyboardClosable parentPanel;
 
     public TypeaheadBox() {
         this(3);
@@ -38,6 +46,33 @@ public abstract class TypeaheadBox extends TextBox {
             @Override
             public boolean compareQueryToItem(String query, String item) {
                 return item.toLowerCase().replaceAll("</?strong>", "").contains(query.toLowerCase());
+            }
+        });
+        addFocusHandler(new FocusHandler() {
+
+            @Override
+            public void onFocus(FocusEvent event) {
+                if (parentPanel == null) {
+                    return;
+                }
+                parentPanel.setFocusedWidget(TypeaheadBox.this);
+            }
+        });
+        addBlurHandler(new BlurHandler() {
+
+            @Override
+            public void onBlur(BlurEvent event) {
+                if (parentPanel == null) {
+                    return;
+                }
+                parentPanel.setFocusedWidget(null);
+            }
+        });
+        addAttachHandler(new Handler() {
+
+            @Override
+            public void onAttachOrDetach(AttachEvent event) {
+                parentPanel = getParentClosablePanel();
             }
         });
     }
@@ -69,6 +104,18 @@ public abstract class TypeaheadBox extends TextBox {
     public abstract void fillOracle();
 
     public void doEnter() {
+        if (parentPanel != null) {
+            parentPanel.closeOk();
+        }
+    }
 
+    private KeyboardClosable getParentClosablePanel() {
+        Widget parent = this;
+        while ((parent = parent.getParent()) != null) {
+            if (parent instanceof KeyboardClosable) {
+                return ((KeyboardClosable) parent);
+            }
+        }
+        return null;
     }
 }

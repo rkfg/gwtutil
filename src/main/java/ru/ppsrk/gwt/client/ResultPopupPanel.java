@@ -27,7 +27,7 @@ public abstract class ResultPopupPanel<T> extends PopupPanel {
         super.hide();
     }
 
-    protected void cancelHide() {
+    public void cancelHide() {
         super.hide();
     }
 
