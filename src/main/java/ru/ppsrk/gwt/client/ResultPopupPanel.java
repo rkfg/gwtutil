@@ -1,9 +1,9 @@
 package ru.ppsrk.gwt.client;
 
 import com.google.gwt.user.client.ui.FocusWidget;
-import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.DialogBox;
 
-public abstract class ResultPopupPanel<T> extends PopupPanel {
+public abstract class ResultPopupPanel<T> extends DialogBox {
 
     public static interface ResultPopupPanelCallback<T> {
         public void done(T result);
