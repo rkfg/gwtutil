@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
+import ru.ppsrk.gwt.shared.SharedUtils;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
@@ -660,12 +661,9 @@ public class ClientUtils {
                 if (e instanceof UmbrellaException) {
                     Window.alert(e.getCause().getMessage());
                 } else {
-                    if (e.getMessage() != null) {
+                    if (e instanceof AlertRuntimeException) {
                         Window.alert(e.getMessage());
                     } else {
-                        if (e instanceof SilentException) {
-                            return;
-                        }
                         StackTraceElement[] stackTraceElements = e.getStackTrace();
                         StringBuilder trace = new StringBuilder();
                         trace.append(e).append('\n');
@@ -678,6 +676,24 @@ public class ClientUtils {
             }
         });
 
+    }
+
+    public static void setupTelemetryExceptionHandler() {
+        GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+
+            @Override
+            public void onUncaughtException(Throwable e) {
+                if (e instanceof UmbrellaException) {
+                    e = e.getCause();
+                }
+                if (e instanceof AlertRuntimeException) {
+                    Window.alert(e.getMessage());
+                } else {
+                    sendErrorTelemetry(e);
+                    Window.alert("Произошла клиентская ошибка. Информация отправлена разработчику.");
+                }
+            }
+        });
     }
 
     public static <S, T extends S> List<T> trySelectionModelValue(MultiSelectionModel<S> selectionModel, String failText,
@@ -759,4 +775,14 @@ public class ClientUtils {
         return result;
     }
 
+    public static void sendErrorTelemetry(Throwable e) {
+        String result = SharedUtils.getTelemetryString(e);
+        TelemetryServiceAsync.Util.getInstance().sendTelemetry(result, new MyAsyncCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+
+            }
+        });
+    }
 }

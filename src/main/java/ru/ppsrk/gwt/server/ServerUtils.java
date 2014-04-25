@@ -15,10 +15,12 @@ import ru.ppsrk.gwt.client.AlertRuntimeException;
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.shared.SharedUtils;
 
 public class ServerUtils {
 
     private static DozerBeanMapper mapper = new DozerBeanMapper();
+    private static TelemetryServiceImpl telemetryService = new TelemetryServiceImpl();
 
     public interface MapperHint {
         public Class<?>[][] getMapperHints();
@@ -178,5 +180,10 @@ public class ServerUtils {
 
     public static void setMappingFile(String filename) {
         setMappingFiles(Arrays.asList(filename));
+    }
+
+    public static void sendErrorTelemetry(Throwable e) throws LogicException, ClientAuthException {
+        String result = SharedUtils.getTelemetryString(e.getCause());
+        telemetryService.sendTelemetry(result);
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import ru.ppsrk.gwt.client.HasId;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class SharedUtils {
@@ -137,4 +138,20 @@ public class SharedUtils {
             }
         }
     }
+
+    public static String getTelemetryString(Throwable e) {
+        StackTraceElement[] stackTraceElements = e.getStackTrace();
+        StringBuilder trace = new StringBuilder();
+        trace.append(e).append('\n');
+        for (StackTraceElement element : stackTraceElements) {
+            trace.append(element.toString()).append('\n');
+        }
+        String message = e.getMessage();
+        if (message == null) {
+            message = "---no message---";
+        }
+        String result = (GWT.isClient() ? "Client" : "Server") + " exception. Message: " + message + "\n\n" + trace.toString();
+        return result;
+    }
+
 }
