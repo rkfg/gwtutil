@@ -35,10 +35,10 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
         this();
         for (String[] item : items) {
             if (item.length < 1) {
-                throw new RuntimeException("Each item should contain 1 or 2 strings, this item has < 1 string.");
+                throw new AlertRuntimeException("Each item should contain 1 or 2 strings, this item has < 1 string.");
             }
             if (item.length > 2) {
-                throw new RuntimeException("Each item should contain 1 or 2 strings, this item has > 2 strings.");
+                throw new AlertRuntimeException("Each item should contain 1 or 2 strings, this item has > 2 strings.");
             }
             if (item.length == 1) {
                 addItem(new PopupMenuItem(item[0], item[0]));

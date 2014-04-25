@@ -3,6 +3,8 @@ package ru.ppsrk.gwt.bootstrap.client;
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.ppsrk.gwt.client.AlertRuntimeException;
+
 import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.Tooltip;
 import com.github.gwtbootstrap.client.ui.base.ValueBoxBase;
@@ -42,7 +44,7 @@ public class BootstrapUtils {
 
     public static void showNotification(String text, int timeout, AlertType type) {
         if (notificationsPanel == null) {
-            throw new RuntimeException("Не задана панель для вывода уведомлений.");
+            throw new AlertRuntimeException("Не задана панель для вывода уведомлений.");
         }
         final Alert alert = new Alert(text, type);
         Style style = alert.getElement().getStyle();

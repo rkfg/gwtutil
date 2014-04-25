@@ -153,7 +153,7 @@ public class ClientUtils {
         }
     }
 
-    public static class SelectionModelException extends SilentException {
+    public static class SelectionModelException extends AlertRuntimeException {
 
         /**
          * 
@@ -205,20 +205,7 @@ public class ClientUtils {
 
     }
 
-    public static class SilentException extends RuntimeException {
-
-        /**
-         * 
-         */
-        private static final long serialVersionUID = -5304271527831179883L;
-
-        public SilentException(String failText) {
-            super(failText);
-        }
-
-    }
-
-    public static class ValueBoxEmptyException extends SilentException {
+    public static class ValueBoxEmptyException extends AlertRuntimeException {
 
         /**
          * 
@@ -272,7 +259,7 @@ public class ClientUtils {
             }
         }
 
-        public static class ValueConditionException extends RuntimeException {
+        public static class ValueConditionException extends AlertRuntimeException {
 
             /**
              * 

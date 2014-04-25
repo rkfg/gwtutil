@@ -11,6 +11,7 @@ import java.util.Scanner;
 import org.dozer.DozerBeanMapper;
 import org.hibernate.Session;
 
+import ru.ppsrk.gwt.client.AlertRuntimeException;
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
@@ -94,10 +95,10 @@ public class ServerUtils {
         try {
             Class<?>[][] mapping = hintClass.newInstance().getMapperHints();
             if (mapping.length != 2) {
-                throw new RuntimeException("Invalid MapperHint class size, expected 2, got: " + mapping.length);
+                throw new AlertRuntimeException("Invalid MapperHint class size, expected 2, got: " + mapping.length);
             }
             if (mapping[0].length != mapping[1].length) {
-                throw new RuntimeException("Non-equal MapperHint class sizes: " + mapping[0].length + " / " + mapping[1].length);
+                throw new AlertRuntimeException("Non-equal MapperHint class sizes: " + mapping[0].length + " / " + mapping[1].length);
             }
             for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < mapping[i].length; j++) {
@@ -111,7 +112,7 @@ public class ServerUtils {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        throw new RuntimeException("Couldn't find the valid mapping class for " + value.toString());
+        throw new AlertRuntimeException("Couldn't find the valid mapping class for " + value.toString());
     }
 
     public static void printStackTrace() {
