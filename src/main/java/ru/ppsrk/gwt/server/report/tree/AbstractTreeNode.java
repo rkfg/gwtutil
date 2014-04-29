@@ -6,6 +6,7 @@ public abstract class AbstractTreeNode<T> implements Comparable<T> {
     private AbstractTreeNode<T> parent;
     protected T value;
     private String path;
+    private AbstractTreeNodeFactory<T, ? extends AbstractTreeNode<T>> factory = null;
     private TreeSet<AbstractTreeNode<T>> children = new TreeSet<AbstractTreeNode<T>>();
 
     protected AbstractTreeNode(T value) {
@@ -26,6 +27,14 @@ public abstract class AbstractTreeNode<T> implements Comparable<T> {
 
     public void setParent(AbstractTreeNode<T> parent) {
         this.parent = parent;
+    }
+
+    protected void setFactory(AbstractTreeNodeFactory<T, ? extends AbstractTreeNode<T>> factory) {
+        this.factory = factory;
+    }
+
+    public AbstractTreeNode<T> addChild(T value, String childPathPart) {
+        return factory.addChild(value, path, childPathPart);
     }
 
     protected void addChild(AbstractTreeNode<T> child) {
