@@ -81,7 +81,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      *            retrieve only direct descendants
      * @return list of children nodes
      * @throws LogicException
-     * @throws ClientAuthException 
+     * @throws ClientAuthException
      */
     public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly) throws LogicException,
             ClientAuthException {
@@ -124,7 +124,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      *            negative values mean parent by Math.abs(depth) levels above, non-negative values mean absolute depth.
      * @return parent node
      * @throws LogicException
-     * @throws ClientAuthException 
+     * @throws ClientAuthException
      */
     public T getParentByChild(final Long childId, final Long depth) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<T>() {

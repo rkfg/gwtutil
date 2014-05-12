@@ -23,6 +23,7 @@ import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.HasId;
 import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.server.ServerUtils.MapperHint;
 
 public class HibernateUtil {
 
@@ -344,6 +345,17 @@ public class HibernateUtil {
             @Override
             public T run(Session session) throws LogicException, ClientAuthenticationException {
                 return tryGetObject(id, clazz, session, failText);
+            }
+        });
+    }
+
+    public static <T, DTO extends HasId> DTO tryGetObject(final Long id, final Class<T> clazz, final String failText,
+            final Class<DTO> dtoClass) throws LogicException, ClientAuthException {
+        return exec(new HibernateCallback<DTO>() {
+
+            @Override
+            public DTO run(Session session) throws LogicException, ClientAuthenticationException {
+                return mapModel(tryGetObject(id, clazz, session, failText), dtoClass);
             }
         });
     }
