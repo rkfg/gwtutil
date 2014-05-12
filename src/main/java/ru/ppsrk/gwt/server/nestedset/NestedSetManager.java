@@ -50,11 +50,11 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    private List<? extends Hierarchic> getByParentIdAndInsert(List<? extends Hierarchic> hierarchics, Long hierarchicRootId,
-            Long parentNodeId, Session session) throws LogicException, ClientAuthException {
+    private void getByParentIdAndInsert(List<? extends Hierarchic> hierarchics, Long hierarchicRootId, Long parentNodeId, Session session)
+            throws LogicException, ClientAuthException {
         LinkedList<Hierarchic> selectedChildren = new LinkedList<Hierarchic>();
         for (Hierarchic hierarchic : hierarchics) {
-            if (hierarchic.getParent() == null && hierarchicRootId.equals(0L) || hierarchic.getParent() != null
+            if (hierarchic.getParent() == null && hierarchicRootId != null && hierarchicRootId.equals(0L) || hierarchic.getParent() != null
                     && hierarchic.getParent().getId().equals(hierarchicRootId)) {
                 selectedChildren.add(hierarchic);
             }
@@ -67,7 +67,6 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
             log.debug("Inserted as: " + inserted);
             getByParentIdAndInsert(hierarchics, hierarchic.getId(), inserted.getId(), session);
         }
-        return null;
     }
 
     /**
@@ -146,7 +145,8 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 try {
                     return (T) session
                             .createQuery(
-                                    "from " + entityName + " node where node.leftnum <= :left and node.rightnum >= :right and depth = :depth")
+                                    "from " + entityName
+                                            + " node where node.leftnum <= :left and node.rightnum >= :right and depth = :depth")
                             .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum())
                             .setLong("depth", parentDepth).uniqueResult();
                 } catch (NonUniqueResultException e) {
