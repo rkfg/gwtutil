@@ -34,4 +34,9 @@ public abstract class ResultPopupPanel<T> extends DialogBox {
     protected abstract T getResult();
 
     public abstract FocusWidget getFocusWidget();
+
+    public void open(ResultPopupPanelCallback<T> callback) {
+        ClientUtils.openPopupPanel(this, callback);
+    }
+
 }
