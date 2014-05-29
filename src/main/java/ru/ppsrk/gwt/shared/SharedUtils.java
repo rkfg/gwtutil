@@ -150,7 +150,8 @@ public class SharedUtils {
         if (message == null) {
             message = "---no message---";
         }
-        String result = (GWT.isClient() ? "Client" : "Server") + " exception. Message: " + message + "\n\n" + trace.toString();
+        String result = (GWT.isClient() ? "Client" : "Server") + " exception of type " + e.getClass().getName() + ". Message: " + message
+                + "\n\n" + trace.toString();
         return result;
     }
 
