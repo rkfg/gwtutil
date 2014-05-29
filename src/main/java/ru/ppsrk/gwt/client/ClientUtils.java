@@ -683,7 +683,7 @@ public class ClientUtils {
 
             @Override
             public void onUncaughtException(Throwable e) {
-                if (e instanceof UmbrellaException) {
+                while (e instanceof UmbrellaException) {
                     e = e.getCause();
                 }
                 if (e instanceof AlertRuntimeException) {
