@@ -65,6 +65,7 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
                 public void onClick(ClickEvent event) {
                     hide();
                     SelectionEvent.fire(PopupMenu.this, item);
+                    SelectionEvent.fire(item, item);
                 }
             });
         } else {
