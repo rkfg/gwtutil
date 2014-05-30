@@ -1,7 +1,5 @@
 package ru.ppsrk.gwt.client;
 
-import java.util.HashMap;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -12,7 +10,6 @@ import com.google.gwt.event.logical.shared.HasSelectionHandlers;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -20,8 +17,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupMenuItem> {
 
     private VerticalPanel menuContentPanel = new VerticalPanel();
-    private HashMap<Label, PopupMenuItem> menuItems = new HashMap<Label, PopupMenuItem>();
-    private Label selectedItem = null;
+    private PopupMenuItem selectedItem = null;
 
     public PopupMenu() {
         super();
@@ -41,9 +37,9 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
                 throw new AlertRuntimeException("Each item should contain 1 or 2 strings, this item has > 2 strings.");
             }
             if (item.length == 1) {
-                addItem(new PopupMenuItem(item[0], item[0]));
+                addItem(new PopupMenuItem(item[0]));
             } else {
-                addItem(new PopupMenuItem(item[0], item[1]));
+                addItem(new PopupMenuItem(item[0]));
             }
         }
     }
@@ -54,12 +50,9 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
     }
 
     public void addItem(final PopupMenuItem item) {
-        final Label itemLabel = new Label(item.getTitle());
-        menuItems.put(itemLabel, item);
-        itemLabel.addStyleName("menu-item");
         if (item.isEnabled()) {
-            itemLabel.addStyleName("menu-item-enabled");
-            itemLabel.addClickHandler(new ClickHandler() {
+            item.addStyleName(PopupMenuItem.MENU_ITEM_ENABLED);
+            item.addClickHandler(new ClickHandler() {
 
                 @Override
                 public void onClick(ClickEvent event) {
@@ -69,26 +62,26 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
                 }
             });
         } else {
-            itemLabel.addStyleName("menu-item-disabled");
+            item.addStyleName(PopupMenuItem.MENU_ITEM_DISABLED);
         }
-        itemLabel.addMouseOverHandler(new MouseOverHandler() {
+        item.addMouseOverHandler(new MouseOverHandler() {
 
             @Override
             public void onMouseOver(MouseOverEvent event) {
                 if (item.isEnabled()) {
-                    itemLabel.addStyleName("menu-item-selected");
-                    selectedItem = itemLabel;
+                    item.addStyleName(PopupMenuItem.MENU_ITEM_SELECTED);
+                    selectedItem = item;
                 }
             }
         });
-        itemLabel.addMouseOutHandler(new MouseOutHandler() {
+        item.addMouseOutHandler(new MouseOutHandler() {
 
             @Override
             public void onMouseOut(MouseOutEvent event) {
-                itemLabel.removeStyleName("menu-item-selected");
+                item.removeStyleName(PopupMenuItem.MENU_ITEM_SELECTED);
             }
         });
-        menuContentPanel.add(itemLabel);
+        menuContentPanel.add(item);
     }
 
     public HandlerRegistration addSelectionHandler(SelectionHandler<PopupMenuItem> handler) {
@@ -107,21 +100,21 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
             newSelectedIndex = 0;
         }
         if (selectedItem != null) {
-            selectedItem.removeStyleName("menu-item-selected");
+            selectedItem.removeStyleName(PopupMenuItem.MENU_ITEM_SELECTED);
         }
-        selectedItem = (Label) menuContentPanel.getWidget(newSelectedIndex);
-        selectedItem.addStyleName("menu-item-selected");
+        selectedItem = (PopupMenuItem) menuContentPanel.getWidget(newSelectedIndex);
+        selectedItem.addStyleName(PopupMenuItem.MENU_ITEM_SELECTED);
     }
 
     public void selectCurrentItem() {
         hide();
-        SelectionEvent.fire(this, menuItems.get(selectedItem));
+        SelectionEvent.fire(this, selectedItem);
     }
 
     @Override
     public void setPopupPositionAndShow(PositionCallback callback) {
         if (selectedItem != null) {
-            selectedItem.removeStyleName("menu-item-selected");
+            selectedItem.removeStyleName(PopupMenuItem.MENU_ITEM_SELECTED);
             selectedItem = null;
         }
         super.setPopupPositionAndShow(callback);

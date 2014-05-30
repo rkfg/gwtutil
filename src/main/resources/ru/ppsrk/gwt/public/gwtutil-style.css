@@ -33,7 +33,7 @@ table.grid tr td,table.grid tr th {
 
 .menu-item {
 	background-color: white;
-	cursor: default;
+	cursor: pointer;
 	padding: 5px;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;

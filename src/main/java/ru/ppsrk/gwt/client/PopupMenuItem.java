@@ -4,46 +4,30 @@ import com.google.gwt.event.logical.shared.HasSelectionHandlers;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.Label;
 
-public class PopupMenuItem extends Widget implements HasSelectionHandlers<PopupMenuItem> {
-    private String title;
-    private String value;
+public class PopupMenuItem extends Label implements HasSelectionHandlers<PopupMenuItem> {
     private boolean enabled = true;
+    public static final String MENU_ITEM_SELECTED = "menu-item-selected";
+    public static final String MENU_ITEM_ENABLED = "menu-item-enabled";
+    public static final String MENU_ITEM_DISABLED = "menu-item-disabled";
+
+    {
+        addStyleName("menu-item");
+    }
 
     public PopupMenuItem(String title, SelectionHandler<PopupMenuItem> onSelectionHandler) {
-        this.title = title;
-        value = title;
+        super(title);
         addSelectionHandler(onSelectionHandler);
     }
 
-    public PopupMenuItem(String title, String value) {
-        super();
-        this.title = title;
-        this.value = value;
+    public PopupMenuItem(String title) {
+        super(title);
     }
 
-    public PopupMenuItem(String title, String value, boolean enabled) {
-        super();
-        this.title = title;
-        this.value = value;
+    public PopupMenuItem(String title, boolean enabled) {
+        super(title);
         this.enabled = enabled;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public boolean isEnabled() {
@@ -58,14 +42,14 @@ public class PopupMenuItem extends Widget implements HasSelectionHandlers<PopupM
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + ((getText() == null) ? 0 : getText().hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof String) {
-            return value.equals(obj);
+            return getText().equals(obj);
         }
         return super.equals(obj);
     }
