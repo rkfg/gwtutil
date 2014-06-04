@@ -6,6 +6,7 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.ParamDef;
 
 import ru.ppsrk.gwt.client.EqualsById;
@@ -17,8 +18,11 @@ public class NestedSetNode extends EqualsById {
     @GeneratedValue
     @Id
     Long id;
+    @Index(name = "nsn_left")
     Long leftnum;
+    @Index(name = "nsn_right")
     Long rightnum;
+    @Index(name = "nsn_depth")
     Long depth;
 
     public Long getId() {
