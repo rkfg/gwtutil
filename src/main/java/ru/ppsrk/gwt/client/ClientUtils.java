@@ -658,20 +658,19 @@ public class ClientUtils {
 
             @Override
             public void onUncaughtException(Throwable e) {
-                if (e instanceof UmbrellaException) {
-                    Window.alert(e.getCause().getMessage());
+                while (e instanceof UmbrellaException) {
+                    e = e.getCause();
+                }
+                if (e instanceof AlertRuntimeException) {
+                    Window.alert(e.getMessage());
                 } else {
-                    if (e instanceof AlertRuntimeException) {
-                        Window.alert(e.getMessage());
-                    } else {
-                        StackTraceElement[] stackTraceElements = e.getStackTrace();
-                        StringBuilder trace = new StringBuilder();
-                        trace.append(e).append('\n');
-                        for (StackTraceElement element : stackTraceElements) {
-                            trace.append(element.toString()).append('\n');
-                        }
-                        Window.alert(trace.toString());
+                    StackTraceElement[] stackTraceElements = e.getStackTrace();
+                    StringBuilder trace = new StringBuilder();
+                    trace.append(e).append('\n');
+                    for (StackTraceElement element : stackTraceElements) {
+                        trace.append(element.toString()).append('\n');
                     }
+                    Window.alert(trace.toString());
                 }
             }
         });
