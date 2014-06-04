@@ -355,8 +355,13 @@ public class HibernateUtil {
 
             @Override
             public DTO run(Session session) throws LogicException, ClientAuthenticationException {
-                return mapModel(tryGetObject(id, clazz, session, failText), dtoClass);
+                return tryGetObject(id, clazz, session, failText, dtoClass);
             }
         });
+    }
+
+    public static <T, DTO extends HasId> DTO tryGetObject(final Long id, final Class<T> clazz, Session session, final String failText,
+            final Class<DTO> dtoClass) throws LogicException {
+        return mapModel(tryGetObject(id, clazz, session, failText), dtoClass);
     }
 }
