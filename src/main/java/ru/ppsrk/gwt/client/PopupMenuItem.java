@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Label;
 
 public class PopupMenuItem extends Label implements HasSelectionHandlers<PopupMenuItem> {
     private boolean enabled = true;
+    private String value;
     public static final String MENU_ITEM_SELECTED = "menu-item-selected";
     public static final String MENU_ITEM_ENABLED = "menu-item-enabled";
     public static final String MENU_ITEM_DISABLED = "menu-item-disabled";
@@ -17,7 +18,7 @@ public class PopupMenuItem extends Label implements HasSelectionHandlers<PopupMe
     }
 
     public PopupMenuItem(String title, SelectionHandler<PopupMenuItem> onSelectionHandler) {
-        super(title);
+        this(title);
         addSelectionHandler(onSelectionHandler);
     }
 
@@ -26,8 +27,13 @@ public class PopupMenuItem extends Label implements HasSelectionHandlers<PopupMe
     }
 
     public PopupMenuItem(String title, boolean enabled) {
-        super(title);
+        this(title);
         this.enabled = enabled;
+    }
+
+    public PopupMenuItem(String title, String value) {
+        this(title);
+        this.value = value;
     }
 
     public boolean isEnabled() {
@@ -49,7 +55,7 @@ public class PopupMenuItem extends Label implements HasSelectionHandlers<PopupMe
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof String) {
-            return getText().equals(obj);
+            return obj.equals(value);
         }
         return super.equals(obj);
     }

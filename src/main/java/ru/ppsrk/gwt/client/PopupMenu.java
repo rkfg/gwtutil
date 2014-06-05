@@ -39,7 +39,7 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
             if (item.length == 1) {
                 addItem(new PopupMenuItem(item[0]));
             } else {
-                addItem(new PopupMenuItem(item[0]));
+                addItem(new PopupMenuItem(item[0], item[1]));
             }
         }
     }
