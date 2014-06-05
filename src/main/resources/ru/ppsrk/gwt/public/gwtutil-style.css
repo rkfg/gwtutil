@@ -12,6 +12,15 @@ table.grid tr td,table.grid tr th {
 	padding: 2px;
 }
 
+table.noborder {
+	margin: 0px;
+}
+
+table.noborder tr td {
+	border: 0px;
+	padding: 0px;
+}
+
 .undln {
 	border-bottom: 1px solid black;
 	padding-left: 10px;
