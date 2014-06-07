@@ -3,7 +3,7 @@ package ru.ppsrk.gwt.server.report.tree;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import ru.ppsrk.gwt.shared.SharedUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public abstract class AbstractTreeNodeFactory<T, TN extends AbstractTreeNode<T>> {
 
@@ -39,6 +39,6 @@ public abstract class AbstractTreeNodeFactory<T, TN extends AbstractTreeNode<T>>
     }
 
     public String buildPath(String... elems) {
-        return SharedUtils.join(Arrays.asList(elems));
+        return StringUtils.join(elems, ',');
     }
 }

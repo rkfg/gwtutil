@@ -441,6 +441,35 @@ public class ClientUtils {
         }
     }
 
+    /**
+     * Joins elements of a collection with specified delimiter to a String
+     * 
+     * @param objects
+     * @param delim
+     *            delimiter
+     * @return String of concatenated elements
+     */
+    static public <T> String join(Collection<T> objects, String delim) {
+        StringBuilder sb = new StringBuilder(objects.size() * (10 + delim.length()));
+        for (Object object : objects) {
+            if (sb.length() > 0) {
+                sb.append(delim);
+            }
+            sb.append(object);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Joins elements of a collection with comma delimiter
+     * 
+     * @param objects
+     * @return String of comma-separated elements
+     */
+    public static <T> String join(List<T> objects) {
+        return join(objects, ",");
+    }
+
     public static Set<Hierarchic> listRegisteredObjects() {
         return dataProviders.keySet();
     }
