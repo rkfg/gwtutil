@@ -49,7 +49,7 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
         addSelectionHandler(selectionHandler);
     }
 
-    public void addItem(final PopupMenuItem item) {
+    public PopupMenu addItem(final PopupMenuItem item) {
         if (item.isEnabled()) {
             item.addStyleName(PopupMenuItem.MENU_ITEM_ENABLED);
             item.addClickHandler(new ClickHandler() {
@@ -82,6 +82,7 @@ public class PopupMenu extends PopupPanel implements HasSelectionHandlers<PopupM
             }
         });
         menuContentPanel.add(item);
+        return this;
     }
 
     public HandlerRegistration addSelectionHandler(SelectionHandler<PopupMenuItem> handler) {
