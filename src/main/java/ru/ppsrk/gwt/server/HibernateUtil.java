@@ -201,6 +201,18 @@ public class HibernateUtil {
         }
     }
 
+    public static boolean initSessionFactoryDebugRelease(boolean forceDebug, boolean forceRelease, String debugCfg, String releaseCfg) {
+        String debugStr = System.getenv("debug");
+        boolean debug = false;
+        if (!forceDebug && (forceRelease || debugStr == null || !debugStr.equals("yes"))) {
+            HibernateUtil.initSessionFactory(releaseCfg);
+        } else {
+            HibernateUtil.initSessionFactory(debugCfg);
+            debug = true;
+        }
+        return debug;
+    }
+
     public static <DTO, H extends MapperHint> List<DTO> queryList(final String query, final String[] paramNames,
             final Object[] paramValues, final Class<DTO> clazz, final Class<H> hintClass) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
