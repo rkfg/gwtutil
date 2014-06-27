@@ -25,6 +25,8 @@ import ru.ppsrk.gwt.client.HasId;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.server.ServerUtils.MapperHint;
 
+import com.mysql.jdbc.AbandonedConnectionCleanupThread;
+
 public class HibernateUtil {
 
     public static class ListQueryFilter {
@@ -77,6 +79,15 @@ public class HibernateUtil {
             factory.close();
         }
         sessionFactory = null;
+    }
+
+    public static void mysqlCleanup() {
+        try {
+            System.out.println("Shutting down abandoned cleanup thread...");
+            AbandonedConnectionCleanupThread.shutdown();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws LogicException, ClientAuthException {
