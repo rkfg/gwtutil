@@ -90,7 +90,7 @@ public class ClientUtils {
     static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
 
         public void errorHandler(Throwable exception) {
-            if (!(exception instanceof ClientAuthenticationException) && !(exception instanceof ClientAuthorizationException)) {
+            if (!(exception instanceof ClientAuthException)) {
                 if (exception instanceof LogicException) {
                     Window.alert("Ошибка: " + exception.getMessage());
                 } else {
