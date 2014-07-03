@@ -2,27 +2,26 @@ package ru.ppsrk.gwt.server.nestedset;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.ParamDef;
 
 import ru.ppsrk.gwt.client.EqualsById;
 
 @MappedSuperclass
+@Table(indexes = { @Index(columnList = "leftnum"), @Index(columnList = "rightnum"), @Index(columnList = "depth") })
 @FilterDef(name = "depthFilter", parameters = @ParamDef(name = "depth", type = "long"))
 @Filter(name = "depthFilter", condition = "depth = :depth")
 public class NestedSetNode extends EqualsById {
     @GeneratedValue
     @Id
     Long id;
-    @Index(name = "nsn_left")
     Long leftnum;
-    @Index(name = "nsn_right")
     Long rightnum;
-    @Index(name = "nsn_depth")
     Long depth;
 
     public Long getId() {
