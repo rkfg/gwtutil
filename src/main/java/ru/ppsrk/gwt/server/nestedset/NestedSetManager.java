@@ -5,9 +5,10 @@ import static ru.ppsrk.gwt.server.ServerUtils.*;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.Hierarchic;
@@ -19,7 +20,7 @@ import ru.ppsrk.gwt.server.HibernateUtil;
 import ru.ppsrk.gwt.server.ServerUtils;
 
 public class NestedSetManager<T extends NestedSetNode, D extends SettableParent> {
-    private Logger log = Logger.getLogger(this.getClass());
+    private Logger log = LoggerFactory.getLogger(this.getClass());
     private Class<T> entityClass;
     private Class<D> dtoClass;
     private String entityName;
