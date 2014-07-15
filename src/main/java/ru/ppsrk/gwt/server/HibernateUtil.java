@@ -12,12 +12,11 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.hibernate.Filter;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
@@ -116,13 +115,7 @@ public class HibernateUtil {
                 if (session.getTransaction().isActive()) {
                     session.getTransaction().commit();
                 }
-            } catch (HibernateException e) {
-                session.getTransaction().rollback();
-                throw e;
-            } catch (LogicException e) {
-                session.getTransaction().rollback();
-                throw e;
-            } catch (ClientAuthException e) {
+            } catch (Throwable e) {
                 session.getTransaction().rollback();
                 throw e;
             } finally {
@@ -151,21 +144,7 @@ public class HibernateUtil {
                     }
                 }
             }
-        } catch (HibernateException e) {
-            for (int number = 0; number < sessionNumbers.length; number++) {
-                if (sessions[number] != null) {
-                    sessions[number].getTransaction().rollback();
-                }
-            }
-            throw e;
-        } catch (LogicException e) {
-            for (int number = 0; number < sessionNumbers.length; number++) {
-                if (sessions[number] != null) {
-                    sessions[number].getTransaction().rollback();
-                }
-            }
-            throw e;
-        } catch (ClientAuthException e) {
+        } catch (Throwable e) {
             for (int number = 0; number < sessionNumbers.length; number++) {
                 if (sessions[number] != null) {
                     sessions[number].getTransaction().rollback();
