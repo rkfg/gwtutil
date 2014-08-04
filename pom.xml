@@ -53,7 +53,7 @@
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <version>2.6.1</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
