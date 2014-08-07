@@ -40,7 +40,7 @@ public class MonthAndYearSelector extends MonthSelector {
 
 	@Override
 	protected void refresh() {
-		String formattedMonth = getModel().formatCurrentMonth();
+		String formattedMonth = getModel().formatCurrentMonthAndYear();
 		grid.setText(0, monthColumn, formattedMonth);
 	}
 
