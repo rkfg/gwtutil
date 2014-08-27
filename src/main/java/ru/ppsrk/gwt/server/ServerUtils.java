@@ -36,7 +36,7 @@ public class ServerUtils {
         if (code.length() == 12) { // calc 13th number
             int n = 0, sum = 0;
             for (char c : code.toCharArray()) {
-                sum += (c - 48) * (n++ % 2 == 1 ? 3 : 1);
+                sum += (c - 48) * (n++ % 2 != 0 ? 3 : 1);
             }
             code += (10 - sum % 10) % 10;
         } else if (code.length() != 13) {

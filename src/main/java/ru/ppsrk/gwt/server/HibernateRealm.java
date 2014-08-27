@@ -80,11 +80,13 @@ public class HibernateRealm extends GwtUtilRealm {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        if (user.size() > 1)
-            throw new AuthenticationException("Duplicate users");
-        if (user.size() == 0)
+        if (user == null || user.size() == 0) {
             // actually, user wasn't found
             throw new AuthenticationException("Invalid creds");
+        }
+        if (user.size() > 1) {
+            throw new AuthenticationException("Duplicate users");
+        }
 
         principal = user.get(0).getUsername();
         credentials = user.get(0).getPassword();

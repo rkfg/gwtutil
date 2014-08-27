@@ -1,13 +1,9 @@
 package ru.ppsrk.gwt.dto;
 
-import java.io.Serializable;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 
-public class RoleDTO implements Serializable {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 7122635498746563558L;
+public class RoleDTO implements IsSerializable {
     Long id;
     UserDTO user;
     String role;
