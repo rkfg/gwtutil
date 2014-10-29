@@ -69,7 +69,18 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
     }
 
     public void scrollToElement(T element) {
-        getRowElement(getVisibleItems().indexOf(element)).getCells().getItem(0).scrollIntoView();
+        scrollToElement(element, null);
+    }
+
+    public void scrollToElement(T element, Integer index) {
+        if (index != null) {
+            setVisibleRange(getPageSize() * (index / getPageSize()), getPageSize());
+        }
+        int i = getVisibleItems().indexOf(element);
+        if (i < 0) {
+            return;
+        }
+        getRowElement(i).getCells().getItem(0).scrollIntoView();
     }
 
     public void setup(AbstractDataProvider<T> dataProvider, SelectionModel<? super T> selectionModel, SimplePager simplePager,
