@@ -1,5 +1,6 @@
 package fr.mikrosimage.gwt.client;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ppsrk.gwt.client.ClientUtils;
@@ -97,4 +98,7 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
         }
     }
 
+    public void resetLoadingData(ListDataProvider<T> dataProvider) {
+        setLoadingData(dataProvider, new ArrayList<T>());
+    }
 }
