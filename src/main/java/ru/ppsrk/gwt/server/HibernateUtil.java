@@ -192,8 +192,17 @@ public class HibernateUtil {
     }
 
     public static boolean initSessionFactoryDebugRelease(boolean forceDebug, boolean forceRelease, String debugCfg, String releaseCfg) {
+        return initSessionFactoryDebugRelease(forceDebug, forceRelease, debugCfg, null);
+    }
+
+    public static boolean initSessionFactoryDebugRelease(boolean forceDebug, boolean forceRelease, String debugCfg, String releaseCfg,
+            String releaseCfgOnDebug) {
         String debugStr = System.getenv("debug");
         boolean debug = false;
+        if (releaseCfgOnDebug != null && debugStr != null && debugStr.equals("yes") && forceRelease) {
+            HibernateUtil.initSessionFactory(releaseCfgOnDebug);
+            return false;
+        }
         if (!forceDebug && (forceRelease || debugStr == null || !debugStr.equals("yes"))) {
             HibernateUtil.initSessionFactory(releaseCfg);
         } else {
