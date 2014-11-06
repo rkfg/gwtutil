@@ -9,10 +9,6 @@ public abstract class ResultPopupPanel<T> extends DialogBox {
         public void done(T result);
     }
 
-    public ResultPopupPanel() {
-        getElement().getStyle().setZIndex(10);
-    }
-    
     private ResultPopupPanelCallback<T> callback;
 
     public void setResultCallback(ResultPopupPanelCallback<T> callback) {

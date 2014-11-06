@@ -7,3 +7,7 @@ form {
 legend {
 	margin-bottom: 10px !important;
 }
+
+.btn-group > .btn {
+    z-index: 0 !important;
+}
