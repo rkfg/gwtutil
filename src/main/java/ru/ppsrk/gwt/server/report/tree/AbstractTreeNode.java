@@ -45,7 +45,15 @@ public abstract class AbstractTreeNode<T> implements Comparable<T> {
     }
 
     public TreeSet<AbstractTreeNode<T>> getChildren() {
-        return children;
+        return new TreeSet<AbstractTreeNode<T>>(children);
+    }
+
+    public AbstractTreeNode<T> getChildByPath(String childPath) {
+        return factory.getOrCreateNode(null, getPath(), childPath);
+    }
+
+    public void removeChild(AbstractTreeNode<T> child) {
+        children.remove(child);
     }
 
     public String getPath() {
