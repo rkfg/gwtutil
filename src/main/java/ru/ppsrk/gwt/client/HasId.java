@@ -4,8 +4,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public interface HasId extends IsSerializable {
 
-    public abstract Long getId();
+    public Long getId();
 
-    public abstract void setId(Long newId);
+    public void setId(Long newId);
 
 }
