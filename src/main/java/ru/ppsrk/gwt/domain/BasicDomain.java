@@ -4,8 +4,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
+import ru.ppsrk.gwt.client.HasId;
+
 @MappedSuperclass
-public class BasicDomain {
+public class BasicDomain implements HasId {
     @Id
     @GeneratedValue
     Long id;
