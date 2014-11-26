@@ -92,7 +92,7 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
 
     private class ThisKeyPressHandler implements KeyPressHandler {
         public void onKeyPress(KeyPressEvent event) {
-            if (event.getNativeEvent().getCharCode() == KeyCodes.KEY_ENTER && enterAllowed) {
+            if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER && enterAllowed) {
                 doEnter();
             }
             if (getValue().length() >= suggestOnLength) {
