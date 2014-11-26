@@ -14,9 +14,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.cellview.client.AbstractCellTree;
-import com.google.gwt.user.cellview.client.CellTree;
-import com.google.gwt.user.cellview.client.CellTree.CellTreeMessages;
-import com.google.gwt.user.cellview.client.CellTree.Resources;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FocusWidget;
@@ -28,7 +25,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.gwt.view.client.TreeViewModel;
 
 import fr.mikrosimage.gwt.client.ResizableDataGrid;
 
@@ -116,14 +112,6 @@ public class ClientUtils {
          * 
          */
         private static final long serialVersionUID = 970525863372346506L;
-
-    }
-
-    public static class RuCellTree extends CellTree {
-
-        public RuCellTree(TreeViewModel viewModel) {
-            super(viewModel, null, cellTreeResources, russianCellTreeMessages);
-        }
 
     }
 
@@ -253,21 +241,6 @@ public class ClientUtils {
     static private HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>> dataProviders = new HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>>();
 
     static private HashMap<SelectionModel<? extends Hierarchic>, PathProvider> pathDataProviders = new HashMap<SelectionModel<? extends Hierarchic>, ClientUtils.PathProvider>();
-
-    public static Resources cellTreeResources = GWT.create(Resources.class);
-
-    public static CellTreeMessages russianCellTreeMessages = new CellTreeMessages() {
-
-        @Override
-        public String emptyTree() {
-            return "Пусто";
-        }
-
-        @Override
-        public String showMore() {
-            return "Ещё...";
-        }
-    };
 
     public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
