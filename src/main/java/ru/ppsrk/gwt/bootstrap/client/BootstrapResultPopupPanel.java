@@ -121,4 +121,8 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> i
         focusedWidget = widget;
     }
 
+    public boolean isKeyboardClosable() {
+        return isKeyboardClosable;
+    }
+
 }
