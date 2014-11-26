@@ -75,6 +75,7 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
                 parentPanel = getParentClosablePanel();
             }
         });
+        typeahead.reconfigure();
     }
 
     protected String updater(Suggestion selectedSuggestion) {
