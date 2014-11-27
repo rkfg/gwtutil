@@ -102,7 +102,7 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
         }
     }
 
-    public abstract void fillOracle();
+    protected abstract void fillOracle();
 
     public void doEnter() {
         if (parentPanel != null) {
