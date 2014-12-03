@@ -13,4 +13,8 @@ public class DateBoxAppendedRu extends DateBoxAppended {
     public void setPlaceholder(String placeholder) {
         ((DateBoxBase) getWidget(0)).setPlaceholder(placeholder);
     }
+    
+    public void setTabIndex(int index){
+        ((DateBoxBase) getWidget(0)).getElement().setTabIndex(index);
+    }
 }
