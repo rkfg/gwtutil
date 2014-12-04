@@ -2,7 +2,6 @@ package ru.ppsrk.gwt.bootstrap.client;
 
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
-import com.github.gwtbootstrap.client.ui.Typeahead.MatcherCallback;
 import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
@@ -39,13 +38,6 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
             public String onSelection(Suggestion selectedSuggestion) {
                 enterAllowed = true;
                 return updater(selectedSuggestion);
-            }
-        });
-        typeahead.setMatcherCallback(new MatcherCallback() {
-
-            @Override
-            public boolean compareQueryToItem(String query, String item) {
-                return item.toLowerCase().replaceAll("</?strong>", "").contains(query.toLowerCase());
             }
         });
         addFocusHandler(new FocusHandler() {
