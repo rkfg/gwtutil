@@ -7,11 +7,8 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
-import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.hibernate.Session;
 
@@ -24,34 +21,6 @@ import ru.ppsrk.gwt.domain.User;
 import ru.ppsrk.gwt.dto.UserDTO;
 
 public class HibernateRealm extends GwtUtilRealm {
-
-    @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(final PrincipalCollection principals) {
-        try {
-            return HibernateUtil.exec(new HibernateCallback<SimpleAuthorizationInfo>() {
-
-                @Override
-                public SimpleAuthorizationInfo run(Session session) throws LogicException, ClientAuthException {
-                    SimpleAuthorizationInfo sai = new SimpleAuthorizationInfo();
-                    String principal = (String) principals.getPrimaryPrincipal();
-                    for (String perm : getPerms(principal)) {
-                        sai.addStringPermission(perm);
-                    }
-                    for (String role : getRoles(principal)) {
-                        sai.addRole(role);
-                    }
-                    return sai;
-                }
-            });
-        } catch (LogicException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClientAuthException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(final AuthenticationToken token) throws AuthenticationException {

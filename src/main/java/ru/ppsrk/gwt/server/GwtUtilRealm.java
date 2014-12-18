@@ -7,10 +7,13 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
 
@@ -67,6 +70,32 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
             throw new ClientAuthorizationException(e.getMessage());
         }
         return subject.isAuthenticated();
+    }
+
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(final PrincipalCollection principals) {
+        try {
+            SimpleAuthorizationInfo sai = new SimpleAuthorizationInfo();
+            String principal = (String) principals.getPrimaryPrincipal();
+            List<String> perms = getPerms(principal);
+            if (perms != null) {
+                for (String perm : perms) {
+                    sai.addStringPermission(perm);
+                }
+            }
+            List<String> roles = getRoles(principal);
+            if (roles != null) {
+                for (String role : roles) {
+                    sai.addRole(role);
+                }
+            }
+            return sai;
+        } catch (LogicException e) {
+            e.printStackTrace();
+        } catch (ClientAuthException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public abstract Long register(final String username, final String password, RandomNumberGenerator rng) throws LogicException,
