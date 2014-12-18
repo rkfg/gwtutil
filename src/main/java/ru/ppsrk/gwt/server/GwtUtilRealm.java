@@ -22,6 +22,8 @@ import ru.ppsrk.gwt.dto.UserDTO;
 
 public abstract class GwtUtilRealm extends AuthorizingRealm {
 
+    protected static final String INVALID_CREDS = "invalid creds";
+
     public class HashedBase64Password {
         private String password;
         private String salt;

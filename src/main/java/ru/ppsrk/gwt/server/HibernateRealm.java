@@ -76,7 +76,7 @@ public class HibernateRealm extends GwtUtilRealm {
         }
         if (user == null || user.size() == 0) {
             // actually, user wasn't found
-            throw new AuthenticationException("Invalid creds");
+            throw new AuthenticationException(INVALID_CREDS);
         }
         if (user.size() > 1) {
             throw new AuthenticationException("Duplicate users");
@@ -89,7 +89,7 @@ public class HibernateRealm extends GwtUtilRealm {
         if (getCredentialsMatcher().doCredentialsMatch(token, authinfo)) {
             return authinfo;
         } else {
-            throw new AuthenticationException("Invalid creds");
+            throw new AuthenticationException(INVALID_CREDS);
         }
     }
 

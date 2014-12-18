@@ -32,14 +32,14 @@ public class IniRealm extends GwtUtilRealm {
             smAuth.loadSettings();
             String principal = (String) token.getPrincipal();
             if (principal == null) {
-                throw new AuthenticationException("Invalid creds");
+                throw new AuthenticationException(INVALID_CREDS);
             }
             String passData = smAuth.getStringSetting(principal);
             if (passData == null) {
-                throw new AuthenticationException("Invalid creds");
+                throw new AuthenticationException(INVALID_CREDS);
             }
             if (passData.indexOf('|') < 0) {
-                throw new AuthenticationException("Invalid creds");
+                throw new AuthenticationException(INVALID_CREDS);
             }
             String[] credentials = passData.split("\\|");
             SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(token.getPrincipal(), credentials[0],
@@ -47,7 +47,7 @@ public class IniRealm extends GwtUtilRealm {
             if (getCredentialsMatcher().doCredentialsMatch(token, authinfo)) {
                 return authinfo;
             } else {
-                throw new AuthenticationException("Invalid creds");
+                throw new AuthenticationException(INVALID_CREDS);
             }
         } catch (FileNotFoundException e) {
             throw new AuthenticationException("auth.ini not found.");
