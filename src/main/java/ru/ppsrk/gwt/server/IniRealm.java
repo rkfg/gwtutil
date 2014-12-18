@@ -95,7 +95,7 @@ public class IniRealm extends GwtUtilRealm {
         SettingsManager sm = new SettingsManager();
         sm.setFilename("auth.ini");
         HashedBase64Password base64password = new HashedBase64Password(password, rng);
-        String credentials = base64password.password + "|" + base64password.salt;
+        String credentials = base64password.getPassword() + "|" + base64password.getSalt();
         sm.setStringSetting(username, credentials);
         try {
             sm.saveSettings();

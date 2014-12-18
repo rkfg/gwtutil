@@ -118,15 +118,15 @@ public class HibernateRealm extends GwtUtilRealm {
                 User user = (User) session.createQuery("from User where username = :username").setParameter("username", username)
                         .setMaxResults(1).uniqueResult();
                 if (user == null) {
-                    user = new User(username, base64Password.password);
+                    user = new User(username, base64Password.getPassword());
                 } else {
                     // change password for existing user
-                    user.setPassword(base64Password.password);
+                    user.setPassword(base64Password.getPassword());
                 }
                 // save the salt with the new account. The
                 // HashedCredentialsMatcher
                 // will need it later when handling login attempts:
-                user.setSalt(base64Password.salt);
+                user.setSalt(base64Password.getSalt());
                 user = (User) session.merge(user);
                 return user.getId();
             }

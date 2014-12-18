@@ -7,6 +7,7 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -22,8 +23,8 @@ import ru.ppsrk.gwt.dto.UserDTO;
 public abstract class GwtUtilRealm extends AuthorizingRealm {
 
     public class HashedBase64Password {
-        String password;
-        String salt;
+        private String password;
+        private String salt;
 
         public HashedBase64Password(String password, RandomNumberGenerator rng) {
             ByteSource salt = rng.nextBytes();
@@ -31,6 +32,24 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
             this.password = new SimpleHash(matcher.getHashAlgorithmName(), password, salt, matcher.getHashIterations()).toBase64();
             this.salt = salt.toBase64();
         }
+
+        public HashedBase64Password(String hashedb64password, String b64salt) {
+            password = hashedb64password;
+            salt = b64salt;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public String getSalt() {
+            return salt;
+        }
+
+        public ByteSource getByteSourceSalt() {
+            return ByteSource.Util.bytes(Base64.decode(salt));
+        }
+
     }
 
     public boolean login(final String username, String password, boolean remember) throws LogicException, ClientAuthException {
