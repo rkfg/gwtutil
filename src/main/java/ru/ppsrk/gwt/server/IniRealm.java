@@ -5,24 +5,18 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
-import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
 
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
-import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.dto.UserDTO;
 
@@ -97,26 +91,11 @@ public class IniRealm extends GwtUtilRealm {
     }
 
     @Override
-    public boolean login(String username, String password, boolean remember) throws ClientAuthenticationException,
-            ClientAuthorizationException {
-        Subject subject = SecurityUtils.getSubject();
-        try {
-            subject.login(new UsernamePasswordToken(username, password, remember));
-        } catch (AuthenticationException e) {
-            throw new ClientAuthenticationException(e.getMessage());
-        } catch (AuthorizationException e) {
-            throw new ClientAuthorizationException(e.getMessage());
-        }
-        return subject.isAuthenticated();
-    }
-
-    @Override
     public Long register(String username, String password, RandomNumberGenerator rng) throws LogicException, ClientAuthenticationException {
         SettingsManager sm = new SettingsManager();
         sm.setFilename("auth.ini");
-        ByteSource salt = rng.nextBytes();
-        String hashedPasswordBase64 = new Sha256Hash(password, salt, 1024).toBase64();
-        String credentials = hashedPasswordBase64 + "|" + salt.toBase64();
+        HashedBase64Password base64password = new HashedBase64Password(password, rng);
+        String credentials = base64password.password + "|" + base64password.salt;
         sm.setStringSetting(username, credentials);
         try {
             sm.saveSettings();
