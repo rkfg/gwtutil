@@ -1,7 +1,6 @@
 package ru.ppsrk.gwt.client;
 
-
-public class ClientAuthorizationException extends ClientAuthException{
+public class ClientAuthorizationException extends ClientAuthException {
 
     /**
      * 
