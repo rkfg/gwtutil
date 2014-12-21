@@ -1,8 +1,8 @@
 package ru.ppsrk.gwt.client;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
-public class ClientAuthException extends Exception implements IsSerializable {
+public class ClientAuthException extends Exception implements Serializable {
 
     /**
      * 
