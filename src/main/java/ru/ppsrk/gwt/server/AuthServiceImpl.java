@@ -59,12 +59,24 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRealm().getRoles(requiresAuthUser().getUsername());
     }
 
+    private static List<Long> getRolesIds() throws LogicException, ClientAuthException {
+        return getRealm().getRolesIds(requiresAuthUser().getUsername());
+    }
+
+    public static UserDTO getUserDTO() throws LogicException, ClientAuthException {
+        return getRealm().getUser((String) SecurityUtils.getSubject().getPrincipal());
+    }
+
     public static Object getSessionAttribute(Object key) {
         return SecurityUtils.getSubject().getSession().getAttribute(key);
     }
 
     public static boolean hasRole(String role) throws LogicException, ClientAuthException {
         return getRoles().contains(role);
+    }
+
+    public static boolean hasRole(Long role) throws LogicException, ClientAuthException {
+        return getRolesIds().contains(role);
     }
 
     public static void initShiro() {

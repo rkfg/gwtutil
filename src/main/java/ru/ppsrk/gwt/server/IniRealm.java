@@ -13,6 +13,7 @@ import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.util.ByteSource;
 
+import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.dto.UserDTO;
@@ -100,6 +101,11 @@ public class IniRealm extends GwtUtilRealm {
         userDTO.setId(1L);
         userDTO.setUsername(principal);
         return userDTO;
+    }
+
+    @Override
+    public List<Long> getRolesIds(String username) throws LogicException, ClientAuthException {
+        return new LinkedList<>();
     }
 
 }

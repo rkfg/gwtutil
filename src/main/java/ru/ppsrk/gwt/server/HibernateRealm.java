@@ -120,6 +120,23 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
+    public List<Long> getRolesIds(final String principal) throws LogicException, ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<List<Long>>() {
+
+            @Override
+            public List<Long> run(Session session) {
+                List<Long> result = new LinkedList<Long>();
+                @SuppressWarnings("unchecked")
+                List<Role> roles = session.createQuery("from Role r where r.user.username = :un").setParameter("un", principal).list();
+                for (Role role : roles) {
+                    result.add(role.getId());
+                }
+                return result;
+            }
+        });
+    }
+    
+    @Override
     public List<String> getPerms(final String principal) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 

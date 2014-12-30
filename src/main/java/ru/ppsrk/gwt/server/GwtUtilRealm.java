@@ -11,6 +11,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -98,6 +99,10 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
         return null;
     }
 
+    public Long register(final String username, final String password) throws LogicException, ClientAuthException {
+        return register(username, password, new SecureRandomNumberGenerator());
+    }
+
     public abstract Long register(final String username, final String password, RandomNumberGenerator rng) throws LogicException,
             ClientAuthException;
 
@@ -110,4 +115,6 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
     public void loginSuccessful(String username) throws LogicException, ClientAuthException {
 
     }
+
+    public abstract List<Long> getRolesIds(String username) throws LogicException, ClientAuthException;
 }
