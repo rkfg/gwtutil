@@ -12,6 +12,10 @@ public class LogicException extends Exception implements Serializable {
         super();
     }
 
+    public LogicException(String string, Throwable cause) {
+        super(string, cause);
+    }
+
     /**
      * 
      */
