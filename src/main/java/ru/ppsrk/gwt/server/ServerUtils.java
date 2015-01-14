@@ -6,7 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
+
+import javax.validation.MessageInterpolator;
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 import org.dozer.DozerBeanMapper;
 import org.hibernate.Session;
@@ -17,8 +22,12 @@ import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.shared.SharedUtils;
 
+import com.google.gwt.i18n.client.ConstantsWithLookup;
+import com.google.gwt.validation.client.AbstractValidationMessageResolver;
+
 public class ServerUtils {
 
+    private static Validator validator = null;
     private static DozerBeanMapper mapper = new DozerBeanMapper();
     private static TelemetryServiceImpl telemetryService = new TelemetryServiceImpl();
 
@@ -186,4 +195,26 @@ public class ServerUtils {
         String result = SharedUtils.getTelemetryString(e.getCause());
         telemetryService.sendTelemetry(result);
     }
+
+    public static Validator getValidator(final ConstantsWithLookup messages) {
+        if (validator == null) {
+            validator = Validation.byDefaultProvider().configure().messageInterpolator(new MessageInterpolator() {
+
+                private AbstractValidationMessageResolver messagesResolver = new AbstractValidationMessageResolver(messages) {
+                };
+
+                @Override
+                public String interpolate(String messageTemplate, Context context, Locale locale) {
+                    return messagesResolver.get(messageTemplate.replaceAll("[{}]", ""));
+                }
+
+                @Override
+                public String interpolate(String messageTemplate, Context context) {
+                    return messagesResolver.get(messageTemplate.replaceAll("[{}]", ""));
+                }
+            }).buildValidatorFactory().getValidator();
+        }
+        return validator;
+    }
+
 }
