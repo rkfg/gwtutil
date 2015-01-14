@@ -16,6 +16,7 @@
 package ru.ppsrk.gwt.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,6 +74,7 @@ public class ComboCell extends AbstractInputCell<ComboItem, ComboItem> {
         }
     }
 
+    @SuppressWarnings("serial")
     public static class ComboItem implements HasListboxValue {
 
         Long id;
@@ -148,7 +150,7 @@ public class ComboCell extends AbstractInputCell<ComboItem, ComboItem> {
         refreshIndexes();
     }
 
-    public void addOptions(ComboList<? extends ComboItem> result) {
+    public void addOptions(Collection<? extends ComboItem> result) {
         options.addAll(result);
         refreshIndexes();
     }
