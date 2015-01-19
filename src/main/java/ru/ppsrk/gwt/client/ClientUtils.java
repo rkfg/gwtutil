@@ -243,6 +243,8 @@ public class ClientUtils {
 
     static private HashMap<SelectionModel<? extends Hierarchic>, PathProvider> pathDataProviders = new HashMap<SelectionModel<? extends Hierarchic>, ClientUtils.PathProvider>();
 
+    private static List<String> roles = new LinkedList<String>();
+
     public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
     }
@@ -589,6 +591,20 @@ public class ClientUtils {
                     PopupPanel popupPanel = new Login(rememberMe);
                     popupPanel.center();
                 }
+            }
+        });
+    }
+
+    public static void getRoles(final AsyncCallback<List<String>> callback) {
+        if (roles != null) {
+            callback.onSuccess(Collections.unmodifiableList(roles));
+        }
+        AuthService.Util.getInstance().getUserRoles(new MyAsyncCallback<List<String>>() {
+
+            @Override
+            public void onSuccess(List<String> result) {
+                roles = result;
+                callback.onSuccess(Collections.unmodifiableList(result));
             }
         });
     }
