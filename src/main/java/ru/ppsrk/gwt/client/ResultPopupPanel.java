@@ -1,7 +1,7 @@
 package ru.ppsrk.gwt.client;
 
-import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.Focusable;
 
 public abstract class ResultPopupPanel<T> extends DialogBox {
 
@@ -33,7 +33,7 @@ public abstract class ResultPopupPanel<T> extends DialogBox {
 
     protected abstract T getResult();
 
-    public abstract FocusWidget getFocusWidget();
+    public abstract Focusable getFocusable();
 
     public void open(ResultPopupPanelCallback<T> callback) {
         ClientUtils.openPopupPanel(this, callback);

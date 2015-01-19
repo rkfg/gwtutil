@@ -2,6 +2,7 @@ package ru.ppsrk.gwt.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +17,7 @@ import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.cellview.client.AbstractCellTree;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.FocusWidget;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -471,23 +472,23 @@ public class ClientUtils {
         openPopupPanel(panel, null);
     }
 
-    public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget) {
-        openPopupPanel(panel, focusWidget, true, true);
+    public static void openPopupPanel(PopupPanel panel, Focusable focusable) {
+        openPopupPanel(panel, focusable, true, true);
     }
 
-    public static void openPopupPanel(PopupPanel panel, FocusWidget focusWidget, boolean animate, boolean modal) {
+    public static void openPopupPanel(PopupPanel panel, Focusable focusable, boolean animate, boolean modal) {
         panel.setGlassEnabled(true);
         panel.setAnimationEnabled(animate);
         panel.center();
-        if (focusWidget != null) {
-            focusWidget.setFocus(true);
+        if (focusable != null) {
+            focusable.setFocus(true);
         }
         panel.setModal(modal);
     }
 
     public static <T> void openPopupPanel(ResultPopupPanel<T> panel, ResultPopupPanelCallback<T> callback) {
         panel.setResultCallback(callback);
-        openPopupPanel(panel, panel.getFocusWidget(), false, false);
+        openPopupPanel(panel, panel.getFocusable(), false, false);
     }
 
     public static void openWindow(String url) {
