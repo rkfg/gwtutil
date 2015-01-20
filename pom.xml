@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.ppsrk.gwt</groupId>
 	<artifactId>gwtutil</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<build>
 		<plugins>
 			<plugin>
@@ -124,6 +124,12 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>4.1.0.Final</version>
+        </dependency>
+        <dependency>
+        	<groupId>net.lightoze.gwt-i18n-server</groupId>
+        	<artifactId>gwt-i18n-server</artifactId>
+        	<version>0.22</version>
+        	<scope>provided</scope>
         </dependency>
 	</dependencies>
 	<repositories>

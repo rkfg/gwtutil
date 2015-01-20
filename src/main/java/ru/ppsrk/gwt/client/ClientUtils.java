@@ -8,13 +8,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import net.lightoze.gwt.i18n.client.LocaleFactory;
 import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
 import ru.ppsrk.gwt.shared.SharedUtils;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.event.shared.UmbrellaException;
+import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.i18n.client.LocalizableResource;
 import com.google.gwt.user.cellview.client.AbstractCellTree;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Focusable;
@@ -775,5 +779,12 @@ public class ClientUtils {
 
             }
         });
+    }
+    
+    public static <T extends LocalizableResource> T setupLocale(Class<T> clazz){
+        T messages = GWT.create(clazz);
+        LocaleFactory.put(clazz, messages);
+        Cookies.setCookie("locale", LocaleInfo.getCurrentLocale().getLocaleName());
+        return messages;
     }
 }
