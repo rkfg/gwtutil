@@ -192,7 +192,7 @@ public class HibernateUtil {
     }
 
     public static boolean initSessionFactoryDebugRelease(boolean forceDebug, boolean forceRelease, String debugCfg, String releaseCfg) {
-        return initSessionFactoryDebugRelease(forceDebug, forceRelease, debugCfg, null);
+        return initSessionFactoryDebugRelease(forceDebug, forceRelease, debugCfg, releaseCfg, null);
     }
 
     public static boolean initSessionFactoryDebugRelease(boolean forceDebug, boolean forceRelease, String debugCfg, String releaseCfg,
