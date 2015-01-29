@@ -781,8 +781,7 @@ public class ClientUtils {
         });
     }
     
-    public static <T extends LocalizableResource> T setupLocale(Class<T> clazz){
-        T messages = GWT.create(clazz);
+    public static <T extends LocalizableResource> T setupLocale(T messages, Class<T> clazz){
         LocaleFactory.put(clazz, messages);
         Cookies.setCookie("locale", LocaleInfo.getCurrentLocale().getLocaleName());
         return messages;
