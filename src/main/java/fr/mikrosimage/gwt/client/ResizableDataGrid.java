@@ -5,7 +5,10 @@ import java.util.Collection;
 
 import ru.ppsrk.gwt.client.ClientUtils;
 
+import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -40,11 +43,12 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
         protected int getTableBodyHeight() {
             return ResizableDataGrid.this.getTableBodyElement().getOffsetHeight();
         }
-
-        /*
-         * @Override public void columnResized(int newWidth) {
-         * super.columnResized(newWidth); refreshColumnWidths(); }
-         */
+        
+        @Override
+        public boolean onPreviewColumnSortEvent(Context context, Element elem, NativeEvent event) {
+            setKeyboardSelectedColumn(getColumnIndex(column));
+            return super.onPreviewColumnSortEvent(context, elem, event);
+        }
 
     }
 
