@@ -8,15 +8,27 @@ legend {
 	margin-bottom: 10px !important;
 }
 
-.btn-group > .btn {
-    z-index: 0 !important;
+.btn-group>.btn {
+	z-index: 0 !important;
 }
 
 .tabbable>div.tab-content {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
+}
+
+.nav-tabs>.active>a,.nav-tabs>.active>a:hover,.nav-tabs>.active>a:focus {
+	background-color: rgba(98, 140, 213, 0.2);
 }
 
 .nav,.progress {
-    margin-bottom: 0px;
+	margin-bottom: 0px;
+}
+
+.DecoratedFileUpload-button {
+	font-size: 14px !important;
+}
+
+.DecoratedFileUpload-button:HOVER {
+	color: white !important;
 }
