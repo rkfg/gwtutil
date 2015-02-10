@@ -14,6 +14,7 @@ import org.hibernate.Session;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
+import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.domain.Perm;
 import ru.ppsrk.gwt.domain.Role;
@@ -120,23 +121,6 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public List<Long> getRolesIds(final String principal) throws LogicException, ClientAuthException {
-        return HibernateUtil.exec(new HibernateCallback<List<Long>>() {
-
-            @Override
-            public List<Long> run(Session session) {
-                List<Long> result = new LinkedList<Long>();
-                @SuppressWarnings("unchecked")
-                List<Role> roles = session.createQuery("from Role r where r.user.username = :un").setParameter("un", principal).list();
-                for (Role role : roles) {
-                    result.add(role.getId());
-                }
-                return result;
-            }
-        });
-    }
-    
-    @Override
     public List<String> getPerms(final String principal) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 
@@ -165,6 +149,21 @@ public class HibernateRealm extends GwtUtilRealm {
                     throw new ClientAuthenticationException("Not authenticated");
                 }
                 return ServerUtils.mapModel(users.get(0), UserDTO.class);
+            }
+        });
+    }
+
+    @Override
+    protected String getRoleId(final Long roleId) throws LogicException, ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<String>() {
+
+            @Override
+            public String run(Session session) throws ClientAuthorizationException {
+                Role role = (Role) session.get(Role.class, roleId);
+                if (role != null) {
+                    return role.getRole();
+                }
+                throw new ClientAuthorizationException(INVALID_CREDS);
             }
         });
     }

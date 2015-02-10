@@ -1,6 +1,8 @@
 package ru.ppsrk.gwt.server;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -27,6 +29,8 @@ import ru.ppsrk.gwt.dto.UserDTO;
 public abstract class GwtUtilRealm extends AuthorizingRealm {
 
     protected static final String INVALID_CREDS = "invalid creds";
+
+    private Map<Long, String> rolesCache = new HashMap<Long, String>();
 
     public class HashedBase64Password {
         private String password;
@@ -76,8 +80,8 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(final PrincipalCollection principals) {
         try {
-            SimpleAuthorizationInfo sai = new SimpleAuthorizationInfo();
             String principal = (String) principals.getPrimaryPrincipal();
+            SimpleAuthorizationInfo sai = new SimpleAuthorizationInfo();
             List<String> perms = getPerms(principal);
             if (perms != null) {
                 for (String perm : perms) {
@@ -116,5 +120,17 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
 
     }
 
-    public abstract List<Long> getRolesIds(String username) throws LogicException, ClientAuthException;
+    public String getRoleById(Long roleId) throws LogicException, ClientAuthException {
+        String result = rolesCache.get(roleId);
+        if (result == null) {
+            result = getRoleId(roleId);
+            if (result == null) {
+                throw new ClientAuthorizationException(INVALID_CREDS);
+            }
+            rolesCache.put(roleId, result);
+        }
+        return result;
+    }
+
+    protected abstract String getRoleId(Long roleId) throws LogicException, ClientAuthException;
 }

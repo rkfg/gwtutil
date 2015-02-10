@@ -104,8 +104,8 @@ public class IniRealm extends GwtUtilRealm {
     }
 
     @Override
-    public List<Long> getRolesIds(String username) throws LogicException, ClientAuthException {
-        return new LinkedList<>();
+    protected String getRoleId(Long roleId) throws LogicException, ClientAuthException {
+        return null;
     }
 
 }

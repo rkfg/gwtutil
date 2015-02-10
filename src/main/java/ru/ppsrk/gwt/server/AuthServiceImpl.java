@@ -59,10 +59,6 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRealm().getRoles(requiresAuthUser().getUsername());
     }
 
-    private static List<Long> getRolesIds() throws LogicException, ClientAuthException {
-        return getRealm().getRolesIds(requiresAuthUser().getUsername());
-    }
-
     public static UserDTO getUserDTO() throws LogicException, ClientAuthException {
         return getRealm().getUser((String) SecurityUtils.getSubject().getPrincipal());
     }
@@ -71,12 +67,16 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return SecurityUtils.getSubject().getSession().getAttribute(key);
     }
 
-    public static boolean hasRole(String role) throws LogicException, ClientAuthException {
-        return getRoles().contains(role);
+    public static boolean hasPerm(String perm) {
+        return SecurityUtils.getSubject().isPermitted(perm);
     }
 
-    public static boolean hasRole(Long role) throws LogicException, ClientAuthException {
-        return getRolesIds().contains(role);
+    public static boolean hasRole(String role) throws LogicException, ClientAuthException {
+        return SecurityUtils.getSubject().hasRole(role);
+    }
+
+    public static boolean hasRole(Long roleId) throws LogicException, ClientAuthException {
+        return hasRole(getRealm().getRoleById(roleId));
     }
 
     public static void initShiro() {
@@ -110,12 +110,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     public static void requiresPerm(String perm) throws ClientAuthorizationException {
-        if (!SecurityUtils.getSubject().isPermitted(perm))
+        if (!hasPerm(perm))
             throw new ClientAuthorizationException("Not authorized [perm: " + perm + "]");
     }
 
-    public static void requiresRole(String role) throws ClientAuthorizationException {
-        if (!SecurityUtils.getSubject().hasRole(role))
+    public static void requiresRole(String role) throws LogicException, ClientAuthException {
+        if (!hasRole(role))
             throw new ClientAuthorizationException("Not authorized [role: " + role + "]");
     }
 
