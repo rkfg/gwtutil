@@ -25,4 +25,8 @@ public class RuCellTree extends CellTree {
         super(viewModel, null, cellTreeResources, russianCellTreeMessages);
     }
 
+    public RuCellTree(TreeViewModel viewModel, int size) {
+        super(viewModel, null, cellTreeResources, russianCellTreeMessages, size);
+    }
+
 }
