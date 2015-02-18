@@ -15,7 +15,7 @@ import ru.ppsrk.gwt.client.LogicException;
 import com.programmisty.numerals.Numerals;
 
 import freemarker.template.TemplateException;
-import freemarker.template.TemplateMethodModel;
+import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
 public abstract class ReportServlet extends HttpServlet {
@@ -46,14 +46,14 @@ public abstract class ReportServlet extends HttpServlet {
                         }
                     }
                     HashMap<String, Object> params = new HashMap<String, Object>();
-                    params.put("num2textru", new TemplateMethodModel() {
+                    params.put("num2textru", new TemplateMethodModelEx() {
 
                         @Override
                         public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
                             return Numerals.russian(Long.valueOf(arguments.get(0).toString()));
                         }
                     });
-                    params.put("num2rubles", new TemplateMethodModel() {
+                    params.put("num2rubles", new TemplateMethodModelEx() {
 
                         @Override
                         public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
