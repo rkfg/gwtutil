@@ -3,6 +3,7 @@ package ru.ppsrk.gwt.server.report;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -16,16 +17,22 @@ import freemarker.template.TemplateException;
 
 public class Freemarker {
 
-    private static Configuration cfg;
+    private static Map<String, Configuration> cfgs = new HashMap<String, Configuration>();
 
     private static Configuration getCfg(GenericServlet servlet) throws IOException {
+        String localeStr = "default";
+        Locale gwtLocale = LocaleProxy.getLocale();
+        if (gwtLocale != null) {
+            localeStr = gwtLocale.toString();
+        }
+        Configuration cfg = cfgs.get(localeStr);
         if (cfg == null) {
             cfg = new Configuration(Configuration.getVersion());
             cfg.setDirectoryForTemplateLoading(new File(servlet.getServletContext().getRealPath("/WEB-INF/templates")));
-            Locale gwtLocale = LocaleProxy.getLocale();
             if (gwtLocale != null) {
                 cfg.setLocale(gwtLocale);
             }
+            cfgs.put(localeStr, cfg);
         }
         return cfg;
     }
