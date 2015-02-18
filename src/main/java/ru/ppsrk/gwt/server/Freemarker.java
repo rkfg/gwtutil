@@ -3,13 +3,14 @@ package ru.ppsrk.gwt.server;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.http.HttpServletResponse;
 
+import net.lightoze.gwt.i18n.server.LocaleProxy;
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -19,9 +20,12 @@ public class Freemarker {
 
     private static Configuration getCfg(GenericServlet servlet) throws IOException {
         if (cfg == null) {
-            cfg = new Configuration();
+            cfg = new Configuration(Configuration.getVersion());
             cfg.setDirectoryForTemplateLoading(new File(servlet.getServletContext().getRealPath("/WEB-INF/templates")));
-            cfg.setObjectWrapper(new DefaultObjectWrapper());
+            Locale gwtLocale = LocaleProxy.getLocale();
+            if (gwtLocale != null) {
+                cfg.setLocale(gwtLocale);
+            }
         }
         return cfg;
     }
@@ -43,8 +47,8 @@ public class Freemarker {
         processTemplate(servlet, templateName, params, resp.getWriter());
     }
 
-    public static void processTemplate(GenericServlet servlet, String templateName, Map<String, Object> params, Writer writer) throws TemplateException,
-            IOException {
+    public static void processTemplate(GenericServlet servlet, String templateName, Map<String, Object> params, Writer writer)
+            throws TemplateException, IOException {
         getCfg(servlet).getTemplate(templateName).process(params, writer);
     }
 
