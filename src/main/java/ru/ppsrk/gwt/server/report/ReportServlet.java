@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.LogicException;
-import ru.ppsrk.gwt.server.Freemarker;
 
 import com.programmisty.numerals.Numerals;
 

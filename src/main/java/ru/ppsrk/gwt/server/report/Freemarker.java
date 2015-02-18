@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.server;
+package ru.ppsrk.gwt.server.report;
 
 import java.io.File;
 import java.io.IOException;
