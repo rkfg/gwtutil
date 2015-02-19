@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class SettingsManager {
@@ -18,7 +19,7 @@ public class SettingsManager {
         return instance;
     }
 
-    private HashMap<String, String> defaults = new HashMap<String, String>();
+    private Map<String, String> defaults = new HashMap<String, String>();
 
     Properties properties = new Properties();
     String filename = null;
