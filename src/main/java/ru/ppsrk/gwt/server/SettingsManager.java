@@ -27,6 +27,10 @@ public class SettingsManager {
     public SettingsManager() {
     }
 
+    public SettingsManager(String filename) {
+        this.filename = filename;
+    }
+
     public Integer getIntegerSetting(String key) throws NumberFormatException {
         return Integer.valueOf(properties.getProperty(key, defaults.get(key)));
     }
@@ -39,7 +43,7 @@ public class SettingsManager {
         return properties.getProperty(key, defaults.get(key));
     }
 
-    public void loadSettings() throws FileNotFoundException, IOException {
+    public SettingsManager loadSettings() throws FileNotFoundException, IOException {
         if (filename == null || filename.isEmpty()) {
             throw new FileNotFoundException("Set filename first.");
         }
@@ -49,6 +53,7 @@ public class SettingsManager {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        return this;
     }
 
     public void saveSettings() throws FileNotFoundException, IOException {
@@ -100,12 +105,14 @@ public class SettingsManager {
         this.defaults = defaults;
     }
 
-    public HashMap<String, String> getDefaults() {
-        return defaults;
+    public SettingsManager setDefault(String key, String value) {
+        defaults.put(key, value);
+        return this;
     }
 
-    public void setFilename(String filename) {
+    public SettingsManager setFilename(String filename) {
         this.filename = filename;
+        return this;
     }
 
     public void setIntegerSetting(String key, Integer val) {
