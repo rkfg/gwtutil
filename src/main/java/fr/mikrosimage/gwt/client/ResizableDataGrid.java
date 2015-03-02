@@ -111,6 +111,7 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
             setEmptyTableWidget(emptyTableWidget);
             ClientUtils.replaceListDataProviderContents(dataProvider, data);
         }
+        redraw();
     }
 
     public void resetLoadingData(ListDataProvider<T> dataProvider) {
