@@ -123,6 +123,10 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         SecurityUtils.getSubject().getSession().setAttribute(key, value);
     }
 
+    public static UserDTO getUserByName(String username) throws LogicException, ClientAuthException {
+        return getRealm().getUser(username);
+    }
+
     public static void startTest(String DBConfig) {
         HibernateUtil.initSessionFactory(DBConfig);
         Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
