@@ -258,12 +258,14 @@ public class HibernateUtil {
     @SuppressWarnings("unchecked")
     public static <HIB> List<HIB> queryList(final String query, String[] paramNames, Object[] paramValues, Session session,
             final ListQueryFilter filter) throws LogicException {
-        if (paramNames.length != paramValues.length) {
-            throw new LogicException("paramNames.length != paramValues.length");
-        }
         final HashMap<String, Object> params = new HashMap<String, Object>();
-        for (int i = 0; i < paramNames.length; i++) {
-            params.put(paramNames[i], paramValues[i]);
+        if (paramNames != null && paramValues != null) {
+            if (paramNames.length != paramValues.length) {
+                throw new LogicException("paramNames.length != paramValues.length");
+            }
+            for (int i = 0; i < paramNames.length; i++) {
+                params.put(paramNames[i], paramValues[i]);
+            }
         }
         if (filter != null) {
             filter.applyFilter(session);
