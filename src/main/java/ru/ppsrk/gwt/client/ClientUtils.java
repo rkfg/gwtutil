@@ -601,14 +601,14 @@ public class ClientUtils {
 
     public static void getRoles(final AsyncCallback<List<String>> callback) {
         if (roles != null) {
-            callback.onSuccess(Collections.unmodifiableList(roles));
+            callback.onSuccess(roles);
         }
         AuthService.Util.getInstance().getUserRoles(new MyAsyncCallback<List<String>>() {
 
             @Override
             public void onSuccess(List<String> result) {
-                roles = result;
-                callback.onSuccess(Collections.unmodifiableList(result));
+                roles = Collections.unmodifiableList(result);
+                callback.onSuccess(roles);
             }
         });
     }
