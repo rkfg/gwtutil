@@ -375,4 +375,53 @@ public class HibernateUtil {
             final Class<DTO> dtoClass) throws LogicException {
         return mapModel(tryGetObject(id, clazz, session, failText), dtoClass);
     }
+
+    /**
+     * Creates a new entity or merges it to the existing, replacing only
+     * non-null fields. Useful for updating incompletely mapped entities.
+     * 
+     * @param session
+     * @param dto
+     *            DTO entity
+     * @param clazz
+     *            Hibernate entity class
+     * @return
+     * @throws LogicException
+     */
+    public static <HIB extends HasId, DTO extends HasId> HIB saveOrUpdateDTO(Session session, DTO dto, Class<HIB> clazz)
+            throws LogicException {
+        HIB converted = mapModel(dto, clazz);
+        return saveOrUpdateHIB(session, converted);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <HIB extends HasId> HIB saveOrUpdateHIB(Session session, HIB entity) throws LogicException {
+        if (entity.getId() != null) {
+            HIB existing = (HIB) session.get(entity.getClass(), entity.getId());
+            ServerUtils.mergeBeans(entity, existing);
+            entity = existing;
+        }
+        return (HIB) session.merge(entity);
+    }
+
+    public static <HIB extends HasId, DTO extends HasId> HIB saveOrUpdateDTO(final DTO dto, final Class<HIB> clazz) throws LogicException,
+            ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<HIB>() {
+
+            @Override
+            public HIB run(Session session) throws LogicException, ClientAuthException {
+                return saveOrUpdateDTO(session, dto, clazz);
+            }
+        });
+    }
+
+    public static <HIB extends HasId> HIB saveOrUpdateHIB(final HIB entity) throws LogicException, ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<HIB>() {
+
+            @Override
+            public HIB run(Session session) throws LogicException, ClientAuthException {
+                return saveOrUpdateHIB(session, entity);
+            }
+        });
+    }
 }

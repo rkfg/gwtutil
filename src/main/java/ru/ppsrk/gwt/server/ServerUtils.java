@@ -2,6 +2,7 @@ package ru.ppsrk.gwt.server;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.dozer.DozerBeanMapper;
 import org.hibernate.Session;
 
@@ -215,6 +217,37 @@ public class ServerUtils {
             }).buildValidatorFactory().getValidator();
         }
         return validator;
+    }
+
+    private static BeanUtilsBean beanMerger = new BeanUtilsBean() {
+        public void copyProperty(Object bean, String name, Object value) throws IllegalAccessException,
+                java.lang.reflect.InvocationTargetException {
+            if (value == null) {
+                return;
+            }
+            super.copyProperty(bean, name, value);
+        };
+    };
+
+    /**
+     * Copies non-null fields from source bean to target (from <a href=
+     * "http://stackoverflow.com/questions/1301697/helper-in-order-to-copy-non-null-properties-from-object-to-another-java"
+     * >StackOverflow question</a>)
+     * 
+     * @param source
+     *            source bean
+     * @param target
+     *            target bean
+     * @throws LogicException
+     *             if copying has failed.
+     */
+
+    public static void mergeBeans(Object source, Object target) throws LogicException {
+        try {
+            beanMerger.copyProperties(target, source);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new LogicException(e.getMessage());
+        }
     }
 
 }
