@@ -11,6 +11,7 @@ public @interface RequiresRoles {
     public static final String ADMIN = "admin";
     public static final String DEPT = "dept";
     public static final String USER = "user";
+    public static final String MANAGER = "manager";
 
     public String[] value();
 }
