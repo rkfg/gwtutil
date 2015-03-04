@@ -1,5 +1,7 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
+import java.util.Collection;
+
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
 import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
@@ -110,5 +112,10 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
             }
         }
         return null;
+    }
+
+    protected void setSuggestOracleContents(Collection<String> suggestions) {
+        getSuggestOracle().clear();
+        getSuggestOracle().addAll(suggestions);
     }
 }
