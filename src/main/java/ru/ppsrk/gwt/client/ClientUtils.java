@@ -19,6 +19,7 @@ import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.client.LocalizableResource;
 import com.google.gwt.user.cellview.client.AbstractCellTree;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Focusable;
@@ -34,6 +35,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import fr.mikrosimage.gwt.client.ResizableDataGrid;
 
 public class ClientUtils {
+
+    private static final int ALERT_DELAY = 1000;
 
     public static class FormPanelLDP extends FormPanel {
 
@@ -86,10 +89,16 @@ public class ClientUtils {
 
     static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
 
-        public void errorHandler(Throwable exception) {
+        public void errorHandler(final Throwable exception) {
             if (!(exception instanceof ClientAuthException)) {
                 if (exception instanceof LogicException) {
-                    Window.alert("Ошибка: " + exception.getMessage());
+                    new Timer() {
+
+                        @Override
+                        public void run() {
+                            Window.alert("Ошибка: " + exception.getMessage());
+                        }
+                    }.schedule(ALERT_DELAY);
                 } else {
                     System.out.println("Stacktrace:");
                     // exception.printStackTrace();
@@ -99,7 +108,13 @@ public class ClientUtils {
                     }
                     System.out.println("--------------------------");
                     if (!exception.getMessage().startsWith("0")) {
-                        Window.alert("Произошла непредвиденная ошибка. Технические данные: " + exception.getMessage());
+                        new Timer() {
+
+                            @Override
+                            public void run() {
+                                Window.alert("Произошла непредвиденная ошибка. Технические данные: " + exception.getMessage());
+                            }
+                        }.schedule(ALERT_DELAY);
                     }
                 }
             }
@@ -780,8 +795,8 @@ public class ClientUtils {
             }
         });
     }
-    
-    public static <T extends LocalizableResource> T setupLocale(T messages, Class<T> clazz){
+
+    public static <T extends LocalizableResource> T setupLocale(T messages, Class<T> clazz) {
         LocaleFactory.put(clazz, messages);
         Cookies.setCookie("locale", LocaleInfo.getCurrentLocale().getLocaleName());
         return messages;
