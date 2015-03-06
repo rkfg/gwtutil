@@ -12,7 +12,6 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
     private Thread workingThread;
 
     public LongPollingServer(long period, long execDelay) {
-        super();
         this.period = period;
         this.execDelay = execDelay;
     }
