@@ -7,7 +7,7 @@ table.grid {
 	margin-bottom: 20px;
 }
 
-table.grid tr td,table.grid tr th {
+table.grid tr td, table.grid tr th {
 	border: 1px solid black;
 	padding: 2px;
 }
@@ -110,4 +110,9 @@ tbody {
 
 .flow-margin>* {
 	margin: 2px !important;
+}
+
+.separate {
+	border-collapse: separate;
+	border-spacing: 5px;
 }
