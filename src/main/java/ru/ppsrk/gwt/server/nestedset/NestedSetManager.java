@@ -41,15 +41,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
 
             @Override
             public Void run(Session session) throws LogicException, ClientAuthException {
-                @SuppressWarnings("unchecked")
-                T node = (T) session.get(entityClass, nodeId);
-                if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
-                    throw new NestedSetManagerException(
-                            "Need to delete more than one node but children deleting was explicitly prohibited.");
-                }
-                session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
-                        .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();
-                updateNodes(node.getLeftNum(), node.getLeftNum() - node.getRightNum() - 1, session);
+                deleteNode(nodeId, withChildren, session);
                 return null;
             }
         });
@@ -306,20 +298,18 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public T insertNode(final T node, final Long parentId) throws LogicException, ClientAuthException {
+    public T insertNode(final T node, Long parentId) throws LogicException, ClientAuthException {
+        final Long sureParentId = ensureParentId(parentId);
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
             @Override
             public T run(Session session) throws LogicException, ClientAuthException {
-                if (parentId == null) {
-                    throw new NestedSetManagerException("Parent can't be null. Insert a root node if you have no records yet.");
-                }
-                T parentNode = (T) session.get(entityClass, parentId);
+                T parentNode = (T) session.get(entityClass, sureParentId);
                 if (parentNode == null) {
-                    throw new NestedSetManagerException("Parent node with id=" + parentId + " not found.");
+                    throw new NestedSetManagerException("Parent node with id=" + sureParentId + " not found.");
                 }
-                log.debug("Insert; parent node: " + parentNode + " new node: " + node + " to parentNodeId: " + parentId);
+                log.debug("Insert; parent node: " + parentNode + " new node: " + node + " to parentNodeId: " + sureParentId);
                 node.setLeftNum(parentNode.getRightNum());
                 node.setRightNum(node.getLeftNum() + 1);
                 node.setDepth(parentNode.getDepth() + 1);
@@ -354,6 +344,33 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 .setLong("left", left).setLong("shift", shift).executeUpdate();
         session.createQuery("update " + entityName + " node set node.rightnum = node.rightnum + :shift where node.rightnum >= :left")
                 .setLong("left", left).setLong("shift", shift).executeUpdate();
+    }
+
+    private Long ensureParentId(Long parentId) throws LogicException, ClientAuthException {
+        if (parentId == null) {
+            T rootNode = getRootNode();
+            if (rootNode == null) {
+                try {
+                    rootNode = insertRootNode(entityClass.newInstance());
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new LogicException("Can't instantiate new entity.");
+                }
+            }
+            parentId = rootNode.getId();
+        }
+        return parentId;
+    }
+
+    public void deleteNode(final Long nodeId, final boolean withChildren, Session session) throws NestedSetManagerException {
+        @SuppressWarnings("unchecked")
+        T node = (T) session.get(entityClass, nodeId);
+        if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
+            throw new NestedSetManagerException(
+                    "Need to delete more than one node but children deleting was explicitly prohibited.");
+        }
+        session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
+                .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();
+        updateNodes(node.getLeftNum(), node.getLeftNum() - node.getRightNum() - 1, session);
     }
 
 }
