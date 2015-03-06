@@ -25,6 +25,10 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
     private Class<D> dtoClass;
     private String entityName;
 
+    public enum AnnotateChildren {
+        NONE, DIRECT, RECURSIVE, BOTH
+    }
+
     public NestedSetManager(Class<T> entityClass, Class<D> dtoClass) {
         super();
         this.entityClass = entityClass;
@@ -85,6 +89,27 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      */
     public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly) throws LogicException,
             ClientAuthException {
+        return getChildren(parentNodeId, orderField, directOnly, AnnotateChildren.NONE);
+    }
+
+    /**
+     * Retrieves children by parent node id.
+     * 
+     * @param parentNodeId
+     *            use null for the root node
+     * @param orderField
+     *            field name by which the results are sorted; several field may
+     *            be supplied, delimited by comma
+     * @param directOnly
+     *            retrieve only direct descendants
+     * @param annotateChildren
+     *            set childrenCount field for all retrieved elements
+     * @return list of children nodes
+     * @throws LogicException
+     * @throws ClientAuthException
+     */
+    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly,
+            final AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<T>>() {
 
             @SuppressWarnings("unchecked")
@@ -94,22 +119,102 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 if (directOnly) {
                     session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
                 }
-                return session
+                List<T> entities = session
                         .createQuery(
                                 "from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node."
                                         + orderField).setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum())
                         .list();
+                switch (annotateChildren) {
+                case DIRECT:
+                    annotateChildrenCount(entities, true);
+                    break;
+                case RECURSIVE:
+                    annotateChildrenCount(entities, false);
+                    break;
+                case BOTH:
+                    annotateChildrenCount(entities, true);
+                    annotateChildrenCount(entities, false);
+                    break;
+                default:
+                    break;
+                }
+                return entities;
             }
         });
     }
 
+    public Long getChildrenCount(final Long parentNodeId, final boolean directOnly) throws LogicException, ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<Long>() {
+
+            @Override
+            public Long run(Session session) throws LogicException, ClientAuthException {
+                return getChildrenCount(parentNodeId, directOnly, session);
+            }
+        });
+    }
+
+    public Long getChildrenCount(final Long parentNodeId, final boolean directOnly, Session session) {
+        @SuppressWarnings("unchecked")
+        T parentNode = (T) session.get(entityClass, parentNodeId);
+        if (directOnly) {
+            session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
+        }
+        return (Long) session
+                .createQuery("select count (node) from " + entityName + " node where node.leftnum > :left and node.rightnum < :right")
+                .setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum()).uniqueResult();
+    }
+
+    public void annotateChildrenCount(List<T> entities, boolean directOnly) throws LogicException, ClientAuthException {
+        for (T entity : entities) {
+            Long childrenCount = getChildrenCount(entity.getId(), directOnly);
+            if (directOnly) {
+                entity.setDirectChildrenCount(childrenCount);
+            } else {
+                entity.setChildrenCount(childrenCount);
+            }
+        }
+    }
+
+    public D getHierarchicById(final Long id) throws LogicException, ClientAuthException {
+        return HibernateUtil.exec(new HibernateCallback<D>() {
+
+            @Override
+            public D run(Session session) throws LogicException, ClientAuthException {
+                @SuppressWarnings("unchecked")
+                T entity = (T) session.get(entityClass, id);
+                if (entity == null) {
+                    throw new LogicException("No entity of class " + entityClass + " and id " + id);
+                }
+                return mapModel(entity, dtoClass);
+            }
+        });
+    }
+
+    public List<D> getHierarchicByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getHierarchicByParent(getHierarchicById(ensureParentId(parentId)), annotateChildren);
+    }
+
     public List<D> getHierarchicByParent(D parent) throws LogicException, ClientAuthException {
-        return getHierarchicByParent(parent, "name");
+        return getHierarchicByParent(parent, AnnotateChildren.NONE);
+    }
+
+    public List<D> getHierarchicByParent(D parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getHierarchicByParent(parent, "name", annotateChildren);
+    }
+
+    public List<D> getHierarchicByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren) throws LogicException,
+            ClientAuthException {
+        return getHierarchicByParent(getHierarchicById(ensureParentId(parentId)), orderField, annotateChildren);
     }
 
     public List<D> getHierarchicByParent(D parent, String orderField) throws LogicException, ClientAuthException {
+        return getHierarchicByParent(parent, orderField, AnnotateChildren.NONE);
+    }
+
+    public List<D> getHierarchicByParent(D parent, String orderField, AnnotateChildren annotateChildren) throws LogicException,
+            ClientAuthException {
         Long parentId = getId(parent, false);
-        List<D> dtos = mapArray(getChildren(parentId, orderField, true), dtoClass);
+        List<D> dtos = mapArray(getChildren(parentId, orderField, true, annotateChildren), dtoClass);
         for (D dto : dtos) {
             dto.setParent(parent);
         }

@@ -12,6 +12,7 @@ import org.hibernate.annotations.ParamDef;
 
 import ru.ppsrk.gwt.client.EqualsById;
 
+@SuppressWarnings("serial")
 @MappedSuperclass
 @Table(indexes = { @Index(columnList = "leftnum"), @Index(columnList = "rightnum"), @Index(columnList = "depth") })
 @FilterDef(name = "depthFilter", parameters = @ParamDef(name = "depth", type = "long"))
@@ -23,6 +24,8 @@ public class NestedSetNode extends EqualsById {
     Long leftnum;
     Long rightnum;
     Long depth;
+    Long directChildrenCount;
+    Long childrenCount;
 
     public Long getId() {
         return id;
@@ -54,6 +57,22 @@ public class NestedSetNode extends EqualsById {
 
     public void setDepth(Long depth) {
         this.depth = depth;
+    }
+
+    public Long getDirectChildrenCount() {
+        return directChildrenCount;
+    }
+
+    public void setDirectChildrenCount(Long directChildrenCount) {
+        this.directChildrenCount = directChildrenCount;
+    }
+
+    public Long getChildrenCount() {
+        return childrenCount;
+    }
+
+    public void setChildrenCount(Long childrenCount) {
+        this.childrenCount = childrenCount;
     }
 
 }
