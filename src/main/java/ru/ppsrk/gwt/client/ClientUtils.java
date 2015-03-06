@@ -83,8 +83,8 @@ public class ClientUtils {
         }
     }
 
-    public static abstract class LoadCellCallback<H extends Hierarchic> {
-        public abstract void load(H parent, MyAsyncCallback<List<H>> callback);
+    public interface LoadCellCallback<H extends Hierarchic> {
+        public void load(H parent, MyAsyncCallback<List<H>> callback);
     }
 
     static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
@@ -442,7 +442,7 @@ public class ClientUtils {
         return dataProviders.keySet();
     }
 
-    public static <S extends Hierarchic, H extends SettableParent> ListDataProvider<H> loadCellTree(final H parent,
+    public static <H extends SettableParent, S extends SettableParent> ListDataProvider<H> loadCellTree(final H parent,
             SelectionModel<S> selectionModel, ListDataProvider<H> defaultDataProvider, LoadCellCallback<H> loadCallback) {
         final ListDataProvider<H> dataProvider;
         if (parent != null) {
