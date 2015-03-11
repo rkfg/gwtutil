@@ -434,7 +434,7 @@ public class ClientUtils {
      * @param objects
      * @return String of comma-separated elements
      */
-    public static <T> String join(List<T> objects) {
+    public static <T> String join(Collection<T> objects) {
         return join(objects, ",");
     }
 
