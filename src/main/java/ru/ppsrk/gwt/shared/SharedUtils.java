@@ -7,6 +7,7 @@ import java.util.List;
 import ru.ppsrk.gwt.client.HasId;
 
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.view.client.ListDataProvider;
 
 public class SharedUtils {
@@ -113,6 +114,16 @@ public class SharedUtils {
         String result = (GWT.isClient() ? "Client" : "Server") + " exception of type " + e.getClass().getName() + ". Message: " + message
                 + "\n\n" + trace.toString();
         return result;
+    }
+
+    public static String escapeHtml(String unsafeText, boolean withLines) {
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        if (withLines) {
+            builder.appendEscapedLines(unsafeText);
+        } else {
+            builder.appendEscaped(unsafeText);
+        }
+        return builder.toSafeHtml().asString();
     }
 
 }
