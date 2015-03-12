@@ -204,4 +204,9 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
             MDC.put("ip", "---");
         }
     }
+
+    @Override
+    public void destroy() {
+        MDC.clear();
+    }
 }
