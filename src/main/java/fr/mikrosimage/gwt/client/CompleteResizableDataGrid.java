@@ -36,10 +36,7 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
 
     public void setLoadingData(Collection<? extends T> data) {
         if (data == null) {
-            selectedSet.clear();
-            for (T item : selectionModel.getSelectedSet()) {
-                selectedSet.add(item.getId());
-            }
+            saveSelection();
             selectionModel.clear();
         }
         super.setLoadingData(dataProvider, data);
@@ -50,5 +47,17 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
                 }
             }
         }
+    }
+
+    public void saveSelection() {
+        selectedSet.clear();
+        for (T item : selectionModel.getSelectedSet()) {
+            selectedSet.add(item.getId());
+        }
+    }
+
+    public void clearSelection() {
+        selectionModel.clear();
+        selectedSet.clear();
     }
 }
