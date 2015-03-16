@@ -1,5 +1,6 @@
 package ru.ppsrk.gwt.client;
 
+@SuppressWarnings("serial")
 public abstract class EqualsById implements HasId {
 
     protected boolean equalsById = true;
@@ -11,6 +12,14 @@ public abstract class EqualsById implements HasId {
                     && this.getClass().equals(obj.getClass());
         }
         return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        if (getId() != null) {
+            return getId().hashCode();
+        }
+        return 0;
     }
 
 }
