@@ -1,6 +1,5 @@
 package fr.mikrosimage.gwt.client;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +14,7 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
     private Set<Long> selectedSet = new HashSet<>();
     private S selectionModel;
     private ListDataProvider<T> dataProvider = new ListDataProvider<T>();
-    private ListHandler<T> sortHandler = new ListHandler<T>(new ArrayList<T>());
+    private ListHandler<T> sortHandler = new ListHandler<T>(dataProvider.getList());
 
     public CompleteResizableDataGrid(S selectionModel) {
         this.selectionModel = selectionModel;
