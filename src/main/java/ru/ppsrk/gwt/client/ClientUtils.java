@@ -614,6 +614,31 @@ public class ClientUtils {
         });
     }
 
+    public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback) {
+        AuthServiceAsync.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
+
+            @Override
+            public void onSuccess(Boolean result) {
+                if (!result) {
+                    PopupPanel popupPanel = new Login(true);
+                    popupPanel.center();
+                    return;
+                }
+                getRoles(new MyAsyncCallback<List<String>>() {
+
+                    @Override
+                    public void onSuccess(List<String> result) {
+                        if (result.isEmpty()) {
+                            logout();
+                            return;
+                        }
+                        rolesCallback.onSuccess(result);
+                    }
+                });
+            }
+        });
+    }
+
     public static void getRoles(final AsyncCallback<List<String>> callback) {
         if (roles != null) {
             callback.onSuccess(roles);
