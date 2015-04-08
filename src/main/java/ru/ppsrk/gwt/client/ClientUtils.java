@@ -262,7 +262,7 @@ public class ClientUtils {
 
     static private HashMap<SelectionModel<? extends Hierarchic>, PathProvider> pathDataProviders = new HashMap<SelectionModel<? extends Hierarchic>, ClientUtils.PathProvider>();
 
-    private static List<String> roles = new LinkedList<String>();
+    private static List<String> roles = null;
 
     public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
