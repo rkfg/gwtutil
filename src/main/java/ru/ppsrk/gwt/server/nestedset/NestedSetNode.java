@@ -5,6 +5,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
@@ -24,7 +25,9 @@ public class NestedSetNode extends EqualsById {
     Long leftnum;
     Long rightnum;
     Long depth;
+    @Transient
     Long directChildrenCount;
+    @Transient
     Long childrenCount;
 
     public Long getId() {
