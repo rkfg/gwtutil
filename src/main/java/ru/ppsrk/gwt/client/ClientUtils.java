@@ -624,7 +624,7 @@ public class ClientUtils {
                     popupPanel.center();
                     return;
                 }
-                getRoles(new MyAsyncCallback<List<String>>() {
+                getRoles(new AsyncCallback<List<String>>() {
 
                     @Override
                     public void onSuccess(List<String> result) {
@@ -633,6 +633,11 @@ public class ClientUtils {
                             return;
                         }
                         rolesCallback.onSuccess(result);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        logout();
                     }
                 });
             }
@@ -643,12 +648,17 @@ public class ClientUtils {
         if (roles != null) {
             callback.onSuccess(roles);
         }
-        AuthService.Util.getInstance().getUserRoles(new MyAsyncCallback<List<String>>() {
+        AuthService.Util.getInstance().getUserRoles(new AsyncCallback<List<String>>() {
 
             @Override
             public void onSuccess(List<String> result) {
                 roles = Collections.unmodifiableList(result);
                 callback.onSuccess(roles);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
             }
         });
     }
