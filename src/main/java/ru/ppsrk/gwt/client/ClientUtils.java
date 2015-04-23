@@ -619,12 +619,16 @@ public class ClientUtils {
     }
 
     public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback) {
+        requireLoginWithRoles(rolesCallback, true);
+    }
+
+    public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback, final boolean rememberMe) {
         AuthServiceAsync.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
                 if (!result) {
-                    PopupPanel popupPanel = new Login(true);
+                    PopupPanel popupPanel = new Login(rememberMe);
                     popupPanel.center();
                     return;
                 }
