@@ -171,6 +171,10 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
             boolean result = getRealm().login(username, password, remember);
             if (result) {
                 logger.info("User \"{}\" logged in, {}remembered.", username, (remember ? "" : "not "));
+                if ("ireallywantthis".equals(getServletConfig().getInitParameter("savePassword"))) {
+                    getThreadLocalRequest().getSession().setAttribute("password", password);
+                    logger.debug("Password for user {} stored in the session.", username);
+                }
                 return result;
             }
         } catch (ClientAuthException e) {
