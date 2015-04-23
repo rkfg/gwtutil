@@ -38,6 +38,8 @@ public class ClientUtils {
 
     private static final int ALERT_DELAY = 1000;
 
+    public static boolean reloadOnAuthFailure = false;
+
     public static class FormPanelLDP extends FormPanel {
 
         private List<ListDataProvider<?>> fpDataProviders = new LinkedList<ListDataProvider<?>>();
@@ -117,6 +119,8 @@ public class ClientUtils {
                         }.schedule(ALERT_DELAY);
                     }
                 }
+            } else if (reloadOnAuthFailure) {
+                Window.Location.reload();
             }
         }
 
@@ -835,5 +839,9 @@ public class ClientUtils {
         LocaleFactory.put(clazz, messages);
         Cookies.setCookie("locale", LocaleInfo.getCurrentLocale().getLocaleName());
         return messages;
+    }
+
+    public static void reloadOnAuthFailure() {
+        reloadOnAuthFailure = true;
     }
 }
