@@ -1,0 +1,15 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+    <ui:with type="ru.ppsrk.gwt.bootstrap.client.Messages" field="res" />
+    <b:Modal animation="true" ui:field="m_editor">
+        <b:Form type="HORIZONTAL" action="#" ui:field="f_main">
+            <b:SubmitButton visible="false" ui:field="sb_ok" />
+        </b:Form>
+        <b:ModalFooter>
+            <b:ButtonGroup>
+                <b:Button text="{res.cancel}" ui:field="b_cancel" />
+                <b:Button text="{res.ok}" type="PRIMARY" ui:field="b_ok" />
+            </b:ButtonGroup>
+        </b:ModalFooter>
+    </b:Modal>
+</ui:UiBinder> 
