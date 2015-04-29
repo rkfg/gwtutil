@@ -32,4 +32,9 @@ public abstract class ModalDialogAdapter<T> extends Composite {
         return this;
     }
 
+    public ModalDialogAdapter<T> enableOk(boolean enable) {
+        modalDialog.b_ok.setEnabled(enable);
+        return this;
+    }
+
 }
