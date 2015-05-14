@@ -26,6 +26,7 @@ public class ProtectedServlet extends RemoteServiceServlet {
         Method method = rpcRequest.getMethod();
         try {
             Method implMethod = this.getClass().getMethod(method.getName(), method.getParameterTypes());
+            AuthServiceImpl.setMDCIP(getThreadLocalRequest());
             if (implMethod.isAnnotationPresent(RequiresAuth.class)) {
                 AuthServiceImpl.requiresAuth();
             }

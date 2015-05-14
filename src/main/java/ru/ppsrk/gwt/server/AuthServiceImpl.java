@@ -202,8 +202,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
 
     private void setMDCIP() {
         HttpServletRequest req = getThreadLocalRequest();
+        setMDCIP(req);
+    }
+
+    public static void setMDCIP(HttpServletRequest req) {
         if (req != null) {
-            MDC.put("ip", req.getRemoteAddr().toString());
+            MDC.put("ip", req.getRemoteAddr());
         } else {
             MDC.put("ip", "---");
         }
