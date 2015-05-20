@@ -33,6 +33,16 @@ public abstract class LongPollingClient<T> {
         }
     }
 
+    /**
+     * Create a new long polling client.
+     * 
+     * @param failureDelay
+     *            how many ms to wait if the long polling call was unsuccessful
+     *            before restarting. Unsuccessful call means that an exception
+     *            was returned, not just null because there's nothing to send.
+     *            After receiving null the client restarts the polling
+     *            immediately.
+     */
     public LongPollingClient(int failureDelay) {
         this.failureDelay = failureDelay;
     }
