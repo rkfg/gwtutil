@@ -100,7 +100,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly,
+    public synchronized List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly,
             final AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<T>>() {
 
@@ -223,7 +223,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public T getParentByChild(final Long childId, final Long depth) throws LogicException, ClientAuthException {
+    public synchronized T getParentByChild(final Long childId, final Long depth) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
@@ -271,7 +271,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         return rootNode.getId();
     }
 
-    public T getRootNode() throws LogicException, ClientAuthException {
+    public synchronized T getRootNode() throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
@@ -298,7 +298,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public T insertNode(final T node, Long parentId) throws LogicException, ClientAuthException {
+    public synchronized T insertNode(final T node, Long parentId) throws LogicException, ClientAuthException {
         final Long sureParentId = ensureParentId(parentId);
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
@@ -319,7 +319,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public T insertRootNode(final T node) throws LogicException, ClientAuthException {
+    public synchronized T insertRootNode(final T node) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @Override
@@ -339,7 +339,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         return mapModel(insertNode(mapModel(dto, entityClass), parentId), dtoClass);
     }
 
-    private void updateNodes(Long left, Long shift, Session session) {
+    private synchronized void updateNodes(Long left, Long shift, Session session) {
         session.createQuery("update " + entityName + " node set node.leftnum = node.leftnum + :shift where node.leftnum >= :left")
                 .setLong("left", left).setLong("shift", shift).executeUpdate();
         session.createQuery("update " + entityName + " node set node.rightnum = node.rightnum + :shift where node.rightnum >= :left")
@@ -361,7 +361,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         return parentId;
     }
 
-    public void deleteNode(final Long nodeId, final boolean withChildren, Session session) throws NestedSetManagerException {
+    public synchronized void deleteNode(final Long nodeId, final boolean withChildren, Session session) throws NestedSetManagerException {
         @SuppressWarnings("unchecked")
         T node = (T) session.get(entityClass, nodeId);
         if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
