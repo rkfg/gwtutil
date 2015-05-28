@@ -5,6 +5,7 @@ import javax.persistence.Table;
 
 import ru.ppsrk.gwt.server.nestedset.NestedSetNode;
 
+@SuppressWarnings("serial")
 @Entity
 @Table(name = "terrdepts")
 public class Dept extends NestedSetNode {

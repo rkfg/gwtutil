@@ -4,6 +4,7 @@ import java.util.Set;
 
 import ru.ppsrk.gwt.client.HasId;
 
+@SuppressWarnings("serial")
 public class UserDTO implements HasId {
 
     Long id;

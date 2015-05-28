@@ -3,6 +3,7 @@ package ru.ppsrk.gwt.test.dto;
 import ru.ppsrk.gwt.client.Hierarchic;
 import ru.ppsrk.gwt.client.SettableParent;
 
+@SuppressWarnings("serial")
 public class DeptHierDTO implements SettableParent {
     Long id;
     String name;

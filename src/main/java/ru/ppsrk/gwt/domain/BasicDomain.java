@@ -6,6 +6,7 @@ import javax.persistence.MappedSuperclass;
 
 import ru.ppsrk.gwt.client.HasId;
 
+@SuppressWarnings("serial")
 @MappedSuperclass
 public class BasicDomain implements HasId {
     @Id
