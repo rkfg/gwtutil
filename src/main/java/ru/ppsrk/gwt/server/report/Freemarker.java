@@ -29,6 +29,7 @@ public class Freemarker {
         if (cfg == null) {
             cfg = new Configuration(Configuration.getVersion());
             cfg.setDirectoryForTemplateLoading(new File(servlet.getServletContext().getRealPath("/WEB-INF/templates")));
+            cfg.setDefaultEncoding("UTF-8");
             if (gwtLocale != null) {
                 cfg.setLocale(gwtLocale);
             }
