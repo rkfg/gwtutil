@@ -1,16 +1,19 @@
 package ru.ppsrk.gwt.server;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.LongPollingClient;
+import ru.ppsrk.gwt.client.LongPollingClient.LongPollingAsyncCallback;
 
 public abstract class LongPollingServer<T> implements AutoCloseable {
 
-    private long period;
-    private long execDelay;
-    private Thread workingThread;
+    protected long period;
+    protected long execDelay;
+    private Collection<Thread> workingThreads = new HashSet<Thread>();
 
     /**
      * Create a new long polling server
@@ -31,6 +34,14 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
         this.execDelay = execDelay;
     }
 
+    protected void registerThread() {
+        workingThreads.add(Thread.currentThread());
+    }
+
+    protected void deregisterThread() {
+        workingThreads.remove(Thread.currentThread());
+    }
+
     /**
      * Start the long polling operation. Call this from the GWT RPC handler that
      * the {@link LongPollingClient} calls in {@link LongPollingClient#doRPC(LongPollingAsyncCallback)}
@@ -42,7 +53,15 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
      */
 
     public T start() throws InterruptedException, LogicException, ClientAuthException {
-        workingThread = Thread.currentThread();
+        try {
+            registerThread();
+            return awaitResult();
+        } finally {
+            deregisterThread();
+        }
+    }
+
+    protected T awaitResult() throws LogicException, ClientAuthException, InterruptedException {
         long startTime = System.nanoTime();
         long nanoPeriod = TimeUnit.MILLISECONDS.toNanos(period);
         while (System.nanoTime() - startTime < nanoPeriod) {
@@ -57,7 +76,9 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        workingThread.interrupt();
+        for (Thread thread : workingThreads) {
+            thread.interrupt();
+        }
     }
 
     /**
