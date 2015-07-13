@@ -6,8 +6,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.LogicException;
-import ru.ppsrk.gwt.client.LongPollingClient;
-import ru.ppsrk.gwt.client.LongPollingClient.LongPollingAsyncCallback;
 import ru.ppsrk.gwt.dto.LongPollingMessage;
 
 public abstract class LongPollingServerQueueManager<M extends LongPollingMessage> extends LongPollingServer<Collection<M>> {
@@ -51,22 +49,13 @@ public abstract class LongPollingServerQueueManager<M extends LongPollingMessage
     }
 
     /**
-     * Start the long polling operation. Call this from the GWT RPC handler that
-     * the {@link LongPollingClient} calls in
-     * {@link LongPollingClient#doRPC(LongPollingAsyncCallback)}
+     * Set the timestamp. Call this before starting the server.
      * 
      * @param fromTimestamp
-     *            client-supplied timestamp value, messages received after it
-     *            will be sent back.
-     * @return
-     * @throws InterruptedException
-     * @throws LogicException
-     * @throws ClientAuthException
+     *            client-supplied timestamp value, messages received after it will be sent back.
      */
-
-    public Collection<M> start(Long fromTimestamp) throws InterruptedException, LogicException, ClientAuthException {
+    public void setTimestamp(Long fromTimestamp) {
         lastTimestamp.set(fromTimestamp);
-        return super.start();
     }
 
     @Override
