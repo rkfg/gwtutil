@@ -14,7 +14,7 @@ import fr.mikrosimage.gwt.client.CompleteResizableDataGrid;
 public abstract class AbstractDataGridTabPane<T extends HasId> extends TabPaneFixed {
 
     @UiField(provided = true)
-    protected CompleteResizableDataGrid<T, SingleSelectionModel<T>> dg_data = new CompleteResizableDataGrid<>(new SingleSelectionModel<T>());
+    public CompleteResizableDataGrid<T, SingleSelectionModel<T>> dg_data = new CompleteResizableDataGrid<>(new SingleSelectionModel<T>());
 
     protected void loadData() {
         dg_data.setLoadingData(null);
