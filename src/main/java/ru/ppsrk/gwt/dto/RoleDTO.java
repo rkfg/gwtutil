@@ -2,11 +2,18 @@ package ru.ppsrk.gwt.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 public class RoleDTO implements IsSerializable {
     Long id;
     UserDTO user;
     String role;
+
+    public RoleDTO() {
+    }
+
+    public RoleDTO(UserDTO user, String role) {
+        this.user = user;
+        this.role = role;
+    }
 
     public Long getId() {
         return id;
