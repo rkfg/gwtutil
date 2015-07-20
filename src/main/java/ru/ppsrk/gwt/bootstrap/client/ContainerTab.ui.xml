@@ -1,0 +1,11 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+    <g:DockLayoutPanel height="100%">
+        <g:south size="40">
+            <g:Label />
+        </g:south>
+        <g:center>
+            <b:TabPanel ui:field="tp_main" />
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
