@@ -9,10 +9,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-public class SettingsManager {
+public class SettingsManager implements Iterable<String> {
     private static SettingsManager instance = new SettingsManager();
 
     public static SettingsManager getInstance() {
@@ -125,6 +126,35 @@ public class SettingsManager {
 
     public void setStringSetting(String key, String val) {
         properties.setProperty(key, val);
+    }
+
+    private class StringIteratorDecorator implements Iterator<String> {
+        private Iterator<?> iter;
+
+        public StringIteratorDecorator(Iterator<?> iter) {
+            this.iter = iter;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iter.hasNext();
+        }
+
+        @Override
+        public String next() {
+            return (String) iter.next();
+        }
+
+        @Override
+        public void remove() {
+            iter.remove();
+        }
+
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return new StringIteratorDecorator(properties.keySet().iterator());
     }
 
 }
