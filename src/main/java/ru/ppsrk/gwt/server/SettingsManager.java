@@ -70,7 +70,9 @@ public class SettingsManager implements Iterable<String> {
 
     public static void loadProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
             IOException {
-        properties.load(new InputStreamReader(new FileInputStream(createFileDirs(filename)), "utf-8"));
+        try (InputStreamReader isr = new InputStreamReader(new FileInputStream(createFileDirs(filename)), "utf-8")) {
+            properties.load(isr);
+        }
     }
 
     public static String expandHome(String path) {
@@ -99,7 +101,9 @@ public class SettingsManager implements Iterable<String> {
 
     public static void storeProperties(Properties properties, String filename) throws UnsupportedEncodingException, FileNotFoundException,
             IOException {
-        properties.store(new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8"), "");
+        try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(createFileDirs(filename)), "utf-8")) {
+            properties.store(osw, "");
+        }
     }
 
     public void setDefaults(HashMap<String, String> defaults) {
