@@ -161,4 +161,8 @@ public class SettingsManager implements Iterable<String> {
         return new StringIteratorDecorator(properties.keySet().iterator());
     }
 
+    public void remove(String key) {
+        properties.remove(key);
+    }
+
 }
