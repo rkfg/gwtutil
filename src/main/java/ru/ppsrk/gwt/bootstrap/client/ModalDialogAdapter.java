@@ -3,6 +3,7 @@ package ru.ppsrk.gwt.bootstrap.client;
 import ru.ppsrk.gwt.bootstrap.client.ModalDialog.ModalDialogCallback;
 
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.Widget;
 
 public abstract class ModalDialogAdapter<T> extends Composite {
@@ -17,6 +18,10 @@ public abstract class ModalDialogAdapter<T> extends Composite {
     @Override
     protected void initWidget(Widget widget) {
         modalDialog.initForm(widget);
+    }
+
+    protected void setFocusable(Focusable widget) {
+        modalDialog.setFocusable(widget);
     }
 
     protected T getResult() {
