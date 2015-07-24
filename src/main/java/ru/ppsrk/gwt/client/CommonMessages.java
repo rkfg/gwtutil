@@ -34,6 +34,12 @@ public interface CommonMessages extends Messages {
     @DefaultMessage("Пароль")
     public String password();
     
+    @DefaultMessage("Печать")
+    public String print();
+    
+    @DefaultMessage("Обновить")
+    public String refresh();
+    
     @DefaultMessage("Менеджер")
     public String manager();
 
