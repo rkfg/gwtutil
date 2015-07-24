@@ -40,7 +40,7 @@ public interface AuthService extends RemoteService {
 
     public boolean login(String username, String password, boolean remember) throws LogicException, ClientAuthException;
 
-    public void logout();
+    public void logout() throws LogicException, ClientAuthException;
 
     public boolean isLoggedIn();
 

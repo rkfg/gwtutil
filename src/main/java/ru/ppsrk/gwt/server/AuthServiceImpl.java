@@ -185,7 +185,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public void logout() {
+    public void logout() throws LogicException, ClientAuthException {
         setMDCIP();
         logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
         removeSessionAttribute("userid");
@@ -200,14 +200,20 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRealm().register(username, password, rng);
     }
 
-    private void setMDCIP() {
+    private void setMDCIP() throws LogicException, ClientAuthException {
         HttpServletRequest req = getThreadLocalRequest();
         setMDCIP(req);
     }
 
-    public static void setMDCIP(HttpServletRequest req) {
+    public static void setMDCIP(HttpServletRequest req) throws LogicException, ClientAuthException {
         if (req != null) {
             MDC.put("ip", req.getRemoteAddr());
+            UserDTO userDTO = getUserDTO();
+            if (userDTO != null && userDTO.getUsername() != null) {
+                MDC.put("user", userDTO.getUsername());
+            } else {
+                MDC.remove("user");
+            }
         } else {
             MDC.put("ip", "---");
         }
