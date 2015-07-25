@@ -208,10 +208,14 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     public static void setMDCIP(HttpServletRequest req) throws LogicException, ClientAuthException {
         if (req != null) {
             MDC.put("ip", req.getRemoteAddr());
-            UserDTO userDTO = getUserDTO();
-            if (userDTO != null && userDTO.getUsername() != null) {
-                MDC.put("user", userDTO.getUsername());
-            } else {
+            try {
+                UserDTO userDTO = getUserDTO();
+                if (userDTO != null && userDTO.getUsername() != null) {
+                    MDC.put("user", userDTO.getUsername());
+                } else {
+                    MDC.remove("user");
+                }
+            } catch (Throwable e) {
                 MDC.remove("user");
             }
         } else {
