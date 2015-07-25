@@ -80,12 +80,12 @@ public class IniRealm extends GwtUtilRealm {
 
     @Override
     public Long register(String username, String password, RandomNumberGenerator rng) throws LogicException, ClientAuthenticationException {
-        SettingsManager sm = new SettingsManager();
-        sm.setFilename("auth.ini");
-        HashedBase64Password base64password = new HashedBase64Password(password, rng);
-        String credentials = base64password.getPassword() + "|" + base64password.getSalt();
-        sm.setStringSetting(username, credentials);
+        SettingsManager sm = new SettingsManager("auth.ini");
         try {
+            sm.loadSettings();
+            HashedBase64Password base64password = new HashedBase64Password(password, rng);
+            String credentials = base64password.getPassword() + "|" + base64password.getSalt();
+            sm.setStringSetting(username, credentials);
             sm.saveSettings();
         } catch (FileNotFoundException e) {
             throw new LogicException("File auth.ini not found.");

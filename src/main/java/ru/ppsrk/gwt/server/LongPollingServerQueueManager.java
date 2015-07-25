@@ -54,7 +54,7 @@ public abstract class LongPollingServerQueueManager<M extends LongPollingMessage
      * @param fromTimestamp
      *            client-supplied timestamp value, messages received after it will be sent back.
      */
-    public void setTimestamp(long fromTimestamp) {
+    public void setTimestamp(Long fromTimestamp) {
         lastTimestamp.set(fromTimestamp);
     }
 
