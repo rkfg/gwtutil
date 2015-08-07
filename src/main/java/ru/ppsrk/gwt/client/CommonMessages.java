@@ -33,13 +33,13 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("Пароль")
     public String password();
-    
+
     @DefaultMessage("Печать")
     public String print();
-    
+
     @DefaultMessage("Обновить")
     public String refresh();
-    
+
     @DefaultMessage("Менеджер")
     public String manager();
 
@@ -57,4 +57,10 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("Итого")
     public String total();
+
+    @DefaultMessage("Поиск")
+    public String search();
+
+    @DefaultMessage("Не определено")
+    public String undefined();
 }
