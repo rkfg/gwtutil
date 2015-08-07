@@ -24,9 +24,7 @@ public abstract class ModalDialogAdapter<T> extends Composite {
         modalDialog.setFocusable(widget);
     }
 
-    protected T getResult() {
-        return null;
-    }
+    protected abstract T getResult();
 
     public void show() {
         modalDialog.show();
