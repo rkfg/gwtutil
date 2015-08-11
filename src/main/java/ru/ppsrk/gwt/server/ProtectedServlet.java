@@ -1,10 +1,13 @@
 package ru.ppsrk.gwt.server;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import ru.ppsrk.gwt.client.AlertRuntimeException;
 import ru.ppsrk.gwt.client.ClientAuthException;
+import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.shared.RequiresAnyRole;
 import ru.ppsrk.gwt.shared.RequiresAuth;
 import ru.ppsrk.gwt.shared.RequiresRoles;
 
@@ -35,6 +38,20 @@ public class ProtectedServlet extends RemoteServiceServlet {
                 String[] rolesStr = rolesAnn.value();
                 for (String role : rolesStr) {
                     AuthServiceImpl.requiresRole(role);
+                }
+            }
+            if (implMethod.isAnnotationPresent(RequiresAnyRole.class)) {
+                RequiresAnyRole rolesAnn = implMethod.getAnnotation(RequiresAnyRole.class);
+                String[] rolesStr = rolesAnn.value();
+                boolean allowed = false;
+                for (String role : rolesStr) {
+                    if (AuthServiceImpl.hasRole(role)) {
+                        allowed = true;
+                        break;
+                    }
+                }
+                if (!allowed) {
+                    throw new ClientAuthorizationException("Not authorized (need any role: " + Arrays.toString(rolesStr) + ")");
                 }
             }
         } catch (LogicException | ClientAuthException e) {
