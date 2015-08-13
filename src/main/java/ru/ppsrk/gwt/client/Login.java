@@ -32,7 +32,7 @@ public class Login extends PopupPanel {
     private final HorizontalPanel horizontalPanel_3 = new HorizontalPanel();
     private final CheckBox checkBox_remember = new CheckBox((String) null);
 
-    public Login(boolean rememberMe) {
+    public Login(boolean rememberMe, boolean showRememberMe) {
         super(false, true);
         setWidget(verticalPanel);
         verticalPanel.setSpacing(5);
@@ -71,7 +71,9 @@ public class Login extends PopupPanel {
         checkBox_remember.setValue(rememberMe);
         checkBox_remember.setHTML("Запомнить меня");
 
-        horizontalPanel_3.add(checkBox_remember);
+        if (showRememberMe) {
+            horizontalPanel_3.add(checkBox_remember);
+        }
         horizontalPanel_2.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         verticalPanel.add(horizontalPanel_2);
         horizontalPanel_2.setSpacing(5);

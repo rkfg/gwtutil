@@ -606,12 +606,16 @@ public class ClientUtils {
     }
 
     public static void requireLogin(final boolean rememberMe) {
-        AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
+        requireLogin(rememberMe, true);
+    }
+    
+    public static void requireLogin(final boolean rememberMe, final boolean showRememberMe) {
+            AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
                 if (!result) {
-                    PopupPanel popupPanel = new Login(rememberMe);
+                    PopupPanel popupPanel = new Login(rememberMe, showRememberMe);
                     popupPanel.center();
                 }
             }
@@ -623,12 +627,17 @@ public class ClientUtils {
     }
 
     public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback, final boolean rememberMe) {
+        requireLoginWithRoles(rolesCallback, rememberMe, true);
+    }
+
+    public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback, final boolean rememberMe,
+            final boolean showRememberMe) {
         AuthServiceAsync.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
                 if (!result) {
-                    PopupPanel popupPanel = new Login(rememberMe);
+                    PopupPanel popupPanel = new Login(rememberMe, showRememberMe);
                     popupPanel.center();
                     return;
                 }
