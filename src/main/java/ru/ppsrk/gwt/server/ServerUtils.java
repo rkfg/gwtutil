@@ -250,4 +250,9 @@ public class ServerUtils {
         }
     }
 
+    public static boolean isDebugMode() {
+        String debugStr = System.getenv("debug");
+        return debugStr != null && debugStr.equals("yes");
+    }
+
 }
