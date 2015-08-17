@@ -94,13 +94,7 @@ public class ClientUtils {
         public void errorHandler(final Throwable exception) {
             if (!(exception instanceof ClientAuthException)) {
                 if (exception instanceof LogicException) {
-                    new Timer() {
-
-                        @Override
-                        public void run() {
-                            Window.alert("Ошибка: " + exception.getMessage());
-                        }
-                    }.schedule(ALERT_DELAY);
+                    delayedAlert("Ошибка: " + exception.getMessage());
                 } else {
                     System.out.println("Stacktrace:");
                     // exception.printStackTrace();
@@ -856,5 +850,15 @@ public class ClientUtils {
 
     public static void reloadOnAuthFailure() {
         reloadOnAuthFailure = true;
+    }
+
+    public static void delayedAlert(final String message) {
+        new Timer() {
+
+            @Override
+            public void run() {
+                Window.alert(message);
+            }
+        }.schedule(ALERT_DELAY);
     }
 }
