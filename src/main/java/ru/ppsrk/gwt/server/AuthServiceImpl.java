@@ -17,6 +17,7 @@ package ru.ppsrk.gwt.server;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.shiro.SecurityUtils;
@@ -49,8 +50,8 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         Iterator<Realm> realms = ((RealmSecurityManager) SecurityUtils.getSecurityManager()).getRealms().iterator();
         Realm realm = realms.next();
         if (!(realm instanceof GwtUtilRealm)) {
-            throw new LogicException("Realm " + realm.getName() + " isn't compatible to GwtUtilRealm, its type is: "
-                    + realm.getClass().getSimpleName());
+            throw new LogicException(
+                    "Realm " + realm.getName() + " isn't compatible to GwtUtilRealm, its type is: " + realm.getClass().getSimpleName());
         }
         return (GwtUtilRealm) realm;
     }
@@ -171,7 +172,8 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
             boolean result = getRealm().login(username, password, remember);
             if (result) {
                 logger.info("User \"{}\" logged in, {}remembered.", username, (remember ? "" : "not "));
-                if ("ireallywantthis".equals(getServletConfig().getInitParameter("savePassword"))) {
+                ServletConfig servletConfig = getServletConfig();
+                if (servletConfig != null && "ireallywantthis".equals(servletConfig.getInitParameter("savePassword"))) {
                     getThreadLocalRequest().getSession().setAttribute("password", password);
                     logger.debug("Password for user {} stored in the session.", username);
                 }
