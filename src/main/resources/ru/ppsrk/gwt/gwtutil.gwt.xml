@@ -4,6 +4,7 @@
 <module rename-to="gwtutil">
 	<inherits name='com.google.gwt.user.User' />
 	<inherits name="fr.mikrosimage.gwt.GwtResizableDraggableColumns" />
+    <inherits name="net.lightoze.gwt.i18n.GwtI18nServer" />
 	<stylesheet src="gwtutil-style.css" />
 	<source path="client" />
 	<source path="shared" />
