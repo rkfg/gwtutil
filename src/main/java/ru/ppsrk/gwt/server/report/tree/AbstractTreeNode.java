@@ -37,6 +37,10 @@ public abstract class AbstractTreeNode<T> implements Comparable<T> {
         return factory.addChild(value, path, childPathPart);
     }
 
+    public AbstractTreeNode<T> addChild(T value) {
+        return addChild(value, value.toString());
+    }
+
     protected void addChild(AbstractTreeNode<T> child) {
         if (!children.contains(child)) {
             child.setParent(this);

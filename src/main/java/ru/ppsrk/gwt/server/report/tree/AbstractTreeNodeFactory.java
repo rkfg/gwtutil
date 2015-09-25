@@ -34,6 +34,10 @@ public abstract class AbstractTreeNodeFactory<T, TN extends AbstractTreeNode<T>>
         return result;
     }
 
+    public TN addChild(T value) {
+        return addChild(value, value.toString());
+    }
+    
     public TN addChild(T value, String... path) {
         return addChild(value, buildPath(Arrays.copyOf(path, path.length - 1)), path[path.length - 1]);
     }
