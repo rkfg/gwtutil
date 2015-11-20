@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ru.ppsrk.gwt.client.HasId;
+import ru.ppsrk.gwt.client.Pair;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -39,6 +40,24 @@ public class SharedUtils {
             if (item.getId().equals(id)) {
                 return item;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Search the list for the element by id.
+     * 
+     * @param collection
+     * @param id
+     * @return found element
+     */
+    public static <T extends HasId> Pair<Integer, T> getObjectFromListById(List<T> collection, Long id) {
+        int i = 0;
+        for (T item : collection) {
+            if (item.getId().equals(id)) {
+                return Pair.create(i, item);
+            }
+            i++;
         }
         return null;
     }
