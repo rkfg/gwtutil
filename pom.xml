@@ -130,7 +130,6 @@
 			<groupId>net.lightoze.gwt-i18n-server</groupId>
 			<artifactId>gwt-i18n-server</artifactId>
 			<version>0.22</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
             <groupId>commons-beanutils</groupId>
