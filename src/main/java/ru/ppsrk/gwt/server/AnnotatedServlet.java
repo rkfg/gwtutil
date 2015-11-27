@@ -1,8 +1,8 @@
 package ru.ppsrk.gwt.server;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Deque;
+import java.util.LinkedList;
 
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.RPC;
@@ -29,8 +29,8 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
         public String handle(Method method, RPCRequest rpcRequest, Throwable e);
     }
 
-    private List<IAnnotationProcessor> checkers = new ArrayList<IAnnotationProcessor>(5);
-    private List<IRPCExceptionHandler> handlers = new ArrayList<IRPCExceptionHandler>(5);
+    private Deque<IAnnotationProcessor> checkers = new LinkedList<IAnnotationProcessor>();
+    private Deque<IRPCExceptionHandler> handlers = new LinkedList<IRPCExceptionHandler>();
 
     public class AlertHandler implements IRPCExceptionHandler {
 
@@ -55,7 +55,7 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
     }
 
     protected AnnotatedServlet() {
-        addExceptionHandler(new AlertHandler());
+        addExceptionHandler(new AlertHandler(), false);
     }
 
     @Override
@@ -82,11 +82,20 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
     }
 
     protected void addProcessor(IAnnotationProcessor checker) {
-        this.checkers.add(checker);
+        this.checkers.addLast(checker);
     }
 
-    protected void addExceptionHandler(IRPCExceptionHandler handler) {
-        handlers.add(handler);
+    /**
+     * Add the exception handler to handlers queue.
+     * @param handler
+     * @param important
+     */
+    protected void addExceptionHandler(IRPCExceptionHandler handler, boolean important) {
+        if (important) {
+            handlers.addFirst(handler);
+        } else {
+            handlers.addLast(handler);
+        }
     }
 
 }
