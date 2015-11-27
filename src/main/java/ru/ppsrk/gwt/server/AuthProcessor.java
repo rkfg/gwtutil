@@ -3,6 +3,8 @@ package ru.ppsrk.gwt.server;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import com.google.gwt.user.server.rpc.RPCRequest;
+
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
 import ru.ppsrk.gwt.server.AnnotatedServlet.IAnnotationProcessor;
 import ru.ppsrk.gwt.shared.RequiresAnyRole;
@@ -12,7 +14,7 @@ import ru.ppsrk.gwt.shared.RequiresRoles;
 public class AuthProcessor implements IAnnotationProcessor {
 
     @Override
-    public void process(Method implMethod) throws Throwable {
+    public void process(Method implMethod, RPCRequest rpcRequest) throws Throwable {
         if (implMethod.isAnnotationPresent(RequiresAuth.class)) {
             AuthServiceImpl.requiresAuth();
         }
