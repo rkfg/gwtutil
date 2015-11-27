@@ -29,8 +29,13 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
         public String handle(Method method, RPCRequest rpcRequest, Throwable e);
     }
 
+    public interface IRPCFinalizer {
+        public void cleanup();
+    }
+
     private Deque<IAnnotationProcessor> checkers = new LinkedList<IAnnotationProcessor>();
     private Deque<IRPCExceptionHandler> handlers = new LinkedList<IRPCExceptionHandler>();
+    private Deque<IRPCFinalizer> finalizers = new LinkedList<IRPCFinalizer>();
 
     public class AlertHandler implements IRPCExceptionHandler {
 
@@ -78,7 +83,11 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
             // default handler
             return RPC.encodeResponseForFailure(method, e, rpcRequest.getSerializationPolicy(), rpcRequest.getFlags());
         }
-        return super.processCall(payload);
+        String result = super.processCall(payload);
+        for (IRPCFinalizer finalizer : finalizers) {
+            finalizer.cleanup();
+        }
+        return result;
     }
 
     protected void addProcessor(IAnnotationProcessor checker) {
@@ -103,4 +112,7 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
         }
     }
 
+    protected void addFinalizer(IRPCFinalizer finalizer) {
+        this.finalizers.addLast(finalizer);
+    }
 }
