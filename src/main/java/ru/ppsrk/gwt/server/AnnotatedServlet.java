@@ -67,15 +67,17 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
     public String processCall(String payload) throws SerializationException {
         RPCRequest rpcRequest = RPC.decodeRequest(payload, getClass(), this);
         Method method = rpcRequest.getMethod();
+        String result = null;
         try {
             Method implMethod = this.getClass().getMethod(method.getName(), method.getParameterTypes());
             AuthServiceImpl.setMDCIP(getThreadLocalRequest());
             for (IAnnotationProcessor checker : checkers) {
                 checker.process(implMethod);
             }
+            result = super.processCall(payload);
         } catch (Throwable e) {
             for (IRPCExceptionHandler handler : handlers) {
-                String result = handler.handle(method, rpcRequest, e);
+                result = handler.handle(method, rpcRequest, e);
                 if (result != null) {
                     return result;
                 }
@@ -83,7 +85,6 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
             // default handler
             return RPC.encodeResponseForFailure(method, e, rpcRequest.getSerializationPolicy(), rpcRequest.getFlags());
         }
-        String result = super.processCall(payload);
         for (IRPCFinalizer finalizer : finalizers) {
             finalizer.cleanup();
         }
