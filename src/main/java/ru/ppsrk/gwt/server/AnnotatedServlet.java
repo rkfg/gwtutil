@@ -87,8 +87,13 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
 
     /**
      * Add the exception handler to handlers queue.
+     * 
      * @param handler
+     *            handler to add
      * @param important
+     *            if true, the handler is put to the head of the queue; it's
+     *            executed before the others and should also return null to not
+     *            block further handlers
      */
     protected void addExceptionHandler(IRPCExceptionHandler handler, boolean important) {
         if (important) {
