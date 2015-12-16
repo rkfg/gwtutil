@@ -4,6 +4,9 @@ import com.google.gwt.i18n.client.Messages;
 
 public interface CommonMessages extends Messages {
 
+    @DefaultMessage("Применить")
+    public String apply();
+    
     @DefaultMessage("Добавить")
     public String add();
 
