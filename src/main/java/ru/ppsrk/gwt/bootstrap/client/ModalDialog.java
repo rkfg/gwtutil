@@ -111,4 +111,8 @@ public class ModalDialog<T> extends Composite {
         this.callback = callback;
     }
 
+    public void setWidth(int width) {
+        m_editor.setWidth(width);
+    }
+
 }

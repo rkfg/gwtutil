@@ -44,4 +44,8 @@ public abstract class ModalDialogAdapter<T> extends Composite {
         modalDialog.setMaxHeight(maxHeight);
     }
 
+    public void setWidth(int width) {
+        modalDialog.setWidth(width);
+    }
+
 }
