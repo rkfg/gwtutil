@@ -13,11 +13,19 @@ public abstract class ModalDialogAdapter<T> extends Composite {
         protected T getResult() {
             return ModalDialogAdapter.this.getResult();
         };
+
+        protected boolean preventOk() {
+            return ModalDialogAdapter.this.preventOk();
+        };
     };
 
     @Override
     protected void initWidget(Widget widget) {
         modalDialog.initForm(widget);
+    }
+
+    protected boolean preventOk() {
+        return false;
     }
 
     protected void setFocusable(Focusable widget) {

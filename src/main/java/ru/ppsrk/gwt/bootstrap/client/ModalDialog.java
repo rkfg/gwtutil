@@ -3,6 +3,8 @@ package ru.ppsrk.gwt.bootstrap.client;
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.Modal;
+import com.github.gwtbootstrap.client.ui.event.HiddenEvent;
+import com.github.gwtbootstrap.client.ui.event.HiddenHandler;
 import com.github.gwtbootstrap.client.ui.event.ShownEvent;
 import com.github.gwtbootstrap.client.ui.event.ShownHandler;
 import com.google.gwt.core.client.GWT;
@@ -51,6 +53,13 @@ public class ModalDialog<T> extends Composite {
                 }
             }
         });
+        m_editor.addHiddenHandler(new HiddenHandler() {
+            
+            @Override
+            public void onHidden(HiddenEvent hiddenEvent) {
+                showParent();
+            }
+        });
     }
 
     public void show() {
@@ -59,11 +68,21 @@ public class ModalDialog<T> extends Composite {
 
     @UiHandler("b_ok")
     public void onOkClick(ClickEvent e) {
+        if (preventOk()) {
+            return;
+        }
+        doOk();
+    }
+
+    public void doOk() {
         if (callback != null) {
             callback.done(getResult());
         }
         m_editor.hide();
-        showParent();
+    }
+
+    protected boolean preventOk() {
+        return false;
     }
 
     protected T getResult() {
@@ -73,7 +92,6 @@ public class ModalDialog<T> extends Composite {
     @UiHandler("b_cancel")
     public void onCancelClick(ClickEvent e) {
         m_editor.hide();
-        showParent();
     }
 
     private void showParent() {
@@ -113,6 +131,10 @@ public class ModalDialog<T> extends Composite {
 
     public void setWidth(int width) {
         m_editor.setWidth(width);
+    }
+
+    public void hide() {
+        m_editor.hide();
     }
 
 }
