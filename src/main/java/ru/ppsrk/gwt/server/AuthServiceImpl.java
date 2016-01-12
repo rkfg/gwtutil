@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.IniSecurityManagerFactory;
@@ -44,6 +45,8 @@ import ru.ppsrk.gwt.dto.UserDTO;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AuthServiceImpl extends RemoteServiceServlet implements AuthService {
+    private static final String USER_DTO = "userDTO";
+
     private static Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     public static GwtUtilRealm getRealm() throws LogicException {
@@ -211,7 +214,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         if (req != null) {
             MDC.put("ip", req.getRemoteAddr());
             try {
-                UserDTO userDTO = getUserDTO();
+                HttpSession session = req.getSession();
+                UserDTO userDTO = (UserDTO) session.getAttribute(USER_DTO);
+                if (userDTO == null) {
+                    userDTO = getUserDTO();
+                    session.setAttribute(USER_DTO, userDTO);
+                }
                 if (userDTO != null && userDTO.getUsername() != null) {
                     MDC.put("user", userDTO.getUsername());
                 } else {
