@@ -1,9 +1,16 @@
 package ru.ppsrk.gwt.dto;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+
 import ru.ppsrk.gwt.client.HasId;
 
 @SuppressWarnings("serial")
+@MappedSuperclass
 public class BasicDTO implements HasId {
+    @Id
+    @GeneratedValue
     Long id;
 
     public Long getId() {
