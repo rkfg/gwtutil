@@ -146,4 +146,12 @@ public class ModalDialog<T> extends Composite {
         m_editor.hide();
     }
 
+    public void addStyleName(String style) {
+        m_editor.addStyleName(style);
+    }
+
+    public void removeStyleName(String style) {
+        m_editor.removeStyleName(style);
+    }
+
 }
