@@ -6,7 +6,7 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("Применить")
     public String apply();
-    
+
     @DefaultMessage("Добавить")
     public String add();
 
@@ -66,4 +66,7 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("Не определено")
     public String undefined();
+
+    @DefaultMessage("Сохранить")
+    public String save();
 }
