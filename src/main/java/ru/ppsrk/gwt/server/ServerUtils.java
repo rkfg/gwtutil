@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -220,8 +222,8 @@ public class ServerUtils {
     }
 
     private static BeanUtilsBean beanMerger = new BeanUtilsBean() {
-        public void copyProperty(Object bean, String name, Object value) throws IllegalAccessException,
-                java.lang.reflect.InvocationTargetException {
+        public void copyProperty(Object bean, String name, Object value)
+                throws IllegalAccessException, java.lang.reflect.InvocationTargetException {
             if (value == null) {
                 return;
             }
@@ -253,6 +255,16 @@ public class ServerUtils {
     public static boolean isDebugMode() {
         String debugStr = System.getenv("debug");
         return debugStr != null && debugStr.equals("yes");
+    }
+
+    public static Date setDateInclusive(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar.getTime();
     }
 
 }
