@@ -3,6 +3,7 @@ package ru.ppsrk.gwt.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -200,7 +201,8 @@ public class ClientUtils {
     }
 
     /**
-     * Tests the entered value against some condition and throws ValueConditionException if it hasn't been met.
+     * Tests the entered value against some condition and throws
+     * ValueConditionException if it hasn't been met.
      * 
      * @param <T>
      *            the type of the value
@@ -365,7 +367,8 @@ public class ClientUtils {
     }
 
     /**
-     * Inserts a new object to the data provider specified by the parent object. If no such provider or parent object exists, creates them.
+     * Inserts a new object to the data provider specified by the parent object.
+     * If no such provider or parent object exists, creates them.
      * 
      * @param object
      *            object to insert
@@ -374,7 +377,8 @@ public class ClientUtils {
      * @param selectionModel
      *            selection model which is used in the target CellTree
      * @param createFirst
-     *            if true, insert the parent object to the beginning of the parent's parent list. If false, add it to the end of the list.
+     *            if true, insert the parent object to the beginning of the
+     *            parent's parent list. If false, add it to the end of the list.
      */
 
     @SuppressWarnings("unchecked")
@@ -383,8 +387,8 @@ public class ClientUtils {
         if (selectionModel == null || parentObjectToCreate == null || object == null || pathDataProviders.get(selectionModel) == null) {
             return;
         }
-        ListDataProvider<Hierarchic> listDataProvider = (ListDataProvider<Hierarchic>) pathDataProviders.get(selectionModel).get(
-                buildPath(parentObjectToCreate, true));
+        ListDataProvider<Hierarchic> listDataProvider = (ListDataProvider<Hierarchic>) pathDataProviders.get(selectionModel)
+                .get(buildPath(parentObjectToCreate, true));
         if (listDataProvider != null) {
             if (createFirst) {
                 listDataProvider.getList().add(0, object);
@@ -393,8 +397,8 @@ public class ClientUtils {
             }
             registerObjectDataProvider(object, listDataProvider);
         } else {
-            ListDataProvider<Hierarchic> listParentDataProvider = (ListDataProvider<Hierarchic>) pathDataProviders.get(selectionModel).get(
-                    buildPath(parentObjectToCreate.getParent(), true));
+            ListDataProvider<Hierarchic> listParentDataProvider = (ListDataProvider<Hierarchic>) pathDataProviders.get(selectionModel)
+                    .get(buildPath(parentObjectToCreate.getParent(), true));
             if (listParentDataProvider != null) {
                 if (!listParentDataProvider.getList().contains(parentObjectToCreate)) {
                     if (createFirst) {
@@ -523,13 +527,15 @@ public class ClientUtils {
     }
 
     /**
-     * Registers the objects with the provider. Used to find sibling nodes or the provider by object to remove that object or modify it.
-     * Call this on adding or setting objects to the data provider.
+     * Registers the objects with the provider. Used to find sibling nodes or
+     * the provider by object to remove that object or modify it. Call this on
+     * adding or setting objects to the data provider.
      * 
      * @param list
      * @param listDataProvider
      */
-    public static void registerListOfObjects(Collection<? extends Hierarchic> list, ListDataProvider<? extends Hierarchic> listDataProvider) {
+    public static void registerListOfObjects(Collection<? extends Hierarchic> list,
+            ListDataProvider<? extends Hierarchic> listDataProvider) {
         for (Hierarchic element : list) {
             registerObjectDataProvider(element, listDataProvider);
         }
@@ -546,8 +552,10 @@ public class ClientUtils {
     }
 
     /**
-     * Registers the supplied {@link ListDataProvider} with {@link SelectionModel} and parent object to which this data provider belongs to.
-     * It's used to find the data provider later having the parent object, for example to add a new child node. Use after creating a new
+     * Registers the supplied {@link ListDataProvider} with
+     * {@link SelectionModel} and parent object to which this data provider
+     * belongs to. It's used to find the data provider later having the parent
+     * object, for example to add a new child node. Use after creating a new
      * data provider.
      * 
      * @param object
@@ -602,9 +610,9 @@ public class ClientUtils {
     public static void requireLogin(final boolean rememberMe) {
         requireLogin(rememberMe, true);
     }
-    
+
     public static void requireLogin(final boolean rememberMe, final boolean showRememberMe) {
-            AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
+        AuthService.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean result) {
@@ -780,7 +788,8 @@ public class ClientUtils {
         }
     }
 
-    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText, Class<T> selectedClass) {
+    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText,
+            Class<T> selectedClass) {
         return trySelectionModelValue(selectionModel, failText, selectedClass, false);
     }
 
@@ -793,13 +802,14 @@ public class ClientUtils {
      * @param selectedClass
      *            expected class
      * @param allowSubclasses
-     *            don't throw exception if the result is a subclass of the specified class
+     *            don't throw exception if the result is a subclass of the
+     *            specified class
      * @return selectionModel's selected object
      * @throws SelectionModelInvalidClassException
      *             if the object has unexpected type.
      */
-    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText,
-            Class<T> selectedClass, boolean allowSubclasses) {
+    public static <S, T extends S> T trySelectionModelValue(SingleSelectionModel<S> selectionModel, String failText, Class<T> selectedClass,
+            boolean allowSubclasses) {
         try {
             @SuppressWarnings("unchecked")
             T result = (T) selectionModel.getSelectedObject();
@@ -862,5 +872,21 @@ public class ClientUtils {
                 Window.alert(message);
             }
         }.schedule(ALERT_DELAY);
+    }
+
+    /**
+     * Fix invalid time paired with invalid timezone (XP with old TZ database)
+     * by setting time to noon. Use if only date is needed to prevent -1 day bug
+     * due to 00:00:00 becoming 23:00:00 of the previous day.
+     * 
+     * @param date date to fix
+     * @return the same date for chaining
+     */
+    @SuppressWarnings("deprecation")
+    public static Date fixTZ(Date date) {
+        date.setHours(12);
+        date.setMinutes(0);
+        date.setSeconds(0);
+        return date;
     }
 }
