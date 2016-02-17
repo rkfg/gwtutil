@@ -104,35 +104,40 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
             final AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
         return HibernateUtil.exec(new HibernateCallback<List<T>>() {
 
-            @SuppressWarnings("unchecked")
             @Override
             public List<T> run(Session session) throws LogicException, ClientAuthException {
-                T parentNode = (T) session.get(entityClass, parentNodeId);
-                if (directOnly) {
-                    session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
-                }
-                List<T> entities = session
-                        .createQuery(
-                                "from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node."
-                                        + orderField).setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum())
-                        .list();
-                switch (annotateChildren) {
-                case DIRECT:
-                    annotateChildrenCount(entities, true);
-                    break;
-                case RECURSIVE:
-                    annotateChildrenCount(entities, false);
-                    break;
-                case BOTH:
-                    annotateChildrenCount(entities, true);
-                    annotateChildrenCount(entities, false);
-                    break;
-                default:
-                    break;
-                }
-                return entities;
+                return getChildren(parentNodeId, orderField, directOnly, annotateChildren, session);
             }
         });
+    }
+    
+    @SuppressWarnings("unchecked")
+    public synchronized List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly,
+            final AnnotateChildren annotateChildren, final Session session) throws LogicException, ClientAuthException {
+        T parentNode = (T) session.get(entityClass, parentNodeId);
+        if (directOnly) {
+            session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
+        }
+        List<T> entities = session
+                .createQuery(
+                        "from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node."
+                                + orderField).setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum())
+                .list();
+        switch (annotateChildren) {
+        case DIRECT:
+            annotateChildrenCount(entities, true);
+            break;
+        case RECURSIVE:
+            annotateChildrenCount(entities, false);
+            break;
+        case BOTH:
+            annotateChildrenCount(entities, true);
+            annotateChildrenCount(entities, false);
+            break;
+        default:
+            break;
+        }
+        return entities;
     }
 
     public Long getChildrenCount(final Long parentNodeId, final boolean directOnly) throws LogicException, ClientAuthException {
@@ -203,16 +208,23 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         return getHierarchicByParent(parent, orderField, AnnotateChildren.NONE);
     }
 
-    public List<D> getHierarchicByParent(D parent, String orderField, AnnotateChildren annotateChildren) throws LogicException,
+    public List<D> getHierarchicByParent(final D parent, final String orderField, final AnnotateChildren annotateChildren) throws LogicException,
             ClientAuthException {
-        Long parentId = getId(parent, false);
-        List<D> dtos = mapArray(getChildren(parentId, orderField, true, annotateChildren), dtoClass);
-        for (D dto : dtos) {
-            dto.setParent(parent);
-        }
-        return dtos;
-    }
+        
+        return HibernateUtil.exec(new HibernateCallback<List<D>>() {
 
+            @Override
+            public List<D> run(Session session) throws LogicException, ClientAuthException {
+                Long parentId = getId(parent, false);
+                List<D> dtos = mapArray(getChildren(parentId, orderField, true, annotateChildren, session), dtoClass);
+                for (D dto : dtos) {
+                    dto.setParent(parent);
+                }
+                return dtos;
+            }
+        });
+    }
+    
     /**
      * Retrieves parent node by child node id.
      * 
