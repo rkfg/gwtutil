@@ -1,17 +1,13 @@
 package ru.ppsrk.gwt.domain;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+@SuppressWarnings("serial")
 @Entity
 @Table(name = "role")
-public class Role {
-    @Id
-    @GeneratedValue
-    Long id;
+public class Role extends BasicDomain {
     @ManyToOne
     User user;
     String role;
@@ -23,14 +19,6 @@ public class Role {
     public Role(User user, String role) {
         this.user = user;
         this.role = role;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public User getUser() {
@@ -47,5 +35,18 @@ public class Role {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public int hashCode() {
+        return getUser().hashCode() * getRole().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Role) {
+            return getRole().equals(((Role) obj).getRole());
+        }
+        return super.equals(obj);
     }
 }
