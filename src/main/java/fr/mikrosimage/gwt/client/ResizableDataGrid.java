@@ -12,6 +12,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.SimplePager;
@@ -119,6 +120,7 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
         } else {
             setEmptyTableWidget(emptyTableWidget);
             ClientUtils.replaceListDataProviderContents(dataProvider, data);
+            ColumnSortEvent.fire(this, getColumnSortList());
         }
         redraw();
     }
