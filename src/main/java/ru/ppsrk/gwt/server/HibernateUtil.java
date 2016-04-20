@@ -139,7 +139,7 @@ public class HibernateUtil {
             result = callback.run(sessions);
             for (int number = 0; number < sessionNumbers.length; number++) {
                 if (sessions[number] != null) {
-                    if (!sessions[number].getTransaction().wasCommitted()) {
+                    if (!sessions[number].getTransaction().isActive()) {
                         sessions[number].getTransaction().commit();
                     }
                 }
