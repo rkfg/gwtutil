@@ -1,15 +1,18 @@
 package ru.ppsrk.gwt.shared;
 
+import static ru.ppsrk.gwt.client.ClientUtils.*;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import ru.ppsrk.gwt.client.HasId;
-import ru.ppsrk.gwt.client.Pair;
-
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.ListDataProvider;
+
+import ru.ppsrk.gwt.client.HasId;
+import ru.ppsrk.gwt.client.Pair;
 
 public class SharedUtils {
 
@@ -62,6 +65,10 @@ public class SharedUtils {
         return null;
     }
 
+    public static <T extends HasId> T getSelectedCollectionItem(Collection<T> col, ListBox lb) {
+        return getObjectFromCollectionById(col, getListboxSelectedValue(lb));
+    }
+
     /**
      * Removes the element with specified id from the collection.
      * 
@@ -92,7 +99,8 @@ public class SharedUtils {
     }
 
     /**
-     * Removes the collection element that has the id of the new element and adds the new element to the end of the collection.
+     * Removes the collection element that has the id of the new element and
+     * adds the new element to the end of the collection.
      * 
      * @param collection
      * @param newElement
@@ -103,7 +111,8 @@ public class SharedUtils {
     }
 
     /**
-     * Replaces the list element with the new element that has the same id. Retains the element position.
+     * Replaces the list element with the new element that has the same id.
+     * Retains the element position.
      * 
      * @param list
      * @param newElement
