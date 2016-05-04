@@ -1,14 +1,11 @@
 package ru.ppsrk.gwt.shared;
 
-import static ru.ppsrk.gwt.client.ClientUtils.*;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.view.client.ListDataProvider;
 
 import ru.ppsrk.gwt.client.HasId;
@@ -63,10 +60,6 @@ public class SharedUtils {
             i++;
         }
         return null;
-    }
-
-    public static <T extends HasId> T getSelectedCollectionItem(Collection<T> col, ListBox lb) {
-        return getObjectFromCollectionById(col, getListboxSelectedValue(lb));
     }
 
     /**

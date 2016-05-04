@@ -889,4 +889,9 @@ public class ClientUtils {
         date.setSeconds(0);
         return date;
     }
+
+    public static <T extends HasId> T getSelectedCollectionItem(Collection<T> col, ListBox lb) {
+        return SharedUtils.getObjectFromCollectionById(col, getListboxSelectedValue(lb));
+    }
+
 }
