@@ -5,7 +5,10 @@ import ru.ppsrk.gwt.client.TreeViewHelper.HasCellValue;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
@@ -21,8 +24,9 @@ public abstract class TreeViewHelper<T extends HasCellValue> implements LoadCell
     protected Cell<T> cell = new AbstractCell<T>() {
 
         @Override
-        public void render(com.google.gwt.cell.client.Cell.Context context, HasCellValue value, SafeHtmlBuilder sb) {
-            sb.appendEscaped(value.getCellValue());
+        public void render(Context context, HasCellValue value, SafeHtmlBuilder sb) {
+            sb.appendHtmlConstant("<span id='celltree" + value.getId() + "'>").appendEscaped(value.getCellValue())
+                    .appendHtmlConstant("</span>");
         }
     };
 
@@ -53,6 +57,27 @@ public abstract class TreeViewHelper<T extends HasCellValue> implements LoadCell
 
     public ListDataProvider<T> getDataProvider() {
         return rootDataProvider;
+    }
+
+    public void scrollSelectedIntoView(CellTree cellTree) {
+        T selected = selectionModel.getSelectedObject();
+        if (selected == null) {
+            return;
+        }
+        scrollIntoView(cellTree, selected);
+    }
+
+    public void scrollIntoView(CellTree cellTree, T item) {
+        NodeList<Element> elements = cellTree.getElement().getElementsByTagName("span");
+        String id = "celltree" + item.getId();
+        for (int i = 0; i < elements.getLength(); i++) {
+            Element element = elements.getItem(i);
+            if (element.getId().equals(id)) {
+                element.scrollIntoView();
+                return;
+            }
+        }
+
     }
 
 }
