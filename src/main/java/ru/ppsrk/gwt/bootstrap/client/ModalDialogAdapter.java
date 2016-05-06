@@ -8,6 +8,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public abstract class ModalDialogAdapter<T> extends Composite {
 
+    private int deferredCounter;
+
     protected ModalDialog<T> modalDialog = new ModalDialog<T>() {
         @Override
         protected T getResult() {
@@ -22,6 +24,19 @@ public abstract class ModalDialogAdapter<T> extends Composite {
     @Override
     protected void initWidget(Widget widget) {
         modalDialog.initForm(widget);
+    }
+
+    protected void setDeferredCount(int cnt) {
+        deferredCounter = cnt;
+        if (cnt > 0) {
+            enableOk(false);
+        }
+    }
+
+    protected void loaded() {
+        if (--deferredCounter == 0) {
+            enableOk(true);
+        }
     }
 
     protected boolean preventOk() {
