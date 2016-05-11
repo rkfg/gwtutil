@@ -69,4 +69,7 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("Сохранить")
     public String save();
+    
+    @DefaultMessage("Закрыть")
+    public String close();
 }
