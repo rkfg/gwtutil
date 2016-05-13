@@ -1,7 +1,5 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
-import java.util.Collection;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -17,15 +15,15 @@ public abstract class ContainerTab extends TabPaneFixed {
     @UiField(provided = true)
     protected TabPanelFixed tp_main = new TabPanelFixed();
 
-    public ContainerTab(String header) {
+    public ContainerTab(String header, AbstractDataGridTabPane<?>... tabs) {
         initWidget(uiBinder.createAndBindUi(this), header);
-        for (AbstractDataGridTabPane<?> tab : getTabs()) {
-            tp_main.add(tab);
+        if (tabs.length > 0) {
+            for (AbstractDataGridTabPane<?> tab : tabs) {
+                tp_main.add(tab);
+            }
+            tp_main.selectTab(0);
         }
-        tp_main.selectTab(0);
     }
-
-    protected abstract Collection<? extends AbstractDataGridTabPane<?>> getTabs();
 
     @Override
     protected void onShown() {
