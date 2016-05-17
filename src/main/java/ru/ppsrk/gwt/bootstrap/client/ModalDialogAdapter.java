@@ -64,11 +64,11 @@ public abstract class ModalDialogAdapter<T> extends Composite {
     }
 
     public void setMaxHeight(String maxHeight) {
-        modalDialog.setMaxHeight(maxHeight);
+        modalDialog.m_editor.setMaxHeigth(maxHeight);
     }
 
     public void setWidth(int width) {
-        modalDialog.setWidth(width);
+        modalDialog.m_editor.setWidth(width);
     }
 
 }
