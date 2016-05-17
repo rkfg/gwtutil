@@ -1,10 +1,12 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
-import ru.ppsrk.gwt.bootstrap.client.ModalDialog.ModalDialogCallback;
-
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.Widget;
+
+import ru.ppsrk.gwt.bootstrap.client.ModalDialog.ModalDialogCallback;
 
 public abstract class ModalDialogAdapter<T> extends Composite {
 
@@ -69,6 +71,24 @@ public abstract class ModalDialogAdapter<T> extends Composite {
 
     public void setWidth(int width) {
         modalDialog.m_editor.setWidth(width);
+    }
+
+    /**
+     * Set to false if typeahead's dropdown isn't fully visible
+     * 
+     * @param enabled
+     *            if true, apply the default behavior (show scrollbar on
+     *            overflow), if false always show the overflowing content
+     */
+    protected void setOverflowEnabled(boolean enabled) {
+        Element child = modalDialog.m_editor.getElement().getFirstChildElement();
+        while (child != null) {
+            if (child.getClassName().equals("modal-body")) {
+                child.getStyle().setOverflowY(enabled ? Overflow.AUTO : Overflow.VISIBLE);
+                break;
+            }
+            child = child.getNextSiblingElement();
+        }
     }
 
 }
