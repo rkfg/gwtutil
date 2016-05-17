@@ -14,6 +14,10 @@ public class ListBoxDecorator<T extends HasListboxValue> {
         this.listBox = listBox;
     }
 
+    public void insertItem(T value, int index) {
+        listBox.insertItem(value.getListboxValue(), value.getId().toString(), index);
+    }
+
     public void addItem(T value) {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
     }
