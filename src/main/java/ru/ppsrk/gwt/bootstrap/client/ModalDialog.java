@@ -29,7 +29,7 @@ public class ModalDialog<T> extends Composite {
     }
 
     @UiField
-    Modal m_editor;
+    Modal m_dialog;
 
     @UiField
     Form f_main;
@@ -44,16 +44,16 @@ public class ModalDialog<T> extends Composite {
     private ModalDialogCallback<T> callback;
 
     public HandlerRegistration addHiddenHandler(HiddenHandler handler) {
-        return m_editor.addHiddenHandler(handler);
+        return m_dialog.addHiddenHandler(handler);
     }
 
     public HandlerRegistration addShownHandler(ShownHandler handler) {
-        return m_editor.addShownHandler(handler);
+        return m_dialog.addShownHandler(handler);
     }
 
     public ModalDialog() {
         uiBinder.createAndBindUi(this);
-        m_editor.addShownHandler(new ShownHandler() {
+        m_dialog.addShownHandler(new ShownHandler() {
 
             @Override
             public void onShown(ShownEvent shownEvent) {
@@ -62,7 +62,7 @@ public class ModalDialog<T> extends Composite {
                 }
             }
         });
-        m_editor.addHiddenHandler(new HiddenHandler() {
+        m_dialog.addHiddenHandler(new HiddenHandler() {
             
             @Override
             public void onHidden(HiddenEvent hiddenEvent) {
@@ -72,7 +72,7 @@ public class ModalDialog<T> extends Composite {
     }
 
     public void show() {
-        m_editor.show();
+        m_dialog.show();
     }
 
     @UiHandler("b_ok")
@@ -87,7 +87,7 @@ public class ModalDialog<T> extends Composite {
         if (callback != null) {
             callback.done(getResult());
         }
-        m_editor.hide();
+        m_dialog.hide();
     }
 
     protected boolean preventOk() {
@@ -100,7 +100,7 @@ public class ModalDialog<T> extends Composite {
 
     @UiHandler("b_cancel")
     public void onCancelClick(ClickEvent e) {
-        m_editor.hide();
+        m_dialog.hide();
     }
 
     private void showParent() {
@@ -131,7 +131,7 @@ public class ModalDialog<T> extends Composite {
     }
 
     public void setMaxHeight(String maxHeight) {
-        m_editor.setMaxHeigth(maxHeight);
+        m_dialog.setMaxHeigth(maxHeight);
     }
 
     public void setDoneCallback(ModalDialogCallback<T> callback) {
@@ -139,19 +139,19 @@ public class ModalDialog<T> extends Composite {
     }
 
     public void setWidth(int width) {
-        m_editor.setWidth(width);
+        m_dialog.setWidth(width);
     }
 
     public void hide() {
-        m_editor.hide();
+        m_dialog.hide();
     }
 
     public void addStyleName(String style) {
-        m_editor.addStyleName(style);
+        m_dialog.addStyleName(style);
     }
 
     public void removeStyleName(String style) {
-        m_editor.removeStyleName(style);
+        m_dialog.removeStyleName(style);
     }
 
 }

@@ -66,11 +66,11 @@ public abstract class ModalDialogAdapter<T> extends Composite {
     }
 
     public void setMaxHeight(String maxHeight) {
-        modalDialog.m_editor.setMaxHeigth(maxHeight);
+        modalDialog.m_dialog.setMaxHeigth(maxHeight);
     }
 
     public void setWidth(int width) {
-        modalDialog.m_editor.setWidth(width);
+        modalDialog.m_dialog.setWidth(width);
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class ModalDialogAdapter<T> extends Composite {
      *            overflow), if false always show the overflowing content
      */
     protected void setOverflowEnabled(boolean enabled) {
-        Element child = modalDialog.m_editor.getElement().getFirstChildElement();
+        Element child = modalDialog.m_dialog.getElement().getFirstChildElement();
         while (child != null) {
             if (child.getClassName().equals("modal-body")) {
                 child.getStyle().setOverflowY(enabled ? Overflow.AUTO : Overflow.VISIBLE);
