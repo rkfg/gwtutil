@@ -14,7 +14,7 @@ public class ListBoxDecorator<T extends HasListboxValue> {
         this.listBox = listBox;
     }
 
-    public void addItem(HasListboxValue value) {
+    public void addItem(T value) {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
     }
 
@@ -23,7 +23,7 @@ public class ListBoxDecorator<T extends HasListboxValue> {
             map.put(item.getId(), item);
         }
         listBox.clear();
-        for (HasListboxValue listboxValue : list) {
+        for (T listboxValue : list) {
             addItem(listboxValue);
         }
     }
