@@ -7,13 +7,17 @@ import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class DecoratorBase<T extends Widget> implements IsWidget, HasWidgets {
+public abstract class DecoratorBase<T extends IsWidget> implements IsWidget, HasWidgets {
 
     protected T decorated;
 
-    @SuppressWarnings("unchecked")
     @Override
     public void add(Widget w) {
+        add((IsWidget) w);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void add(IsWidget w) {
         if (decorated != null) {
             throw new IllegalArgumentException("Only one element is allowed.");
         }
@@ -21,7 +25,7 @@ public abstract class DecoratorBase<T extends Widget> implements IsWidget, HasWi
         decorated = (T) w;
     }
 
-    protected abstract void checkType(Widget w);
+    protected abstract void checkType(IsWidget w);
 
     @Override
     public void clear() {
@@ -45,7 +49,7 @@ public abstract class DecoratorBase<T extends Widget> implements IsWidget, HasWi
                     throw new NoSuchElementException();
                 }
                 hasElement = false;
-                return (returned = decorated);
+                return (returned = decorated.asWidget());
             }
 
             public void remove() {
@@ -65,7 +69,7 @@ public abstract class DecoratorBase<T extends Widget> implements IsWidget, HasWi
 
     @Override
     public Widget asWidget() {
-        return decorated;
+        return decorated.asWidget();
     }
 
 }

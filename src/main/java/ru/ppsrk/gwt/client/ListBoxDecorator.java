@@ -4,10 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Widget;
-
-import ru.ppsrk.gwt.client.HasListboxValue;
 
 public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<ListBox> {
     private Map<Long, T> map = new HashMap<>();
@@ -86,7 +84,7 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
     }
 
     @Override
-    protected void checkType(Widget w) {
+    protected void checkType(IsWidget w) {
         if (!(w instanceof ListBox)) {
             throw new IllegalArgumentException("Only ListBox is allowed as a child widget.");
         }
