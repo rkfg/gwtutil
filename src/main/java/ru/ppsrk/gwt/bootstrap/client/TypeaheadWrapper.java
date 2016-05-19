@@ -1,5 +1,7 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
+import static ru.ppsrk.gwt.shared.SharedUtils.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,5 +53,20 @@ public class TypeaheadWrapper<T extends HasListboxValue> extends DecoratorBase<T
         if (!(w instanceof Typeahead)) {
             throw new IllegalArgumentException("Only Typeahead is allowed as a child widget.");
         }
+    }
+
+    public void setSelectedId(Long id) {
+        T object = getObjectFromCollectionById(objects.values(), id);
+        if (object != null) {
+            setText(object.getListboxValue());
+        }
+    }
+
+    public Long getSelectedId() {
+        T value = getValue();
+        if (value != null) {
+            return value.getId();
+        }
+        return null;
     }
 }
