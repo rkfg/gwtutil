@@ -5,28 +5,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Widget;
 
-public class ListBoxDecorator<T extends HasListboxValue> {
-    private ListBox listBox;
+import ru.ppsrk.gwt.client.HasListboxValue;
+
+public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<ListBox> {
     private Map<Long, T> map = new HashMap<>();
 
+    public ListBoxDecorator() {
+    }
+
     public ListBoxDecorator(ListBox listBox) {
-        this.listBox = listBox;
+        decorated = listBox;
     }
 
     public void insertItem(T value, int index) {
-        listBox.insertItem(value.getListboxValue(), value.getId().toString(), index);
+        decorated.insertItem(value.getListboxValue(), value.getId().toString(), index);
     }
 
     public void addItem(T value) {
-        listBox.addItem(value.getListboxValue(), value.getId().toString());
+        decorated.addItem(value.getListboxValue(), value.getId().toString());
     }
 
     public void fill(Collection<T> list) {
         for (T item : list) {
             map.put(item.getId(), item);
         }
-        listBox.clear();
+        decorated.clear();
         for (T listboxValue : list) {
             addItem(listboxValue);
         }
@@ -37,8 +42,8 @@ public class ListBoxDecorator<T extends HasListboxValue> {
     }
 
     public int getIndexByTextValue(String value) {
-        for (int i = 0; i < listBox.getItemCount(); i++) {
-            if (listBox.getValue(i).equals(value)) {
+        for (int i = 0; i < decorated.getItemCount(); i++) {
+            if (decorated.getValue(i).equals(value)) {
                 return i;
             }
         }
@@ -46,15 +51,15 @@ public class ListBoxDecorator<T extends HasListboxValue> {
     };
 
     public String getSelectedText() {
-        return listBox.getSelectedIndex() >= 0 ? listBox.getItemText(listBox.getSelectedIndex()) : "";
+        return decorated.getSelectedIndex() >= 0 ? decorated.getItemText(decorated.getSelectedIndex()) : "";
     };
 
     public String getSelectedTextValue() {
-        return listBox.getSelectedIndex() >= 0 ? listBox.getValue(listBox.getSelectedIndex()) : null;
+        return decorated.getSelectedIndex() >= 0 ? decorated.getValue(decorated.getSelectedIndex()) : null;
     }
 
     public Long getSelectedLong() {
-        return listBox.getSelectedIndex() >= 0 ? Long.valueOf(listBox.getValue(listBox.getSelectedIndex())) : -1;
+        return decorated.getSelectedIndex() >= 0 ? Long.valueOf(decorated.getValue(decorated.getSelectedIndex())) : -1;
     }
 
     public <E extends Enum<E>> E getSelectedEnum(E[] values) {
@@ -69,14 +74,22 @@ public class ListBoxDecorator<T extends HasListboxValue> {
     }
 
     public void setSelectedItemByLong(Long value) {
-        listBox.setSelectedIndex(getIndexByLong(value));
+        decorated.setSelectedIndex(getIndexByLong(value));
     }
 
     public void setSelectedItemByLong(String value) {
-        listBox.setSelectedIndex(getIndexByTextValue(value));
+        decorated.setSelectedIndex(getIndexByTextValue(value));
     }
 
     public <E extends Enum<E>> void setListBoxSelectedEnum(E e) {
         setSelectedItemByLong((long) e.ordinal());
     }
+
+    @Override
+    protected void checkType(Widget w) {
+        if (!(w instanceof ListBox)) {
+            throw new IllegalArgumentException("Only ListBox is allowed as a child widget.");
+        }
+    }
+
 }
