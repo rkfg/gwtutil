@@ -13,4 +13,8 @@ public class NSMFactory {
             Class<D> dtoClass, Session session) {
         return new NestedSetManagerTS<T, D>(entityClass, dtoClass, session, this);
     }
+    
+    public <T extends NestedSetNodeNG> NestedSetManagerNG<T> createNSM(Class<T> entityClass, Session session) {
+        return new NestedSetManagerNG<T>(entityClass, session, this);
+    }
 }
