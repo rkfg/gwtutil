@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
-import ru.ppsrk.gwt.client.Hierarchic;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.NestedSetManagerException;
 import ru.ppsrk.gwt.server.ServerUtils;
@@ -35,22 +34,22 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         entityName = entityClass.getSimpleName();
     }
 
-    private void getByParentIdAndInsert(List<? extends Hierarchic> hierarchics, Long hierarchicRootId, Long parentNodeId)
+    private void getByParentIdAndInsert(List<? extends T> Ts, Long TRootId, Long parentNodeId)
             throws LogicException, ClientAuthException {
-        LinkedList<Hierarchic> selectedChildren = new LinkedList<Hierarchic>();
-        for (Hierarchic hierarchic : hierarchics) {
-            if (hierarchic.getParent() == null && hierarchicRootId != null && hierarchicRootId.equals(0L)
-                    || hierarchic.getParent() != null && hierarchic.getParent().getId().equals(hierarchicRootId)) {
-                selectedChildren.add(hierarchic);
+        LinkedList<T> selectedChildren = new LinkedList<T>();
+        for (T T : Ts) {
+            if (T.getParent() == null && TRootId != null && TRootId.equals(0L)
+                    || T.getParent() != null && T.getParent().getId().equals(TRootId)) {
+                selectedChildren.add(T);
             }
         }
-        log.debug("Selected for rootId=" + hierarchicRootId + ": " + selectedChildren);
-        for (Hierarchic hierarchic : selectedChildren) {
-            T newNode = ServerUtils.mapModel(hierarchic, entityClass);
+        log.debug("Selected for rootId=" + TRootId + ": " + selectedChildren);
+        for (T T : selectedChildren) {
+            T newNode = ServerUtils.mapModel(T, entityClass);
             newNode.setId(null);
             T inserted = insertNode(newNode, parentNodeId);
             log.debug("Inserted as: " + inserted);
-            getByParentIdAndInsert(hierarchics, hierarchic.getId(), inserted.getId());
+            getByParentIdAndInsert(Ts, T.getId(), inserted.getId());
         }
     }
 
@@ -124,7 +123,7 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
     }
 
     @SuppressWarnings("unchecked")
-    public T getHierarchicById(final Long id) throws LogicException, ClientAuthException {
+    public T getTById(final Long id) throws LogicException, ClientAuthException {
         T entity = (T) session.get(entityClass, id);
         if (entity == null) {
             throw new LogicException("No entity of class " + entityClass + " and id " + id);
@@ -132,28 +131,28 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         return mapModel(entity, entityClass);
     }
 
-    public List<T> getHierarchicByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
-        return getHierarchicByParent(getHierarchicById(ensureParentId(parentId)), annotateChildren);
+    public List<T> getTByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getTByParent(getTById(ensureParentId(parentId)), annotateChildren);
     }
 
-    public List<T> getHierarchicByParent(T parent) throws LogicException, ClientAuthException {
-        return getHierarchicByParent(parent, AnnotateChildren.NONE);
+    public List<T> getTByParent(T parent) throws LogicException, ClientAuthException {
+        return getTByParent(parent, AnnotateChildren.NONE);
     }
 
-    public List<T> getHierarchicByParent(T parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
-        return getHierarchicByParent(parent, "name", annotateChildren);
+    public List<T> getTByParent(T parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getTByParent(parent, "name", annotateChildren);
     }
 
-    public List<T> getHierarchicByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren)
+    public List<T> getTByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren)
             throws LogicException, ClientAuthException {
-        return getHierarchicByParent(getHierarchicById(ensureParentId(parentId)), orderField, annotateChildren);
+        return getTByParent(getTById(ensureParentId(parentId)), orderField, annotateChildren);
     }
 
-    public List<T> getHierarchicByParent(T parent, String orderField) throws LogicException, ClientAuthException {
-        return getHierarchicByParent(parent, orderField, AnnotateChildren.NONE);
+    public List<T> getTByParent(T parent, String orderField) throws LogicException, ClientAuthException {
+        return getTByParent(parent, orderField, AnnotateChildren.NONE);
     }
 
-    public List<T> getHierarchicByParent(final T parent, final String orderField, final AnnotateChildren annotateChildren)
+    public List<T> getTByParent(final T parent, final String orderField, final AnnotateChildren annotateChildren)
             throws LogicException, ClientAuthException {
 
         Long parentId = getId(parent, false);
@@ -224,9 +223,9 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         }
     }
 
-    public void insertHierarchic(final List<? extends Hierarchic> hierarchics, final Long parentNodeId)
+    public void insertT(final List<? extends T> Ts, final Long parentNodeId)
             throws LogicException, ClientAuthException {
-        getByParentIdAndInsert(hierarchics, 0L, parentNodeId);
+        getByParentIdAndInsert(Ts, 0L, parentNodeId);
     }
 
     @SuppressWarnings("unchecked")
