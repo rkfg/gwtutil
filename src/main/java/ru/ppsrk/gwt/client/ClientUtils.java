@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import net.lightoze.gwt.i18n.client.LocaleFactory;
 import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
@@ -882,11 +883,8 @@ public class ClientUtils {
      * @param date date to fix
      * @return the same date for chaining
      */
-    @SuppressWarnings("deprecation")
     public static Date fixTZ(Date date) {
-        date.setHours(12);
-        date.setMinutes(0);
-        date.setSeconds(0);
+        date.setTime(date.getTime() + TimeUnit.HOURS.toMillis(12));
         return date;
     }
 
