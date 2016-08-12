@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.NestedSetManagerException;
+import ru.ppsrk.gwt.domain.NestedSetNodeNG;
 import ru.ppsrk.gwt.server.ServerUtils;
 
 public class NestedSetManagerNG<T extends NestedSetNodeNG> {

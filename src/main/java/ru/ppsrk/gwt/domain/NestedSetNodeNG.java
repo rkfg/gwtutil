@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.server.nestedset;
+package ru.ppsrk.gwt.domain;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -91,5 +91,9 @@ public class NestedSetNodeNG extends EqualsById implements SettableParent {
     @Override
     public Hierarchic getParent() {
         return parent;
+    }
+    
+    public boolean isLeaf() {
+        return rightnum - leftnum == 1;
     }
 }

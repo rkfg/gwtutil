@@ -3,6 +3,7 @@ package ru.ppsrk.gwt.server.nestedset;
 import org.hibernate.Session;
 
 import ru.ppsrk.gwt.client.SettableParent;
+import ru.ppsrk.gwt.domain.NestedSetNodeNG;
 
 public class NSMFactory {
     
