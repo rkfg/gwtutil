@@ -8,8 +8,13 @@ import java.util.Map;
 
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
+import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
+import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 
 import ru.ppsrk.gwt.client.DecoratorBase;
 import ru.ppsrk.gwt.client.HasListboxValue;
@@ -21,6 +26,45 @@ public class TypeaheadWrapper<T extends HasListboxValue> extends DecoratorBase<T
 
     public TypeaheadWrapper(Typeahead typeahead) {
         decorated = typeahead;
+    }
+
+    /**
+     * Fire ValueChangeEvent on the decorated TextBox. This can't be defaulted
+     * in the constructor for an unknown reason (maybe the callback gets
+     * rewritten due to initialisation order)
+     * 
+     * @param fire whether to fire the event or not
+     */
+    public void setFireChangeEvent(boolean fire) {
+        if (fire) {
+            decorated.setUpdaterCallback(new UpdaterCallback() {
+
+                @Override
+                public String onSelection(Suggestion selectedSuggestion) {
+                    final String replacementString = selectedSuggestion.getReplacementString();
+                    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+                        @Override
+                        public void execute() {
+                            ValueChangeEvent.fire(getTextBox(), replacementString);
+                        }
+                    });
+                    return replacementString;
+                }
+            });
+        } else {
+            decorated.setUpdaterCallback(new UpdaterCallback() {
+
+                @Override
+                public String onSelection(Suggestion selectedSuggestion) {
+                    return selectedSuggestion.getReplacementString();
+                }
+            });
+        }
+    }
+
+    public void setUpdaterCallback(UpdaterCallback callback) {
+        decorated.setUpdaterCallback(callback);
     }
 
     private Map<String, T> objects = new HashMap<>();
@@ -41,11 +85,15 @@ public class TypeaheadWrapper<T extends HasListboxValue> extends DecoratorBase<T
     }
 
     public void setText(String text) {
-        ((TextBox) decorated.getWidget()).setValue(text);
+        getTextBox().setValue(text);
+    }
+
+    public TextBox getTextBox() {
+        return (TextBox) decorated.getWidget();
     }
 
     public String getText() {
-        return ((TextBox) decorated.getWidget()).getValue();
+        return getTextBox().getValue();
     }
 
     @Override
