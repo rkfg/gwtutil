@@ -2,7 +2,9 @@ package ru.ppsrk.gwt.client;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.ListBox;
@@ -19,20 +21,23 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
 
     public void insertItem(T value, int index) {
         decorated.insertItem(value.getListboxValue(), value.getId().toString(), index);
+        map.put(value.getId(), value);
     }
 
     public void addItem(T value) {
         decorated.addItem(value.getListboxValue(), value.getId().toString());
+        map.put(value.getId(), value);
     }
 
-    public void fill(Collection<T> list) {
-        for (T item : list) {
-            map.put(item.getId(), item);
+    public void addAll(Collection<T> values) {
+        for (T value : values) {
+            addItem(value);
         }
+    }
+
+    public void fill(Collection<T> values) {
         decorated.clear();
-        for (T listboxValue : list) {
-            addItem(listboxValue);
-        }
+        addAll(values);
     }
 
     public int getIndexByLong(Long value) {
@@ -90,4 +95,29 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
         }
     }
 
+    public Set<T> getSelectedValues() {
+        Set<T> result = new HashSet<>();
+        for (int i = 0; i < decorated.getItemCount(); i++) {
+            if (decorated.isItemSelected(i)) {
+                result.add(map.get(Long.valueOf(decorated.getValue(i))));
+            }
+        }
+        return result;
+    }
+
+    public void removeValue(T value) {
+        Long id = value.getId();
+        decorated.removeItem(getIndexByLong(id));
+        map.remove(id);
+    }
+
+    public void removeValues(Collection<T> values) {
+        for (T val : values) {
+            removeValue(val);
+        }
+    }
+
+    public Collection<T> getValues() {
+        return map.values();
+    }
 }
