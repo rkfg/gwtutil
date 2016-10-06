@@ -36,8 +36,12 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
     }
 
     public void fill(Collection<T> values) {
-        decorated.clear();
+        removeAll();
         addAll(values);
+    }
+
+    public void removeAll() {
+        decorated.clear();
     }
 
     public int getIndexByLong(Long value) {
