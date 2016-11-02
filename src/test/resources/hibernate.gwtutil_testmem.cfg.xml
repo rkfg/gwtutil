@@ -11,6 +11,7 @@
 		<property name="hibernate.connection.pool_size">1</property>
 		<property name="hibernate.show_sql">false</property>
 		<mapping class="ru.ppsrk.gwt.test.domain.Dept" />
+        <mapping class="ru.ppsrk.gwt.test.domain.DeptNG" />
 		<mapping class="ru.ppsrk.gwt.test.domain.DeptHier" />
 		<mapping class="ru.ppsrk.gwt.domain.User" />
 		<mapping class="ru.ppsrk.gwt.domain.Perm" />

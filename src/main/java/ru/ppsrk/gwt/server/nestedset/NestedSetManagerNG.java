@@ -35,8 +35,7 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         entityName = entityClass.getSimpleName();
     }
 
-    private void getByParentIdAndInsert(List<? extends T> Ts, Long TRootId, Long parentNodeId)
-            throws LogicException, ClientAuthException {
+    private void getByParentIdAndInsert(List<? extends T> Ts, Long TRootId, Long parentNodeId) throws LogicException, ClientAuthException {
         LinkedList<T> selectedChildren = new LinkedList<T>();
         for (T T : Ts) {
             if (T.getParent() == null && TRootId != null && TRootId.equals(0L)
@@ -124,7 +123,7 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
     }
 
     @SuppressWarnings("unchecked")
-    public T getTById(final Long id) throws LogicException, ClientAuthException {
+    public T getNodeById(final Long id) throws LogicException, ClientAuthException {
         T entity = (T) session.get(entityClass, id);
         if (entity == null) {
             throw new LogicException("No entity of class " + entityClass + " and id " + id);
@@ -132,28 +131,28 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         return mapModel(entity, entityClass);
     }
 
-    public List<T> getTByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
-        return getTByParent(getTById(ensureParentId(parentId)), annotateChildren);
+    public List<T> getNodeByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getNodeByParent(getNodeById(ensureParentId(parentId)), annotateChildren);
     }
 
-    public List<T> getTByParent(T parent) throws LogicException, ClientAuthException {
-        return getTByParent(parent, AnnotateChildren.NONE);
+    public List<T> getNodeByParent(T parent) throws LogicException, ClientAuthException {
+        return getNodeByParent(parent, AnnotateChildren.NONE);
     }
 
-    public List<T> getTByParent(T parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
-        return getTByParent(parent, "name", annotateChildren);
+    public List<T> getNodeByParent(T parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getNodeByParent(parent, "name", annotateChildren);
     }
 
-    public List<T> getTByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren)
+    public List<T> getNodeByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren)
             throws LogicException, ClientAuthException {
-        return getTByParent(getTById(ensureParentId(parentId)), orderField, annotateChildren);
+        return getNodeByParent(getNodeById(ensureParentId(parentId)), orderField, annotateChildren);
     }
 
-    public List<T> getTByParent(T parent, String orderField) throws LogicException, ClientAuthException {
-        return getTByParent(parent, orderField, AnnotateChildren.NONE);
+    public List<T> getNodeByParent(T parent, String orderField) throws LogicException, ClientAuthException {
+        return getNodeByParent(parent, orderField, AnnotateChildren.NONE);
     }
 
-    public List<T> getTByParent(final T parent, final String orderField, final AnnotateChildren annotateChildren)
+    public List<T> getNodeByParent(final T parent, final String orderField, final AnnotateChildren annotateChildren)
             throws LogicException, ClientAuthException {
 
         Long parentId = getId(parent, false);
@@ -224,8 +223,7 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         }
     }
 
-    public void insertT(final List<? extends T> Ts, final Long parentNodeId)
-            throws LogicException, ClientAuthException {
+    public void insertNode(final List<? extends T> Ts, final Long parentNodeId) throws LogicException, ClientAuthException {
         getByParentIdAndInsert(Ts, 0L, parentNodeId);
     }
 
@@ -237,23 +235,23 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
             if (parentNode == null) {
                 throw new NestedSetManagerException("Parent node with id=" + sureParentId + " not found.");
             }
+            session.refresh(parentNode);
             log.debug("Insert; parent node: " + parentNode + " new node: " + node + " to parentNodeId: " + sureParentId);
             node.setLeftNum(parentNode.getRightNum());
             node.setRightNum(node.getLeftNum() + 1);
             node.setDepth(parentNode.getDepth() + 1);
-            updateNodes(node.getLeftNum(), 2L, session);
+            updateNodes(node.getLeftNum(), 2L);
             return (T) session.merge(node);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public T insertRootNode(final T node) throws LogicException, ClientAuthException {
         synchronized (lock) {
             node.setLeftNum(1L);
             node.setRightNum(2L);
             node.setDepth(0L);
-            Long id = (Long) session.save(node.getClass().getSimpleName(), node);
-            node.setId(id);
-            return node;
+            return (T) session.merge(node);
         }
     }
 
@@ -262,12 +260,21 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         return mapModel(insertNode(mapModel(dto, entityClass), parentId), entityClass);
     }
 
-    private void updateNodes(Long left, Long shift, Session session) {
+    private void updateNodes(Long left, Long shift) {
         synchronized (lock) {
             session.createQuery("update " + entityName + " node set node.leftnum = node.leftnum + :shift where node.leftnum >= :left")
                     .setLong("left", left).setLong("shift", shift).executeUpdate();
             session.createQuery("update " + entityName + " node set node.rightnum = node.rightnum + :shift where node.rightnum >= :left")
                     .setLong("left", left).setLong("shift", shift).executeUpdate();
+        }
+    }
+
+    private void shiftNodes(Long left, Long right, Long shift) {
+        synchronized (lock) {
+            session.createQuery(
+                    "update " + entityName + " node set node.leftnum = node.leftnum + :shift, node.rightnum = node.rightnum + :shift where "
+                            + "node.leftnum >= :left and node.rightnum <= :right")
+                    .setLong("left", left).setLong("right", right).setLong("shift", shift).executeUpdate();
         }
     }
 
@@ -295,7 +302,22 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
             }
             session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
                     .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();
-            updateNodes(node.getLeftNum(), node.getLeftNum() - node.getRightNum() - 1, session);
+            updateNodes(node.getLeftNum(), node.getLeftNum() - node.getRightNum() - 1);
         }
     }
+
+    public void move(T node, Long newParentId) throws LogicException, ClientAuthException {
+        synchronized (lock) {
+            long width = node.getRightNum() - node.getLeftNum() + 1;
+            T parentNode = getNodeById(newParentId);
+            long moveDistance = parentNode.getRightNum() - (node.getLeftNum() + width);
+            updateNodes(parentNode.getRightNum(), width); // expand parent
+            long oldRight = node.getRightNum() + 1;
+            session.clear();
+            session.refresh(node);
+            shiftNodes(node.getLeftNum(), node.getRightNum(), moveDistance); // move nodes
+            updateNodes(oldRight, -width); // collapse empty space
+        }
+    }
+
 }

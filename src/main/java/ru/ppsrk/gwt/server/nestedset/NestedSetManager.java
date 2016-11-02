@@ -339,7 +339,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 node.setLeftNum(1L);
                 node.setRightNum(2L);
                 node.setDepth(0L);
-                Long id = (Long) session.save(node.getClass().getSimpleName(), node);
+                Long id = (Long) session.save(node);
                 node.setId(id);
                 return node;
             }

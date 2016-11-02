@@ -18,12 +18,15 @@ import ru.ppsrk.gwt.server.HibernateCallback;
 import ru.ppsrk.gwt.server.HibernateUtil;
 import ru.ppsrk.gwt.server.ServerUtils;
 import ru.ppsrk.gwt.server.nestedset.NestedSetManager;
+import ru.ppsrk.gwt.server.nestedset.NestedSetManagerNG;
 import ru.ppsrk.gwt.test.domain.Dept;
 import ru.ppsrk.gwt.test.domain.DeptHier;
+import ru.ppsrk.gwt.test.domain.DeptNG;
 import ru.ppsrk.gwt.test.dto.DeptHierDTO;
 
 public class GWTUtilTest {
     NestedSetManager<Dept, DeptHierDTO> nsm = new NestedSetManager<Dept, DeptHierDTO>(Dept.class, DeptHierDTO.class);
+    private Object lock = new Object();
 
     @BeforeClass
     public static void login() throws LogicException, ClientAuthException {
@@ -36,11 +39,46 @@ public class GWTUtilTest {
     public void init() throws LogicException, ClientAuthException {
         ServerUtils.resetTables(new String[] { "terrdepts" });
         Dept rootNode = nsm.insertRootNode(new Dept());
+        assertEquals(rootNode.getId().longValue(), 1L);
+        assertEquals(rootNode.getLeftNum().longValue(), 1L);
+        assertEquals(rootNode.getRightNum().longValue(), 2L);
         Dept sq11 = nsm.insertNode(new Dept("11 Отряд", "Краснозатонский"), rootNode.getId());
-        nsm.insertNode(new Dept("111 ПЧ", "Краснозатонский"), sq11.getId());
+        Dept pch111 = nsm.insertNode(new Dept("111 ПЧ", "Краснозатонский"), sq11.getId());
+        assertEquals(pch111.getId().longValue(), 3L);
+        assertEquals(pch111.getLeftNum().longValue(), 3L);
+        assertEquals(pch111.getRightNum().longValue(), 4L);
+        rootNode = nsm.getRootNode();
+        assertEquals(rootNode.getId().longValue(), 1L);
+        assertEquals(rootNode.getLeftNum().longValue(), 1L);
+        assertEquals(rootNode.getRightNum().longValue(), 6L);
         Dept sq12 = nsm.insertNode(new Dept("12 Отряд", "Микунь"), rootNode.getId());
         Dept pch121 = nsm.insertNode(new Dept("121 ПЧ", "Микунь"), sq12.getId());
         nsm.insertNode(new Dept("1 ОП 121 ПЧ", "Кожмудор"), pch121.getId());
+    }
+
+    @Before
+    public void initNG() throws LogicException, ClientAuthException {
+        ServerUtils.resetTables(new String[] { "terrdeptsNG" });
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                Long rootId = nsmNG.insertRootNode(new DeptNG()).getId();
+                DeptNG sq11 = nsmNG.insertNode(new DeptNG("11 Отряд", "Краснозатонский"), rootId);
+                nsmNG.insertNode(new DeptNG("111 ПЧ", "Краснозатонский"), sq11.getId());
+                DeptNG sq12 = nsmNG.insertNode(new DeptNG("12 Отряд", "Микунь"), rootId);
+                DeptNG pch121 = nsmNG.insertNode(new DeptNG("121 ПЧ", "Микунь"), sq12.getId());
+                nsmNG.insertNode(new DeptNG("1 ОП 121 ПЧ", "Кожмудор"), pch121.getId());
+                DeptNG rootNode = nsmNG.getRootNode();
+                session.refresh(rootNode);
+                assertEquals(1L, rootNode.getId().longValue());
+                assertEquals(1L, rootNode.getLeftNum().longValue());
+                assertEquals(12L, rootNode.getRightNum().longValue());
+                return null;
+            }
+        });
+
     }
 
     @Test
@@ -112,8 +150,9 @@ public class GWTUtilTest {
                 List<DeptHier> depts = session.createQuery("from DeptHier d where d.name != 'Default' order by d.id").list();
                 nsm.insertHierarchic(mapArray(depts, DeptHierDTO.class), 1L);
                 @SuppressWarnings("unchecked")
-                List<Dept> insertedDepts = session.createQuery(
-                        "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum")
+                List<Dept> insertedDepts = session
+                        .createQuery(
+                                "from Dept d where d.name in ('1 ОП 123 ПЧ', '13 Отряд', '1 ОП 131 ПЧ', '14 Отряд', '142 ПЧ') order by d.leftnum")
                         .list();
                 assertEquals(52, insertedDepts.get(0).getLeftNum().longValue());
                 assertEquals(53, insertedDepts.get(0).getRightNum().longValue());
@@ -138,8 +177,9 @@ public class GWTUtilTest {
         } catch (NestedSetManagerException e) {
             assertEquals("Need to delete more than one node but children deleting was explicitly prohibited.", e.getMessage());
         }
-        nsm.deleteNode(2L, true);
         List<Dept> depts = nsm.getChildren(1L, "id", false);
+        nsm.deleteNode(2L, true);
+        depts = nsm.getChildren(1L, "id", false);
         assertEquals(2, depts.get(0).getLeftNum().longValue());
         assertEquals(7, depts.get(0).getRightNum().longValue());
         assertEquals(3, depts.get(1).getLeftNum().longValue());
@@ -166,5 +206,108 @@ public class GWTUtilTest {
         assertEquals(4, depts.get(1).getRightNum().longValue());
         assertEquals(6, depts.get(2).getLeftNum().longValue());
         assertEquals(7, depts.get(2).getRightNum().longValue());
+    }
+
+    @Test
+    public void testDeleteNodeNG() throws LogicException, ClientAuthException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                try {
+                    nsmNG.deleteNode(2L, false);
+                    fail();
+                } catch (NestedSetManagerException e) {
+                    assertEquals("Need to delete more than one node but children deleting was explicitly prohibited.", e.getMessage());
+                }
+                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                nsmNG.deleteNode(2L, true);
+                session.clear();
+                depts = nsmNG.getChildren(1L, "id", false);
+                assertEquals(2, depts.get(0).getLeftNum().longValue());
+                assertEquals(7, depts.get(0).getRightNum().longValue());
+                assertEquals(3, depts.get(1).getLeftNum().longValue());
+                assertEquals(6, depts.get(1).getRightNum().longValue());
+                assertEquals(4, depts.get(2).getLeftNum().longValue());
+                assertEquals(5, depts.get(2).getRightNum().longValue());
+                return null;
+            }
+        });
+        initNG();
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                DeptNG rootNode = nsmNG.getRootNode();
+                assertEquals(1L, rootNode.getLeftNum().longValue());
+                assertEquals(12L, rootNode.getRightNum().longValue());
+                nsmNG.deleteNode(3L, true);
+                session.clear();
+                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                assertEquals(2, depts.get(0).getLeftNum().longValue());
+                assertEquals(3, depts.get(0).getRightNum().longValue());
+                assertEquals(4, depts.get(1).getLeftNum().longValue());
+                assertEquals(9, depts.get(1).getRightNum().longValue());
+                assertEquals(5, depts.get(2).getLeftNum().longValue());
+                assertEquals(8, depts.get(2).getRightNum().longValue());
+                assertEquals(6, depts.get(3).getLeftNum().longValue());
+                assertEquals(7, depts.get(3).getRightNum().longValue());
+                return null;
+            }
+        });
+        initNG();
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                nsmNG.deleteNode(5L, true);
+                session.clear();
+                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                assertEquals(2, depts.get(0).getLeftNum().longValue());
+                assertEquals(5, depts.get(0).getRightNum().longValue());
+                assertEquals(3, depts.get(1).getLeftNum().longValue());
+                assertEquals(4, depts.get(1).getRightNum().longValue());
+                assertEquals(6, depts.get(2).getLeftNum().longValue());
+                assertEquals(7, depts.get(2).getRightNum().longValue());
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void testMoveNG() throws LogicException, ClientAuthException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                DeptNG pch121 = nsmNG.getNodeById(5L);
+                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                System.out.println("Before: " + depts);
+                nsmNG.move(pch121, 2L); // move to sq11
+                session.clear();
+                depts = nsmNG.getChildren(1L, "id", false);
+                System.out.println("After: " + depts);
+                assertEquals(2, depts.get(0).getLeftNum().longValue());
+                assertEquals(9, depts.get(0).getRightNum().longValue());
+
+                assertEquals(3, depts.get(1).getLeftNum().longValue());
+                assertEquals(4, depts.get(1).getRightNum().longValue());
+
+                assertEquals(10, depts.get(2).getLeftNum().longValue());
+                assertEquals(11, depts.get(2).getRightNum().longValue());
+
+                assertEquals(5, depts.get(3).getLeftNum().longValue());
+                assertEquals(8, depts.get(3).getRightNum().longValue());
+
+                assertEquals(6, depts.get(4).getLeftNum().longValue());
+                assertEquals(7, depts.get(4).getRightNum().longValue());
+                return null;
+            }
+        });
+
     }
 }
