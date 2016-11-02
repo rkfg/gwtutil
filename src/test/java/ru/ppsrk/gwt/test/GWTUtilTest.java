@@ -310,4 +310,106 @@ public class GWTUtilTest {
         });
 
     }
+
+    @Test
+    public void testMoveNGToChild() throws LogicException, ClientAuthException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                DeptNG sq11 = nsmNG.getNodeById(2L);
+                try {
+                    nsmNG.move(sq11, 4L); // move to sq11
+                } catch (NestedSetManagerException e) {
+                    assertEquals("Can't move node to its own child or itself.", e.getMessage());
+                }
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void testMoveNGToItself() throws LogicException, ClientAuthException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                DeptNG sq11 = nsmNG.getNodeById(2L);
+                try {
+                    nsmNG.move(sq11, 2L);
+                } catch (NestedSetManagerException e) {
+                    assertEquals("Can't move node to its own child or itself.", e.getMessage());
+                }
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void testMoveNG2() throws LogicException, ClientAuthException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                System.out.println("Before: " + depts);
+                DeptNG sq11 = nsmNG.getNodeById(2L);
+                nsmNG.move(sq11, 4L); // move to sq12
+                session.clear();
+                depts = nsmNG.getChildren(1L, "id", false);
+                System.out.println("After: " + depts);
+                assertEquals(7, depts.get(0).getLeftNum().longValue());
+                assertEquals(10, depts.get(0).getRightNum().longValue());
+
+                assertEquals(8, depts.get(1).getLeftNum().longValue());
+                assertEquals(9, depts.get(1).getRightNum().longValue());
+
+                assertEquals(2, depts.get(2).getLeftNum().longValue());
+                assertEquals(11, depts.get(2).getRightNum().longValue());
+
+                assertEquals(3, depts.get(3).getLeftNum().longValue());
+                assertEquals(6, depts.get(3).getRightNum().longValue());
+
+                assertEquals(4, depts.get(4).getLeftNum().longValue());
+                assertEquals(5, depts.get(4).getRightNum().longValue());
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void testMoveNG3() throws LogicException, ClientAuthException {
+        HibernateUtil.exec(new HibernateCallback<Void>() {
+
+            @Override
+            public Void run(Session session) throws LogicException, ClientAuthException {
+                NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
+                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                System.out.println("Before: " + depts);
+                DeptNG op1pch121 = nsmNG.getNodeById(6L);
+                nsmNG.move(op1pch121, 1L); // move to root
+                session.clear();
+                depts = nsmNG.getChildren(1L, "id", false);
+                System.out.println("After: " + depts);
+                assertEquals(2, depts.get(0).getLeftNum().longValue());
+                assertEquals(5, depts.get(0).getRightNum().longValue());
+
+                assertEquals(3, depts.get(1).getLeftNum().longValue());
+                assertEquals(4, depts.get(1).getRightNum().longValue());
+
+                assertEquals(6, depts.get(2).getLeftNum().longValue());
+                assertEquals(9, depts.get(2).getRightNum().longValue());
+
+                assertEquals(7, depts.get(3).getLeftNum().longValue());
+                assertEquals(8, depts.get(3).getRightNum().longValue());
+
+                assertEquals(10, depts.get(4).getLeftNum().longValue());
+                assertEquals(11, depts.get(4).getRightNum().longValue());
+                return null;
+            }
+        });
+    }
 }

@@ -308,15 +308,18 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
 
     public void move(T node, Long newParentId) throws LogicException, ClientAuthException {
         synchronized (lock) {
-            long width = node.getRightNum() - node.getLeftNum() + 1;
             T parentNode = getNodeById(newParentId);
-            long moveDistance = parentNode.getRightNum() - (node.getLeftNum() + width);
+            if (parentNode.getLeftNum() >= node.getLeftNum() && parentNode.getRightNum() <= node.getRightNum()) {
+                throw new NestedSetManagerException("Can't move node to its own child or itself.");
+            }
+            long width = node.getRightNum() - node.getLeftNum() + 1;
             updateNodes(parentNode.getRightNum(), width); // expand parent
-            long oldRight = node.getRightNum() + 1;
             session.clear();
             session.refresh(node);
+            session.refresh(parentNode);
+            long moveDistance = parentNode.getRightNum() - node.getRightNum() - 1;
             shiftNodes(node.getLeftNum(), node.getRightNum(), moveDistance); // move nodes
-            updateNodes(oldRight, -width); // collapse empty space
+            updateNodes(node.getLeftNum() + 1, -width); // collapse empty space
         }
     }
 

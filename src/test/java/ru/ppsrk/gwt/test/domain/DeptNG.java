@@ -38,7 +38,8 @@ public class DeptNG extends NestedSetNodeNG {
 
     @Override
     public String toString() {
-        return "Dept [name=" + name + ", dislocation=" + dislocation + ", left=" + getLeftNum() + ", right=" + getRightNum() + "]";
+        return "Dept [id=" + getId() + ", name=" + name + ", dislocation=" + dislocation + ", left=" + getLeftNum() + ", right="
+                + getRightNum() + "]";
     }
 
 }
