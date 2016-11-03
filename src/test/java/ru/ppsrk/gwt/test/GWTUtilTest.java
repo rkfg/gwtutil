@@ -284,27 +284,31 @@ public class GWTUtilTest {
             @Override
             public Void run(Session session) throws LogicException, ClientAuthException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
-                DeptNG pch121 = nsmNG.getNodeById(5L);
                 List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
                 System.out.println("Before: " + depts);
-                nsmNG.move(pch121, 2L); // move to sq11
+                nsmNG.move(5L, 2L); // move to sq11
                 session.clear();
                 depts = nsmNG.getChildren(1L, "id", false);
                 System.out.println("After: " + depts);
                 assertEquals(2, depts.get(0).getLeftNum().longValue());
                 assertEquals(9, depts.get(0).getRightNum().longValue());
+                assertEquals(1, depts.get(0).getDepth().longValue());
 
                 assertEquals(3, depts.get(1).getLeftNum().longValue());
                 assertEquals(4, depts.get(1).getRightNum().longValue());
+                assertEquals(2, depts.get(1).getDepth().longValue());
 
                 assertEquals(10, depts.get(2).getLeftNum().longValue());
                 assertEquals(11, depts.get(2).getRightNum().longValue());
+                assertEquals(1, depts.get(2).getDepth().longValue());
 
                 assertEquals(5, depts.get(3).getLeftNum().longValue());
                 assertEquals(8, depts.get(3).getRightNum().longValue());
+                assertEquals(2, depts.get(3).getDepth().longValue());
 
                 assertEquals(6, depts.get(4).getLeftNum().longValue());
                 assertEquals(7, depts.get(4).getRightNum().longValue());
+                assertEquals(3, depts.get(4).getDepth().longValue());
                 return null;
             }
         });
@@ -318,9 +322,8 @@ public class GWTUtilTest {
             @Override
             public Void run(Session session) throws LogicException, ClientAuthException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
-                DeptNG sq11 = nsmNG.getNodeById(2L);
                 try {
-                    nsmNG.move(sq11, 4L); // move to sq11
+                    nsmNG.move(2L, 4L); // move to sq11
                 } catch (NestedSetManagerException e) {
                     assertEquals("Can't move node to its own child or itself.", e.getMessage());
                 }
@@ -336,9 +339,8 @@ public class GWTUtilTest {
             @Override
             public Void run(Session session) throws LogicException, ClientAuthException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
-                DeptNG sq11 = nsmNG.getNodeById(2L);
                 try {
-                    nsmNG.move(sq11, 2L);
+                    nsmNG.move(2L, 2L);
                 } catch (NestedSetManagerException e) {
                     assertEquals("Can't move node to its own child or itself.", e.getMessage());
                 }
@@ -356,25 +358,29 @@ public class GWTUtilTest {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
                 System.out.println("Before: " + depts);
-                DeptNG sq11 = nsmNG.getNodeById(2L);
-                nsmNG.move(sq11, 4L); // move to sq12
+                nsmNG.move(2L, 4L); // move to sq12
                 session.clear();
                 depts = nsmNG.getChildren(1L, "id", false);
                 System.out.println("After: " + depts);
                 assertEquals(7, depts.get(0).getLeftNum().longValue());
                 assertEquals(10, depts.get(0).getRightNum().longValue());
+                assertEquals(2, depts.get(0).getDepth().longValue());
 
                 assertEquals(8, depts.get(1).getLeftNum().longValue());
                 assertEquals(9, depts.get(1).getRightNum().longValue());
+                assertEquals(3, depts.get(1).getDepth().longValue());
 
                 assertEquals(2, depts.get(2).getLeftNum().longValue());
                 assertEquals(11, depts.get(2).getRightNum().longValue());
+                assertEquals(1, depts.get(2).getDepth().longValue());
 
                 assertEquals(3, depts.get(3).getLeftNum().longValue());
                 assertEquals(6, depts.get(3).getRightNum().longValue());
+                assertEquals(2, depts.get(3).getDepth().longValue());
 
                 assertEquals(4, depts.get(4).getLeftNum().longValue());
                 assertEquals(5, depts.get(4).getRightNum().longValue());
+                assertEquals(3, depts.get(4).getDepth().longValue());
                 return null;
             }
         });
@@ -389,25 +395,29 @@ public class GWTUtilTest {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
                 System.out.println("Before: " + depts);
-                DeptNG op1pch121 = nsmNG.getNodeById(6L);
-                nsmNG.move(op1pch121, 1L); // move to root
+                nsmNG.move(6L, 1L); // move to root
                 session.clear();
                 depts = nsmNG.getChildren(1L, "id", false);
                 System.out.println("After: " + depts);
                 assertEquals(2, depts.get(0).getLeftNum().longValue());
                 assertEquals(5, depts.get(0).getRightNum().longValue());
+                assertEquals(1, depts.get(0).getDepth().longValue());
 
                 assertEquals(3, depts.get(1).getLeftNum().longValue());
                 assertEquals(4, depts.get(1).getRightNum().longValue());
+                assertEquals(2, depts.get(1).getDepth().longValue());
 
                 assertEquals(6, depts.get(2).getLeftNum().longValue());
                 assertEquals(9, depts.get(2).getRightNum().longValue());
+                assertEquals(1, depts.get(2).getDepth().longValue());
 
                 assertEquals(7, depts.get(3).getLeftNum().longValue());
                 assertEquals(8, depts.get(3).getRightNum().longValue());
+                assertEquals(2, depts.get(3).getDepth().longValue());
 
                 assertEquals(10, depts.get(4).getLeftNum().longValue());
                 assertEquals(11, depts.get(4).getRightNum().longValue());
+                assertEquals(1, depts.get(4).getDepth().longValue());
                 return null;
             }
         });
