@@ -4,7 +4,10 @@ import com.github.gwtbootstrap.client.ui.TabLink;
 import com.github.gwtbootstrap.client.ui.TabPane;
 import com.github.gwtbootstrap.client.ui.TabPanel;
 import com.github.gwtbootstrap.client.ui.TabPanel.ShownEvent.Handler;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.Element;
 
+@SuppressWarnings("deprecation")
 public class TabPanelFixed extends TabPanel {
 
     private TabPaneFixed selected = null;
@@ -24,6 +27,12 @@ public class TabPanelFixed extends TabPanel {
                 }
             }
         });
+    }
+
+    public void recalculateSize() {
+        int height = ((Element) getElement().getFirstChild()).getOffsetHeight();
+        Element element = (Element) getElement().getFirstChild().getNextSibling();
+        element.getStyle().setHeight(getOffsetHeight() + 70 - height, Unit.PX);
     }
 
     public TabPaneFixed getSelectedTabPane() {
