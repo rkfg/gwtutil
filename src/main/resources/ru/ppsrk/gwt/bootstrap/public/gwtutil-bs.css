@@ -32,3 +32,7 @@ legend {
 .DecoratedFileUpload-button:HOVER {
 	color: white !important;
 }
+
+.bar {
+    line-height: 20px !important;
+}
