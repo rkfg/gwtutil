@@ -80,6 +80,14 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
         return map.get(getSelectedLong());
     }
 
+    public void setSelectedItem(T value) {
+        if (value == null) {
+            decorated.setSelectedIndex(-1);
+        } else {
+            decorated.setSelectedIndex(getIndexByLong(value.getId()));
+        }
+    }
+
     public void setSelectedItemByLong(Long value) {
         decorated.setSelectedIndex(getIndexByLong(value));
     }
