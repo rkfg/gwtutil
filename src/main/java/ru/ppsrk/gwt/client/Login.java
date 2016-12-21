@@ -49,6 +49,7 @@ public class Login extends PopupPanel {
 
         horizontalPanel.add(textBox_login);
         textBox_login.setWidth("180px");
+        textBox_login.setStyleName("login_username");
         horizontalPanel_1.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         verticalPanel.add(horizontalPanel_1);
         horizontalPanel_1.setSpacing(5);
@@ -64,12 +65,14 @@ public class Login extends PopupPanel {
 
         horizontalPanel_1.add(textBox_password);
         textBox_password.setWidth("180px");
+        textBox_password.setStyleName("login_password");
 
         verticalPanel.add(horizontalPanel_3);
         horizontalPanel_3.setWidth("100%");
         checkBox_remember.setWordWrap(false);
         checkBox_remember.setValue(rememberMe);
-        checkBox_remember.setHTML("Запомнить меня");
+        checkBox_remember.setHTML("запомнить меня");
+        checkBox_remember.setStyleName("rememberme");
 
         if (showRememberMe) {
             horizontalPanel_3.add(checkBox_remember);
