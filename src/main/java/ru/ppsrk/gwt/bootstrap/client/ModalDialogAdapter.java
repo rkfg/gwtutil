@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.Widget;
 
 import ru.ppsrk.gwt.bootstrap.client.ModalDialog.ModalDialogCallback;
+import ru.ppsrk.gwt.client.PreventingCallback;
 
 public abstract class ModalDialogAdapter<T> extends Composite {
 
@@ -22,6 +23,19 @@ public abstract class ModalDialogAdapter<T> extends Composite {
             return ModalDialogAdapter.this.preventOk();
         };
     };
+
+    public class PreventingModalDialogCallback<MT> extends PreventingCallback<MT> {
+
+        public PreventingModalDialogCallback() {
+            super(modalDialog.b_ok);
+        }
+
+        @Override
+        protected void doSuccess(MT result) {
+            modalDialog.doOk();
+        }
+
+    }
 
     @Override
     protected void initWidget(Widget widget) {
