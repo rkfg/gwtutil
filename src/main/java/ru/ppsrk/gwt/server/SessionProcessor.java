@@ -39,15 +39,18 @@ public class SessionProcessor implements IAnnotationProcessor, IRPCFinalizer {
     public void cleanup(boolean failure) {
         Session session = getSession();
         if (session != null) {
-            if (failure) {
-                session.getTransaction().rollback();
-            } else {
-                if (session.getTransaction().isActive()) {
-                    session.getTransaction().commit();
+            try {
+                if (failure) {
+                    session.getTransaction().rollback();
+                } else {
+                    if (session.getTransaction().isActive()) {
+                        session.getTransaction().commit();
+                    }
                 }
+            } finally {
+                session.close();
+                setSession(null);
             }
-            session.close();
-            setSession(null);
         }
     }
 
