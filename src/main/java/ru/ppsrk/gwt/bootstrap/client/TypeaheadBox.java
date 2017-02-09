@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
+import com.github.gwtbootstrap.client.ui.Typeahead.HighlighterCallback;
 import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
@@ -42,6 +43,13 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
                 return updater(selectedSuggestion);
             }
         });
+        typeahead.setHighlighterCallback(new HighlighterCallback() {
+            
+            @Override
+            public String highlight(String item) {
+                return highlighter(item);
+            }
+        });
         addFocusHandler(new FocusHandler() {
 
             @Override
@@ -70,6 +78,10 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
             }
         });
         typeahead.reconfigure();
+    }
+
+    protected String highlighter(String item) {
+        return item;
     }
 
     protected String updater(Suggestion selectedSuggestion) {
