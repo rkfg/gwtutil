@@ -7,6 +7,7 @@ import ru.ppsrk.gwt.client.AlertRuntimeException;
 
 import com.github.gwtbootstrap.client.ui.Alert;
 import com.github.gwtbootstrap.client.ui.Tooltip;
+import com.github.gwtbootstrap.client.ui.base.ComplexWidget;
 import com.github.gwtbootstrap.client.ui.base.ValueBoxBase;
 import com.github.gwtbootstrap.client.ui.constants.AlertType;
 import com.github.gwtbootstrap.client.ui.constants.Placement;
@@ -17,6 +18,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class BootstrapUtils {
@@ -29,10 +31,15 @@ public class BootstrapUtils {
         }
     }
 
-    private static Panel notificationsPanel = null;
+    private static Panel notificationsPanel = new ComplexWidget("div");
     private static List<Alert> alerts = new LinkedList<Alert>();
     private static double gap = 45;
 
+    static {
+        RootLayoutPanel.get().add(notificationsPanel);
+        notificationsPanel.getElement().getParentElement().getStyle().setZIndex(-10000);
+    }
+    
     public static void setNotificationsSettings(Panel panel, double alertsGap) {
         notificationsPanel = panel;
         gap = alertsGap;
@@ -50,7 +57,7 @@ public class BootstrapUtils {
         Style style = alert.getElement().getStyle();
         style.setPosition(Position.FIXED);
         style.setTop(5, Unit.PX);
-        style.setZIndex(1);
+        style.setZIndex(10000);
         alert.setAnimation(true);
         for (Alert existingAlert : alerts) {
             String top = existingAlert.getElement().getStyle().getTop();
