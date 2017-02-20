@@ -103,7 +103,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     public static User requiresAuthUser() throws LogicException, ClientAuthException {
-        if (!SecurityUtils.getSubject().isAuthenticated() && !SecurityUtils.getSubject().isRemembered())
+        if (!isAuthenticated())
             throw new ClientAuthenticationException("Not authenticated");
         UserDTO user = (UserDTO) getSessionAttribute("user");
         if (user == null) {
@@ -146,6 +146,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     private static final long serialVersionUID = -5049525086987492554L;
 
     public static boolean registrationEnabled = false;
+    public static boolean rememberMeOverridesLogin = true;
 
     @Override
     public String getUsername() {
@@ -160,7 +161,11 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
 
     @Override
     public boolean isLoggedIn() {
-        return SecurityUtils.getSubject().isAuthenticated() || SecurityUtils.getSubject().isRemembered();
+        return isAuthenticated();
+    }
+
+    private static boolean isAuthenticated() {
+        return SecurityUtils.getSubject().isAuthenticated() || (rememberMeOverridesLogin && SecurityUtils.getSubject().isRemembered());
     }
 
     @Override
