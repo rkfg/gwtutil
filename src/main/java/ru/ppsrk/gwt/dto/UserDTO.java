@@ -2,24 +2,13 @@ package ru.ppsrk.gwt.dto;
 
 import java.util.Set;
 
-import ru.ppsrk.gwt.client.HasId;
-
 @SuppressWarnings("serial")
-public class UserDTO implements HasId {
+public class UserDTO extends BasicDTO {
 
-    Long id;
     String username;
     String password;
     String salt;
     Set<RoleDTO> roles;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;

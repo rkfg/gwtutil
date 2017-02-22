@@ -1,9 +1,7 @@
 package ru.ppsrk.gwt.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-public class RoleDTO implements IsSerializable {
-    Long id;
+@SuppressWarnings("serial")
+public class RoleDTO extends BasicDTO {
     UserDTO user;
     String role;
 
@@ -13,14 +11,6 @@ public class RoleDTO implements IsSerializable {
     public RoleDTO(UserDTO user, String role) {
         this.user = user;
         this.role = role;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public UserDTO getUser() {
