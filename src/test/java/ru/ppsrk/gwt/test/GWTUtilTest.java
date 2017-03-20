@@ -221,10 +221,10 @@ public class GWTUtilTest {
                 } catch (NestedSetManagerException e) {
                     assertEquals("Need to delete more than one node but children deleting was explicitly prohibited.", e.getMessage());
                 }
-                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 nsmNG.deleteNode(2L, true);
                 session.clear();
-                depts = nsmNG.getChildren(1L, "id", false);
+                depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 assertEquals(2, depts.get(0).getLeftNum().longValue());
                 assertEquals(7, depts.get(0).getRightNum().longValue());
                 assertEquals(3, depts.get(1).getLeftNum().longValue());
@@ -245,7 +245,7 @@ public class GWTUtilTest {
                 assertEquals(12L, rootNode.getRightNum().longValue());
                 nsmNG.deleteNode(3L, true);
                 session.clear();
-                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 assertEquals(2, depts.get(0).getLeftNum().longValue());
                 assertEquals(3, depts.get(0).getRightNum().longValue());
                 assertEquals(4, depts.get(1).getLeftNum().longValue());
@@ -265,7 +265,7 @@ public class GWTUtilTest {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 nsmNG.deleteNode(5L, true);
                 session.clear();
-                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 assertEquals(2, depts.get(0).getLeftNum().longValue());
                 assertEquals(5, depts.get(0).getRightNum().longValue());
                 assertEquals(3, depts.get(1).getLeftNum().longValue());
@@ -284,11 +284,11 @@ public class GWTUtilTest {
             @Override
             public Void run(Session session) throws LogicException, ClientAuthException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
-                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("Before: " + depts);
                 nsmNG.move(5L, 2L); // move to sq11
                 session.clear();
-                depts = nsmNG.getChildren(1L, "id", false);
+                depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("After: " + depts);
                 assertEquals(2, depts.get(0).getLeftNum().longValue());
                 assertEquals(9, depts.get(0).getRightNum().longValue());
@@ -356,11 +356,11 @@ public class GWTUtilTest {
             @Override
             public Void run(Session session) throws LogicException, ClientAuthException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
-                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("Before: " + depts);
                 nsmNG.move(2L, 4L); // move to sq12
                 session.clear();
-                depts = nsmNG.getChildren(1L, "id", false);
+                depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("After: " + depts);
                 assertEquals(7, depts.get(0).getLeftNum().longValue());
                 assertEquals(10, depts.get(0).getRightNum().longValue());
@@ -393,11 +393,11 @@ public class GWTUtilTest {
             @Override
             public Void run(Session session) throws LogicException, ClientAuthException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
-                List<DeptNG> depts = nsmNG.getChildren(1L, "id", false);
+                List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("Before: " + depts);
                 nsmNG.move(6L, 1L); // move to root
                 session.clear();
-                depts = nsmNG.getChildren(1L, "id", false);
+                depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("After: " + depts);
                 assertEquals(2, depts.get(0).getLeftNum().longValue());
                 assertEquals(5, depts.get(0).getRightNum().longValue());

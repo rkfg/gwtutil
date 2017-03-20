@@ -67,13 +67,13 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly)
+    public List<T> getChildrenByParentId(final Long parentNodeId, final String orderField, final boolean directOnly)
             throws LogicException, ClientAuthException {
-        return getChildren(parentNodeId, orderField, directOnly, AnnotateChildren.NONE);
+        return getChildrenByParentId(parentNodeId, orderField, directOnly, AnnotateChildren.NONE);
     }
 
     @SuppressWarnings("unchecked")
-    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly,
+    public List<T> getChildrenByParentId(final Long parentNodeId, final String orderField, final boolean directOnly,
             final AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
         T parentNode = (T) session.get(entityClass, parentNodeId);
         if (directOnly) {
@@ -131,32 +131,32 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
         return mapModel(entity, entityClass);
     }
 
-    public List<T> getNodeByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
-        return getNodeByParent(getNodeById(ensureParentId(parentId)), annotateChildren);
+    public List<T> getChildrenByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getChildrenByParent(getNodeById(ensureParentId(parentId)), annotateChildren);
     }
 
-    public List<T> getNodeByParent(T parent) throws LogicException, ClientAuthException {
-        return getNodeByParent(parent, AnnotateChildren.NONE);
+    public List<T> getChildrenByParent(T parent) throws LogicException, ClientAuthException {
+        return getChildrenByParent(parent, AnnotateChildren.NONE);
     }
 
-    public List<T> getNodeByParent(T parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
-        return getNodeByParent(parent, "name", annotateChildren);
+    public List<T> getChildrenByParent(T parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+        return getChildrenByParent(parent, "name", annotateChildren);
     }
 
-    public List<T> getNodeByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren)
+    public List<T> getChildrenByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren)
             throws LogicException, ClientAuthException {
-        return getNodeByParent(getNodeById(ensureParentId(parentId)), orderField, annotateChildren);
+        return getChildrenByParent(getNodeById(ensureParentId(parentId)), orderField, annotateChildren);
     }
 
-    public List<T> getNodeByParent(T parent, String orderField) throws LogicException, ClientAuthException {
-        return getNodeByParent(parent, orderField, AnnotateChildren.NONE);
+    public List<T> getChildrenByParent(T parent, String orderField) throws LogicException, ClientAuthException {
+        return getChildrenByParent(parent, orderField, AnnotateChildren.NONE);
     }
 
-    public List<T> getNodeByParent(final T parent, final String orderField, final AnnotateChildren annotateChildren)
+    public List<T> getChildrenByParent(final T parent, final String orderField, final AnnotateChildren annotateChildren)
             throws LogicException, ClientAuthException {
 
         Long parentId = getId(parent, false);
-        List<T> dtos = mapArray(getChildren(parentId, orderField, true, annotateChildren), entityClass);
+        List<T> dtos = mapArray(getChildrenByParentId(parentId, orderField, true, annotateChildren), entityClass);
         for (T dto : dtos) {
             dto.setParent(parent);
         }
@@ -315,7 +315,7 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
             }
             long width = node.getRightNum() - node.getLeftNum() + 1;
             long depthDiff = parentNode.getDepth() - node.getDepth() + 1;
-            for (T child : getChildren(node.getId(), "id", false)) {
+            for (T child : getChildrenByParentId(node.getId(), "id", false)) {
                 child.setDepth(child.getDepth() + depthDiff);
             }
             node.setDepth(node.getDepth() + depthDiff);
