@@ -56,7 +56,7 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
     /**
      * Retrieves children by parent node id.
      * 
-     * @param parentNodeId
+     * @param parentId
      *            use null for the root node
      * @param orderField
      *            field name by which the results are sorted; several field may
@@ -67,15 +67,15 @@ public class NestedSetManagerNG<T extends NestedSetNodeNG> {
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public List<T> getChildrenByParentId(final Long parentNodeId, final String orderField, final boolean directOnly)
+    public List<T> getChildrenByParentId(final Long parentId, final String orderField, final boolean directOnly)
             throws LogicException, ClientAuthException {
-        return getChildrenByParentId(parentNodeId, orderField, directOnly, AnnotateChildren.NONE);
+        return getChildrenByParentId(parentId, orderField, directOnly, AnnotateChildren.NONE);
     }
 
     @SuppressWarnings("unchecked")
-    public List<T> getChildrenByParentId(final Long parentNodeId, final String orderField, final boolean directOnly,
+    public List<T> getChildrenByParentId(final Long parentId, final String orderField, final boolean directOnly,
             final AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
-        T parentNode = (T) session.get(entityClass, parentNodeId);
+        T parentNode = (T) session.get(entityClass, ensureParentId(parentId));
         if (directOnly) {
             session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
         }
