@@ -139,3 +139,7 @@ tbody {
 .login_username, .login_password {
 	margin-left: 3px !important;
 }
+
+.dropcell-highlight {
+    background-color: #88bbff !important;
+}
