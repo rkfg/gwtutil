@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.client.controls;
+package ru.ppsrk.gwt.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.List;
 import com.google.gwt.user.client.ui.SuggestOracle;
 
 import ru.ppsrk.gwt.client.ClientUtils.MyAsyncCallback;
-import ru.ppsrk.gwt.client.controls.DTOSuggestBox.RemoteSuggestionCallback;
-import ru.ppsrk.gwt.client.controls.DTOSuggestBox.Suggestable;
+import ru.ppsrk.gwt.client.DTOSuggestBox.RemoteSuggestionCallback;
+import ru.ppsrk.gwt.client.DTOSuggestBox.Suggestable;
 
 public class DTOSuggestOracle<T extends Suggestable> extends SuggestOracle {
 

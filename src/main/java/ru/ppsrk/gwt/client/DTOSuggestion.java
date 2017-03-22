@@ -1,9 +1,9 @@
-package ru.ppsrk.gwt.client.controls;
+package ru.ppsrk.gwt.client;
 
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 
-import ru.ppsrk.gwt.client.controls.DTOSuggestBox.Suggestable;
+import ru.ppsrk.gwt.client.DTOSuggestBox.Suggestable;
 
 public class DTOSuggestion<T extends Suggestable> implements Suggestion {
 

@@ -1,4 +1,4 @@
-package ru.ppsrk.gwt.client.controls;
+package ru.ppsrk.gwt.client;
 
 import java.util.List;
 
@@ -10,8 +10,7 @@ import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle.Request;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 
-import ru.ppsrk.gwt.client.HasListboxValue;
-import ru.ppsrk.gwt.client.controls.DTOSuggestBox.Suggestable;
+import ru.ppsrk.gwt.client.DTOSuggestBox.Suggestable;
 
 public class DTOSuggestBox<T extends Suggestable> extends SuggestBox {
 
