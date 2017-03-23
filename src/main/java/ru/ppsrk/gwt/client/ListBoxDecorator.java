@@ -1,5 +1,6 @@
 package ru.ppsrk.gwt.client;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,10 +70,6 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
         return decorated.getSelectedIndex() >= 0 ? Long.valueOf(decorated.getValue(decorated.getSelectedIndex())) : -1;
     }
 
-    public <E extends Enum<E>> E getSelectedEnum(E[] values) {
-        return values[getSelectedLong().intValue()];
-    }
-
     public T getSelectedValue() {
         if (map == null) {
             return null;
@@ -94,10 +91,6 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
 
     public void setSelectedItemByLong(String value) {
         decorated.setSelectedIndex(getIndexByTextValue(value));
-    }
-
-    public <E extends Enum<E>> void setListBoxSelectedEnum(E e) {
-        setSelectedItemByLong((long) e.ordinal());
     }
 
     @Override
@@ -131,5 +124,9 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
 
     public Collection<T> getValues() {
         return map.values();
+    }
+
+    public void fill(T[] values) {
+        fill(Arrays.asList(values));
     }
 }
