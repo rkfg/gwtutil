@@ -75,4 +75,7 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("<Не задано>")
     public String notSet();
+    
+    @DefaultMessage("Фильтр")
+    public String filter();
 }

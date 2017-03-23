@@ -1,0 +1,18 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:gu="urn:import:ru.ppsrk.gwt.client"
+    xmlns:gb="urn:import:ru.ppsrk.gwt.bootstrap.client" xmlns:gc="urn:import:com.google.gwt.user.cellview.client" xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+    <ui:with type="ru.ppsrk.gwt.client.CommonMessages" field="res" />
+    <g:VerticalPanel width="100%" height="100%">
+        <g:cell>
+            <gb:InputAddOnHandy>
+                <b:TextBox ui:field="tb_filter" placeholder="{res.filter}" />
+                <b:Button icon="REMOVE_SIGN" ui:field="b_clear" />
+            </gb:InputAddOnHandy>
+        </g:cell>
+        <g:cell>
+            <gu:ScrollPanelBordered height="200px" width="100%" ui:field="sp_items">
+                <gc:CellList ui:field="cl_items" />
+            </gu:ScrollPanelBordered>
+        </g:cell>
+    </g:VerticalPanel>
+</ui:UiBinder> 
