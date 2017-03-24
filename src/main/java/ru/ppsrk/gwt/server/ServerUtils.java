@@ -82,6 +82,14 @@ public class ServerUtils {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <ST> List<ST> mapArray(Collection<ST> list) {
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return (List<ST>) mapArray(list, list.iterator().next().getClass());
+    }
+
     public static <ST, DT, H extends MapperHint> List<DT> mapArray(Collection<ST> list, Class<DT> destClass, Class<H> hintClass) {
         List<DT> result = new ArrayList<DT>();
         for (ST elem : list) {
@@ -103,6 +111,11 @@ public class ServerUtils {
             }
         }
         return mapper.map(value, classDTO);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T mapModel(T value) {
+        return (T) mapModel(value, value.getClass());
     }
 
     @SuppressWarnings("unchecked")
