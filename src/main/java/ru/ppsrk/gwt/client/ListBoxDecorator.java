@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.ListBox;
 
@@ -129,4 +131,8 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
     public void fill(T[] values) {
         fill(Arrays.asList(values));
     }
+    
+     public HandlerRegistration addChangeHandler(ChangeHandler handler) {
+         return decorated.addChangeHandler(handler);
+     }
 }
