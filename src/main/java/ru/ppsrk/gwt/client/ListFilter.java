@@ -86,6 +86,7 @@ public class ListFilter<T extends HasListboxValue> extends Composite {
                 callback.loadFiltered(tb_filter.getValue(), elementsLoadCallback);
             }
         }
+        selectionModel_elements.clear();
     }
 
     public void setFocus() {
