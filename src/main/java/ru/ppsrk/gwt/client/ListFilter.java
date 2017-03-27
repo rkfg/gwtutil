@@ -12,7 +12,6 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -21,6 +20,11 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 
+import gwtquery.plugins.draggable.client.DraggableOptions;
+import gwtquery.plugins.draggable.client.DraggableOptions.HelperType;
+import gwtquery.plugins.draggable.client.DraggableOptions.RevertOption;
+import gwtquery.plugins.droppable.client.DroppableOptions;
+import gwtquery.plugins.droppable.client.events.DragAndDropContext;
 import gwtquery.plugins.droppable.client.gwt.DragAndDropCellList;
 
 public class ListFilter<T extends HasListboxValue> extends Composite {
@@ -55,7 +59,7 @@ public class ListFilter<T extends HasListboxValue> extends Composite {
     }
 
     @UiField(provided = true)
-    CellList<T> cl_items = new DragAndDropCellList<>(new AbstractCell<T>() {
+    DragAndDropCellList<T> cl_items = new DragAndDropCellList<>(new AbstractCell<T>() {
 
         @Override
         public void render(com.google.gwt.cell.client.Cell.Context context, T value, SafeHtmlBuilder sb) {
@@ -73,6 +77,18 @@ public class ListFilter<T extends HasListboxValue> extends Composite {
         initWidget(uiBinder.createAndBindUi(this));
         dataProvider_elements.addDataDisplay(cl_items);
         cl_items.setSelectionModel(selectionModel_elements);
+        DroppableOptions dropOptions = cl_items.getDroppableOptions();
+        dropOptions.setDroppableHoverClass("dropcell-highlight");
+        DraggableOptions dragOptions = cl_items.getDraggableOptions();
+        dragOptions.setHelper(HelperType.CLONE);
+        dragOptions.setRevert(RevertOption.ON_INVALID_DROP);
+        dragOptions.setDistance(10);
+        dragOptions.setOpacity(0.7f);
+        dragOptions.setRevertDuration(200);
+        dragOptions.setAppendTo("body");
+    }
+
+    protected void onDrop(DragAndDropContext context) {
     }
 
     public void loadElements(boolean loadAll) {
