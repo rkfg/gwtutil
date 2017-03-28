@@ -81,7 +81,12 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
 
     public void setSelectedItem(T value) {
         if (value == null) {
-            decorated.setSelectedIndex(-1);
+            int undefinedIndex = getIndexByTextValue("-1");
+            if (undefinedIndex >= 0) {
+                decorated.setSelectedIndex(undefinedIndex);
+            } else {
+                decorated.setSelectedIndex(-1);
+            }
         } else {
             decorated.setSelectedIndex(getIndexByLong(value.getId()));
         }
@@ -131,8 +136,12 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
     public void fill(T[] values) {
         fill(Arrays.asList(values));
     }
-    
-     public HandlerRegistration addChangeHandler(ChangeHandler handler) {
-         return decorated.addChangeHandler(handler);
-     }
+
+    public HandlerRegistration addChangeHandler(ChangeHandler handler) {
+        return decorated.addChangeHandler(handler);
+    }
+
+    public void addUndefined(CommonMessages messages) {
+        decorated.insertItem(messages.notSet(), "-1", 0);
+    }
 }
