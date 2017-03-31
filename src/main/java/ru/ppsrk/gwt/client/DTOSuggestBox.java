@@ -46,6 +46,11 @@ public class DTOSuggestBox<T extends Suggestable> extends SuggestBox {
     public T getSelected() {
         return selected;
     }
+    
+    public void setSelected(T selected) {
+        this.selected = selected;
+        setValue(selected.getReplacementString());
+    }
 
     public void setRemoteSuggestionCallback(RemoteSuggestionCallback<T> rsCallback) {
         getSuggestOracle().setRemoteSuggestionCallback(rsCallback);
