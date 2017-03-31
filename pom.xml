@@ -50,12 +50,12 @@
 			<artifactId>gwt-servlet</artifactId>
 			<version>${gwtVersion}</version>
 		</dependency>
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
-            <version>${gwtVersion}</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<version>${gwtVersion}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -132,27 +132,33 @@
 			<version>0.22</version>
 		</dependency>
 		<dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.2</version>
-        </dependency>
-		<dependency>
-		    <groupId>org.apache.shiro</groupId>
-		    <artifactId>shiro-ehcache</artifactId>
-		    <version>1.3.2</version>
-		    <scope>provided</scope>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.2</version>
 		</dependency>
 		<dependency>
-		    <groupId>com.arcbees.gquery</groupId>
-		    <artifactId>droppable</artifactId>
-		    <version>2.0-SNAPSHOT</version>
-		    <scope>provided</scope>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-ehcache</artifactId>
+			<version>1.3.2</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-		    <groupId>com.googlecode.gwtquery</groupId>
-		    <artifactId>gwtquery</artifactId>
-		    <version>1.4.3</version>
-		    <scope>provided</scope>
+			<groupId>com.arcbees.gquery</groupId>
+			<artifactId>draggable</artifactId>
+			<version>2.0-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.arcbees.gquery</groupId>
+			<artifactId>droppable</artifactId>
+			<version>2.0-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.gwtquery</groupId>
+			<artifactId>gwtquery</artifactId>
+			<version>1.4.3</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -167,7 +173,7 @@
 	</repositories>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gwtVersion>2.8.0</gwtVersion>
+		<gwtVersion>2.8.0</gwtVersion>
 	</properties>
 	<parent>
 		<groupId>me.rkfg</groupId>
