@@ -4,23 +4,23 @@ public abstract class AbstractEditor<T> extends ModalDialogAdapter<T> {
     
     private T existing;
 
-    public AbstractEditor(T value) {
-        if (value == null) {
-            value = create();
+    public AbstractEditor(T initialValue) {
+        if (initialValue == null) {
+            initialValue = create();
         }
-        this.existing = value;
-        initFields(value);
+        this.existing = initialValue;
+        init(initialValue);
     }
 
     @Override
     protected T getResult() {
-        fillValue(existing);
+        fillResult(existing);
         return existing;
     }
     
-    protected abstract void fillValue(T value);
+    protected abstract void fillResult(T result);
 
-    protected abstract void initFields(T value);
+    protected abstract void init(T initialValue);
 
     protected abstract T create();
 }
