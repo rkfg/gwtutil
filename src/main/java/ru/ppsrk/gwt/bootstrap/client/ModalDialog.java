@@ -67,6 +67,7 @@ public class ModalDialog<T> extends Composite {
             @Override
             public void onHidden(HiddenEvent hiddenEvent) {
                 showParent();
+                m_dialog.removeFromParent();
             }
         });
     }
