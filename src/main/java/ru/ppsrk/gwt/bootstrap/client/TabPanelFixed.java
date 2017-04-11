@@ -32,7 +32,7 @@ public class TabPanelFixed extends TabPanel {
     public void recalculateSize() {
         int height = ((Element) getElement().getFirstChild()).getOffsetHeight();
         Element element = (Element) getElement().getFirstChild().getNextSibling();
-        element.getStyle().setHeight(getOffsetHeight() + 70 - height, Unit.PX);
+        element.getStyle().setHeight(getOffsetHeight() - height - 10, Unit.PX);
     }
 
     public TabPaneFixed getSelectedTabPane() {
