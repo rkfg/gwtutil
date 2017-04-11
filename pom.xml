@@ -24,7 +24,6 @@
 						<goals>
 							<goal>clean</goal>
 							<goal>generateAsync</goal>
-							<goal>compile</goal>
 							<goal>source-jar</goal>
 						</goals>
 						<configuration>
