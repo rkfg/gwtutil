@@ -1,5 +1,6 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
+import com.github.gwtbootstrap.client.ui.NavTabs;
 import com.github.gwtbootstrap.client.ui.TabLink;
 import com.github.gwtbootstrap.client.ui.TabPane;
 import com.github.gwtbootstrap.client.ui.TabPanel;
@@ -37,5 +38,9 @@ public class TabPanelFixed extends TabPanel {
 
     public TabPaneFixed getSelectedTabPane() {
         return selected;
+    }
+
+    public void setTabVisible(int index, boolean visible) {
+        ((NavTabs) getWidget(0)).getWidget(index).setVisible(visible);
     }
 }
