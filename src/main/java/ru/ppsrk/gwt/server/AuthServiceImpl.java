@@ -28,6 +28,7 @@ import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.Factory;
 import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
@@ -64,19 +65,35 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     public static UserDTO getUserDTO() throws LogicException, ClientAuthException {
-        return getRealm().getUser((String) SecurityUtils.getSubject().getPrincipal());
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            throw new ClientAuthenticationException("Not authenticated");
+        }
+        return getRealm().getUser((String) subject.getPrincipal());
     }
 
-    public static Object getSessionAttribute(Object key) {
-        return SecurityUtils.getSubject().getSession().getAttribute(key);
+    public static Object getSessionAttribute(Object key) throws ClientAuthException {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            throw new ClientAuthenticationException("Not authenticated");
+        }
+        return subject.getSession().getAttribute(key);
     }
 
-    public static boolean hasPerm(String perm) {
-        return SecurityUtils.getSubject().isPermitted(perm);
+    public static boolean hasPerm(String perm) throws ClientAuthException {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            throw new ClientAuthenticationException("Not authenticated");
+        }
+        return subject.isPermitted(perm);
     }
 
     public static boolean hasRole(String role) throws LogicException, ClientAuthException {
-        return SecurityUtils.getSubject().hasRole(role);
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            throw new ClientAuthenticationException("Not authenticated");
+        }
+        return subject.hasRole(role);
     }
 
     public static boolean hasRole(Long roleId) throws LogicException, ClientAuthException {
@@ -89,8 +106,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         SecurityUtils.setSecurityManager(securityManager);
     }
 
-    public static void removeSessionAttribute(Object key) {
-        SecurityUtils.getSubject().getSession().removeAttribute(key);
+    public static void removeSessionAttribute(Object key) throws ClientAuthenticationException {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject == null) {
+            throw new ClientAuthenticationException("Not authenticated");
+        }
+        subject.getSession().removeAttribute(key);
     }
 
     public static Long requiresAuth() throws LogicException, ClientAuthException {
@@ -113,7 +134,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return ServerUtils.mapModel(user, User.class);
     }
 
-    public static void requiresPerm(String perm) throws ClientAuthorizationException {
+    public static void requiresPerm(String perm) throws LogicException, ClientAuthException {
         if (!hasPerm(perm))
             throw new ClientAuthorizationException("Not authorized [perm: " + perm + "]");
     }
