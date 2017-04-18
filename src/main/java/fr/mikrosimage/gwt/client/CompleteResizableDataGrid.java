@@ -4,17 +4,22 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import ru.ppsrk.gwt.client.HasId;
-
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SetSelectionModel;
+
+import ru.ppsrk.gwt.client.HasId;
 
 public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionModel<T>> extends ResizableDataGrid<T> {
     private Set<Long> selectedSet = new HashSet<>();
     private S selectionModel;
     private ListDataProvider<T> dataProvider = new ListDataProvider<T>();
     private ListHandler<T> sortHandler = new ListHandler<T>(dataProvider.getList());
+    private Range visibleRange = null;
+    private int scrollPos = 0;
 
     public CompleteResizableDataGrid(S selectionModel) {
         this.selectionModel = selectionModel;
@@ -45,10 +50,24 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
                     selectionModel.setSelected(item, true);
                 }
             }
+            if (visibleRange != null) {
+                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                    
+                    @Override
+                    public void execute() {
+                        setVisibleRange(visibleRange);
+                        getScrollPanel().setVerticalScrollPosition(scrollPos);
+                        visibleRange = null;
+                        scrollPos = 0;
+                    }
+                });
+            }
         }
     }
 
     public void saveSelection() {
+        visibleRange = getVisibleRange();
+        scrollPos = getScrollPanel().getVerticalScrollPosition();
         selectedSet.clear();
         for (T item : selectionModel.getSelectedSet()) {
             selectedSet.add(item.getId());
@@ -58,5 +77,6 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
     public void clearSelection() {
         selectionModel.clear();
         selectedSet.clear();
+        visibleRange = null;
     }
 }
