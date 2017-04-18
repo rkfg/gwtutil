@@ -3,11 +3,12 @@ package ru.ppsrk.gwt.client;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.google.gwt.user.client.ui.HasVisibility;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class DecoratorBase<T extends IsWidget> implements IsWidget, HasWidgets {
+public abstract class DecoratorBase<T extends IsWidget> implements IsWidget, HasWidgets, HasVisibility {
 
     protected T decorated;
 
@@ -72,4 +73,14 @@ public abstract class DecoratorBase<T extends IsWidget> implements IsWidget, Has
         return decorated.asWidget();
     }
 
+    @Override
+    public boolean isVisible() {
+        return decorated.asWidget().isVisible();
+    }
+    
+    @Override
+    public void setVisible(boolean visible) {
+        decorated.asWidget().setVisible(visible);
+    }
+    
 }
