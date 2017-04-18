@@ -45,6 +45,7 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
 
     public void removeAll() {
         decorated.clear();
+        map.clear();
     }
 
     public int getIndexByLong(Long value) {
@@ -73,9 +74,6 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
     }
 
     public T getSelectedValue() {
-        if (map == null) {
-            return null;
-        }
         return map.get(getSelectedLong());
     }
 
@@ -143,5 +141,15 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
 
     public void addUndefined(CommonMessages messages) {
         decorated.insertItem(messages.notSet(), "-1", 0);
+    }
+
+    /**
+     * Update the item's text representation. Would break if the item's id has changed, in that case it's always better to repopulate the
+     * decorator.
+     * 
+     * @param item
+     */
+    public void updateItem(T item) {
+        decorated.setItemText(getIndexByLong(item.getId()), item.getListboxValue());
     }
 }
