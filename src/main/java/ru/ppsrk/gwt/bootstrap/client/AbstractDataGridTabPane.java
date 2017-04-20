@@ -21,12 +21,16 @@ public abstract class AbstractDataGridTabPane<T extends HasId> extends TabPaneFi
     private EventBus eventBus;
 
     protected void loadData() {
+        loadData(false);
+    }
+    
+    protected void loadData(final boolean restorePosition) {
         dg_data.setLoadingData(null);
         getData(new MyAsyncCallback<Collection<T>>() {
 
             @Override
             public void onSuccess(Collection<T> result) {
-                dg_data.setLoadingData(result);
+                dg_data.setLoadingData(result, restorePosition);
             }
         });
     }

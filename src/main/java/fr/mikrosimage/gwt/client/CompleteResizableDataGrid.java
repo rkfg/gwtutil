@@ -39,6 +39,10 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
     }
 
     public void setLoadingData(Collection<? extends T> data) {
+        setLoadingData(data, false);
+    }
+    
+    public void setLoadingData(Collection<? extends T> data, boolean restorePosition) {
         if (data == null) {
             saveSelection();
             selectionModel.clear();
@@ -50,7 +54,7 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
                     selectionModel.setSelected(item, true);
                 }
             }
-            if (visibleRange != null) {
+            if (restorePosition && visibleRange != null) {
                 Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                     
                     @Override

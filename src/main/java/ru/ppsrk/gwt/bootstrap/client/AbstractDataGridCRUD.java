@@ -19,7 +19,7 @@ public abstract class AbstractDataGridCRUD<T extends HasListboxValue> extends Ab
 
         @Override
         public void onSuccess(Void result) {
-            loadData();
+            loadData(true);
         }
     };
 
