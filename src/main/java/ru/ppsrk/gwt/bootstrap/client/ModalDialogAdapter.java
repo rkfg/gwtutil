@@ -19,6 +19,7 @@ public abstract class ModalDialogAdapter<T> extends Composite {
             return ModalDialogAdapter.this.getResult();
         };
 
+        @Override
         protected boolean preventOk() {
             return ModalDialogAdapter.this.preventOk();
         };
@@ -60,7 +61,7 @@ public abstract class ModalDialogAdapter<T> extends Composite {
     }
 
     protected void setFocusable(Focusable widget) {
-        modalDialog.setFocusable(widget);
+        modalDialog.focusable = widget;
     }
 
     protected abstract T getResult();
@@ -97,12 +98,17 @@ public abstract class ModalDialogAdapter<T> extends Composite {
     protected void setOverflowEnabled(boolean enabled) {
         Element child = modalDialog.m_dialog.getElement().getFirstChildElement();
         while (child != null) {
-            if (child.getClassName().equals("modal-body")) {
+            if ("modal-body".equals(child.getClassName())) {
                 child.getStyle().setOverflowY(enabled ? Overflow.AUTO : Overflow.VISIBLE);
                 break;
             }
             child = child.getNextSiblingElement();
         }
+    }
+
+    public ModalDialogAdapter<T> setRestoreFocus(Focusable focusable) {
+        modalDialog.restoreFocus = focusable;
+        return this;
     }
 
 }

@@ -39,7 +39,8 @@ public class ModalDialog<T> extends Composite {
 
     private ModalDialog<?> parent = null;
 
-    private Focusable focusable;
+    Focusable focusable;
+    Focusable restoreFocus;
 
     private ModalDialogCallback<T> callback;
 
@@ -68,6 +69,9 @@ public class ModalDialog<T> extends Composite {
             public void onHidden(HiddenEvent hiddenEvent) {
                 showParent();
                 m_dialog.removeFromParent();
+                if (restoreFocus != null) {
+                    restoreFocus.setFocus(true);
+                }
             }
         });
     }
@@ -147,10 +151,12 @@ public class ModalDialog<T> extends Composite {
         m_dialog.hide();
     }
 
+    @Override
     public void addStyleName(String style) {
         m_dialog.addStyleName(style);
     }
 
+    @Override
     public void removeStyleName(String style) {
         m_dialog.removeStyleName(style);
     }
