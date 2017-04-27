@@ -9,10 +9,11 @@ import java.util.Set;
 
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.ListBox;
 
-public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<ListBox> {
+public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<ListBox> implements Focusable {
     private Map<Long, T> map = new HashMap<>();
 
     public ListBoxDecorator() {
@@ -151,5 +152,25 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
      */
     public void updateItem(T item) {
         decorated.setItemText(getIndexByLong(item.getId()), item.getListboxValue());
+    }
+
+    @Override
+    public int getTabIndex() {
+        return decorated.getTabIndex();
+    }
+
+    @Override
+    public void setAccessKey(char key) {
+        decorated.setAccessKey(key);
+    }
+
+    @Override
+    public void setFocus(boolean focused) {
+        decorated.setFocus(focused);
+    }
+
+    @Override
+    public void setTabIndex(int index) {
+        decorated.setTabIndex(index);
     }
 }

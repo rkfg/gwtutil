@@ -82,5 +82,4 @@ public abstract class DecoratorBase<T extends IsWidget> implements IsWidget, Has
     public void setVisible(boolean visible) {
         decorated.asWidget().setVisible(visible);
     }
-    
 }
