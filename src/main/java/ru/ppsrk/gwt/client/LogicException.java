@@ -1,24 +1,19 @@
 package ru.ppsrk.gwt.client;
 
-import java.io.Serializable;
+public class LogicException extends GwtUtilException {
 
-public class LogicException extends Exception implements Serializable {
+    private static final long serialVersionUID = 6882692375946208921L;
 
-    public LogicException(String string) {
-        super(string);
+    public LogicException(String message) {
+        super(message);
+    }
+    
+    public LogicException(String message, Throwable e) {
+        super(message, e);
     }
 
     public LogicException() {
         super();
     }
-
-    public LogicException(String string, Throwable cause) {
-        super(string, cause);
-    }
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 6882692375946208921L;
 
 }

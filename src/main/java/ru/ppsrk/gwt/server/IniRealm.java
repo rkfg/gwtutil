@@ -2,6 +2,7 @@ package ru.ppsrk.gwt.server;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.util.ByteSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
@@ -22,6 +25,7 @@ public class IniRealm extends GwtUtilRealm {
 
     SettingsManager smAuth = new SettingsManager();
     SettingsManager smRoles = new SettingsManager();
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
@@ -48,20 +52,20 @@ public class IniRealm extends GwtUtilRealm {
                 throw new AuthenticationException(INVALID_CREDS);
             }
         } catch (FileNotFoundException e) {
-            throw new AuthenticationException("auth.ini not found.");
+            throw new AuthenticationException("auth.ini not found.", e);
         } catch (IOException e) {
-            throw new AuthenticationException("IOException: " + e.getMessage());
+            throw new AuthenticationException(e);
         }
     }
 
     @Override
     public List<String> getPerms(String principal) throws LogicException, ClientAuthenticationException {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getRoles(String principal) {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         try {
             smRoles.setFilename("roles.ini");
             smRoles.loadSettings();
@@ -71,9 +75,8 @@ public class IniRealm extends GwtUtilRealm {
                     result.add(role);
                 }
             }
-        } catch (FileNotFoundException e) {
         } catch (IOException e) {
-            throw new AuthenticationException("IOException: " + e.getMessage());
+            throw new AuthenticationException(e);
         }
         return result;
     }
@@ -88,8 +91,10 @@ public class IniRealm extends GwtUtilRealm {
             sm.setStringSetting(username, credentials);
             sm.saveSettings();
         } catch (FileNotFoundException e) {
+            log.warn("File auth.ini not found:", e);
             throw new LogicException("File auth.ini not found.");
         } catch (IOException e) {
+            log.warn("IOException:", e);
             throw new LogicException("IOException: " + e.getMessage());
         }
         return 1L;

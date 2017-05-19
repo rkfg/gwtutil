@@ -38,15 +38,15 @@ public interface AuthService extends RemoteService {
 
     public boolean isRegistrationEnabled();
 
-    public boolean login(String username, String password, boolean remember) throws LogicException, ClientAuthException;
+    public boolean login(String username, String password, boolean remember) throws GwtUtilException;
 
-    public void logout() throws LogicException, ClientAuthException;
+    public void logout() throws GwtUtilException;
 
     public boolean isLoggedIn();
 
-    public Long register(String username, String password) throws LogicException, ClientAuthException;
+    public Long register(String username, String password) throws GwtUtilException;
 
-    public List<String> getUserRoles() throws LogicException, ClientAuthException;
+    public List<String> getUserRoles() throws GwtUtilException;
 
     public String getUsername();
 }

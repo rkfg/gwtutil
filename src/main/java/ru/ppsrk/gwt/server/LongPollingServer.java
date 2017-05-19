@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.LongPollingClient;
 import ru.ppsrk.gwt.client.LongPollingClient.LongPollingAsyncCallback;
@@ -13,7 +14,7 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
 
     protected long period;
     protected long execDelay;
-    private Collection<Thread> workingThreads = new HashSet<Thread>();
+    private Collection<Thread> workingThreads = new HashSet<>();
 
     /**
      * Create a new long polling server
@@ -52,7 +53,7 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
      * @throws ClientAuthException
      */
 
-    public T start() throws InterruptedException, LogicException, ClientAuthException {
+    public T start() throws InterruptedException, GwtUtilException {
         try {
             registerThread();
             return awaitResult();
@@ -61,7 +62,7 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
         }
     }
 
-    protected T awaitResult() throws LogicException, ClientAuthException, InterruptedException {
+    protected T awaitResult() throws InterruptedException, GwtUtilException {
         long startTime = System.nanoTime();
         long nanoPeriod = TimeUnit.MILLISECONDS.toNanos(period);
         while (System.nanoTime() - startTime < nanoPeriod) {
@@ -95,6 +96,6 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public abstract T exec() throws LogicException, ClientAuthException;
+    public abstract T exec() throws GwtUtilException;
 
 }

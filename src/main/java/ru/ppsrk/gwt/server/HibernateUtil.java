@@ -18,23 +18,26 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
+import com.mysql.jdbc.AbandonedConnectionCleanupThread;
+
 import ru.ppsrk.gwt.client.ClientAuthException;
-import ru.ppsrk.gwt.client.ClientAuthenticationException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.client.HasId;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.server.ServerUtils.MapperHint;
 
-import com.mysql.jdbc.AbandonedConnectionCleanupThread;
-
 public class HibernateUtil {
 
+    private HibernateUtil() {
+    }
+    
     public static class ListQueryFilter {
-        private List<String> filterNames = new ArrayList<String>();
-        private List<HashMap<String, Object>> filterParams = new ArrayList<HashMap<String, Object>>();
+        private List<String> filterNames = new ArrayList<>();
+        private List<HashMap<String, Object>> filterParams = new ArrayList<>();
 
         public ListQueryFilter addFilter(String name, String[] paramNames, Object[] paramValues) throws LogicException {
             filterNames.add(name);
-            HashMap<String, Object> tmpParams = new HashMap<String, Object>();
+            HashMap<String, Object> tmpParams = new HashMap<>();
             if (paramNames != null && paramValues != null) {
                 if (paramNames.length != paramValues.length) {
                     throw new LogicException("paramNames.length != paramValues.length in ListQueryFilter");
@@ -58,7 +61,7 @@ public class HibernateUtil {
         }
     }
 
-    private static List<SessionFactory> sessionFactory = new ArrayList<SessionFactory>();
+    private static List<SessionFactory> sessionFactory = new ArrayList<>();
 
     public static void cleanup() {
         System.out.println("Cleaning up hibernate utils...");
@@ -89,7 +92,7 @@ public class HibernateUtil {
         }
     }
 
-    public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws LogicException, ClientAuthException {
+    public static <T> void deleteObject(final Class<T> objectClass, final Long id) throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
@@ -100,11 +103,11 @@ public class HibernateUtil {
         });
     }
 
-    public static <T> T exec(HibernateCallback<T> callback) throws LogicException, ClientAuthException {
+    public static <T> T exec(HibernateCallback<T> callback) throws GwtUtilException {
         return exec(0, callback);
     }
 
-    public static <T> T exec(int sessionNumber, HibernateCallback<T> callback) throws LogicException, ClientAuthException {
+    public static <T> T exec(int sessionNumber, HibernateCallback<T> callback) throws GwtUtilException {
         T result = null;
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory(sessionNumber);
         if (sessionFactory != null) {
@@ -115,7 +118,7 @@ public class HibernateUtil {
                 if (session.getTransaction().isActive()) {
                     session.getTransaction().commit();
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 session.getTransaction().rollback();
                 throw e;
             } finally {
@@ -125,7 +128,7 @@ public class HibernateUtil {
         return result;
     }
 
-    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws LogicException, ClientAuthException {
+    public static <T> T exec(int[] sessionNumbers, HibernateMultiSessionCallback<T> callback) throws GwtUtilException {
         Session[] sessions = new Session[sessionNumbers.length];
         T result = null;
         try {
@@ -138,13 +141,11 @@ public class HibernateUtil {
             }
             result = callback.run(sessions);
             for (int number = 0; number < sessionNumbers.length; number++) {
-                if (sessions[number] != null) {
-                    if (sessions[number].getTransaction().isActive()) {
-                        sessions[number].getTransaction().commit();
-                    }
+                if (sessions[number] != null && sessions[number].getTransaction().isActive()) {
+                    sessions[number].getTransaction().commit();
                 }
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             for (int number = 0; number < sessionNumbers.length; number++) {
                 if (sessions[number] != null) {
                     sessions[number].getTransaction().rollback();
@@ -184,7 +185,7 @@ public class HibernateUtil {
             configuration.configure(cfgFilename);
             serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
             sessionFactory.add(configuration.buildSessionFactory(serviceRegistry));
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             // Make sure you log the exception, as it might be swallowed
             System.err.println("Initial SessionFactory creation failed: " + ex);
             throw new ExceptionInInitializerError(ex);
@@ -212,44 +213,44 @@ public class HibernateUtil {
         return debug;
     }
 
-    public static <DTO, H extends MapperHint> List<DTO> queryList(final String query, final String[] paramNames,
-            final Object[] paramValues, final Class<DTO> clazz, final Class<H> hintClass) throws LogicException, ClientAuthException {
+    public static <DTO, H extends MapperHint> List<DTO> queryList(final String query, final String[] paramNames, final Object[] paramValues,
+            final Class<DTO> clazz, final Class<H> hintClass) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
 
             @Override
-            public List<DTO> run(Session session) throws LogicException, ClientAuthenticationException {
+            public List<DTO> run(Session session) throws GwtUtilException {
                 return mapArray(queryList(query, paramNames, paramValues, session, (ListQueryFilter) null), clazz, hintClass);
             }
         });
     }
 
     public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues,
-            final Class<DTO> clazz) throws LogicException, ClientAuthException {
+            final Class<DTO> clazz) throws GwtUtilException {
         return queryList(query, paramNames, paramValues, clazz, (ListQueryFilter) null);
     }
 
     public static <DTO extends HasId> List<DTO> queryList(final String query, String[] paramNames, Object[] paramValues, Session session,
-            final Class<DTO> clazz) throws LogicException, ClientAuthException {
+            final Class<DTO> clazz) throws GwtUtilException {
         return mapArray(queryList(query, paramNames, paramValues, session, (ListQueryFilter) null), clazz);
     }
 
     public static <DTO extends HasId> List<DTO> queryList(final String query, final String[] paramNames, final Object[] paramValues,
-            final Class<DTO> clazz, final ListQueryFilter filter) throws LogicException, ClientAuthException {
+            final Class<DTO> clazz, final ListQueryFilter filter) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<List<DTO>>() {
 
             @Override
-            public List<DTO> run(Session session) throws LogicException, ClientAuthenticationException {
+            public List<DTO> run(Session session) throws GwtUtilException {
                 return mapArray(queryList(query, paramNames, paramValues, session, filter), clazz);
             }
         });
     }
 
     public static <HIB> List<HIB> queryList(final String query, final String[] paramNames, final Object[] paramValues,
-            final ListQueryFilter filter) throws LogicException, ClientAuthException {
+            final ListQueryFilter filter) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<List<HIB>>() {
 
             @Override
-            public List<HIB> run(Session session) throws LogicException, ClientAuthenticationException {
+            public List<HIB> run(Session session) throws GwtUtilException {
                 return queryList(query, paramNames, paramValues, session, filter);
             }
         });
@@ -258,7 +259,7 @@ public class HibernateUtil {
     @SuppressWarnings("unchecked")
     public static <HIB> List<HIB> queryList(final String query, String[] paramNames, Object[] paramValues, Session session,
             final ListQueryFilter filter) throws LogicException {
-        final HashMap<String, Object> params = new HashMap<String, Object>();
+        final HashMap<String, Object> params = new HashMap<>();
         if (paramNames != null && paramValues != null) {
             if (paramNames.length != paramValues.length) {
                 throw new LogicException("paramNames.length != paramValues.length");
@@ -278,40 +279,37 @@ public class HibernateUtil {
         session.beginTransaction();
     }
 
-    public static <DTO extends HasId, HIB> DTO saveObject(final HIB hib, final Class<DTO> targetClass) throws LogicException,
-            ClientAuthException {
+    public static <DTO extends HasId, HIB> DTO saveObject(final HIB hib, final Class<DTO> targetClass) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<DTO>() {
 
             @Override
-            public DTO run(Session session) throws LogicException, ClientAuthException {
+            public DTO run(Session session) throws GwtUtilException {
                 return mapModel(session.merge(hib), targetClass);
             }
         });
     }
 
     @SuppressWarnings("unchecked")
-    public static <DTO extends HasId, HIB> DTO saveDTO(final DTO dto, final Class<HIB> targetClass) throws LogicException,
-            ClientAuthException {
+    public static <DTO extends HasId, HIB> DTO saveDTO(final DTO dto, final Class<HIB> targetClass) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<DTO>() {
 
             @Override
-            public DTO run(Session session) throws LogicException, ClientAuthenticationException {
+            public DTO run(Session session) throws GwtUtilException {
                 return (DTO) mapModel(HibernateUtil.saveObject(dto, targetClass, true, session), dto.getClass());
             }
         });
     }
 
-    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws LogicException,
-            ClientAuthException {
+    public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB) throws GwtUtilException {
         return saveObject(objectDTO, classHIB, false);
     }
 
     public static <DTO extends HasId, HIB> HIB saveObject(final DTO objectDTO, final Class<HIB> classHIB, final boolean setId)
-            throws LogicException, ClientAuthException {
+            throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<HIB>() {
 
             @Override
-            public HIB run(Session session) throws LogicException {
+            public HIB run(Session session) throws GwtUtilException {
                 return saveObject(objectDTO, classHIB, setId, session);
             }
         });
@@ -332,12 +330,12 @@ public class HibernateUtil {
         }
     }
 
-    public static <T> T saveObject(final T object) throws LogicException, ClientAuthException {
+    public static <T> T saveObject(final T object) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
             @Override
-            public T run(Session session) throws LogicException, ClientAuthenticationException {
+            public T run(Session session) throws GwtUtilException {
                 return (T) session.merge(object);
             }
         });
@@ -352,22 +350,22 @@ public class HibernateUtil {
         return result;
     }
 
-    public static <T> T tryGetObject(final Long id, final Class<T> clazz, final String failText) throws LogicException, ClientAuthException {
+    public static <T> T tryGetObject(final Long id, final Class<T> clazz, final String failText) throws GwtUtilException {
         return exec(new HibernateCallback<T>() {
 
             @Override
-            public T run(Session session) throws LogicException, ClientAuthenticationException {
+            public T run(Session session) throws GwtUtilException {
                 return tryGetObject(id, clazz, session, failText);
             }
         });
     }
 
     public static <T, DTO extends HasId> DTO tryGetObject(final Long id, final Class<T> clazz, final String failText,
-            final Class<DTO> dtoClass) throws LogicException, ClientAuthException {
+            final Class<DTO> dtoClass) throws GwtUtilException {
         return exec(new HibernateCallback<DTO>() {
 
             @Override
-            public DTO run(Session session) throws LogicException, ClientAuthenticationException {
+            public DTO run(Session session) throws GwtUtilException {
                 return tryGetObject(id, clazz, session, failText, dtoClass);
             }
         });
@@ -379,8 +377,7 @@ public class HibernateUtil {
     }
 
     /**
-     * Creates a new entity or merges it to the existing, replacing only
-     * non-null fields. Useful for updating incompletely mapped entities.
+     * Creates a new entity or merges it to the existing, replacing only non-null fields. Useful for updating incompletely mapped entities.
      * 
      * @param session
      * @param dto
@@ -406,8 +403,8 @@ public class HibernateUtil {
         return (HIB) session.merge(entity);
     }
 
-    public static <HIB extends HasId, DTO extends HasId> HIB saveOrUpdateDTO(final DTO dto, final Class<HIB> clazz) throws LogicException,
-            ClientAuthException {
+    public static <HIB extends HasId, DTO extends HasId> HIB saveOrUpdateDTO(final DTO dto, final Class<HIB> clazz)
+            throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<HIB>() {
 
             @Override
@@ -417,11 +414,11 @@ public class HibernateUtil {
         });
     }
 
-    public static <HIB extends HasId> HIB saveOrUpdateHIB(final HIB entity) throws LogicException, ClientAuthException {
+    public static <HIB extends HasId> HIB saveOrUpdateHIB(final HIB entity) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<HIB>() {
 
             @Override
-            public HIB run(Session session) throws LogicException, ClientAuthException {
+            public HIB run(Session session) throws GwtUtilException {
                 return saveOrUpdateHIB(session, entity);
             }
         });

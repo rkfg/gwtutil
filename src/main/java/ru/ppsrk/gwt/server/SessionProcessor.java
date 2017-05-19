@@ -15,7 +15,7 @@ public class SessionProcessor implements IAnnotationProcessor, IRPCFinalizer {
     private ThreadLocal<Session> sessionTL = new ThreadLocal<>();
 
     @Override
-    public void process(Method implMethod, RPCRequest rpcRequest) throws Throwable {
+    public void process(Method implMethod, RPCRequest rpcRequest) throws Exception {
         if (implMethod.isAnnotationPresent(RequiresSession.class)) {
             int sessionNumber = implMethod.getAnnotation(RequiresSession.class).sessionNumber();
             SessionFactory sessionFactory = HibernateUtil.getSessionFactory(sessionNumber);

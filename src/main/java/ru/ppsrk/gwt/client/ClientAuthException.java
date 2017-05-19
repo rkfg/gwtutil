@@ -2,7 +2,7 @@ package ru.ppsrk.gwt.client;
 
 import java.io.Serializable;
 
-public class ClientAuthException extends Exception implements Serializable {
+public class ClientAuthException extends GwtUtilException implements Serializable {
 
     /**
      * 
@@ -13,8 +13,6 @@ public class ClientAuthException extends Exception implements Serializable {
      * 
      */
     public ClientAuthException() {
-        super();
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -22,7 +20,6 @@ public class ClientAuthException extends Exception implements Serializable {
      */
     public ClientAuthException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
 }

@@ -4,6 +4,9 @@ import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.RPC;
 import com.google.gwt.user.server.rpc.RPCRequest;
@@ -14,6 +17,8 @@ import ru.ppsrk.gwt.client.AlertRuntimeException;
 @SuppressWarnings("serial")
 public abstract class AnnotatedServlet extends RemoteServiceServlet {
 
+    private final transient Logger log = LoggerFactory.getLogger(getClass());
+    
     public interface IAnnotationProcessor {
         /**
          * Process annotations
@@ -23,15 +28,15 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
          * @return serialized GWT response or null if there's nothing to return
          * @throws Throwable
          */
-        public void process(Method implMethod, RPCRequest rpcRequest) throws Throwable;
+        public void process(Method implMethod, RPCRequest rpcRequest) throws Exception;
     }
 
     public interface IRPCFinalizer {
         public void cleanup(boolean failure);
     }
 
-    private Deque<IAnnotationProcessor> checkers = new LinkedList<IAnnotationProcessor>();
-    private Deque<IRPCFinalizer> finalizers = new LinkedList<IRPCFinalizer>();
+    private final transient Deque<IAnnotationProcessor> checkers = new LinkedList<>();
+    private final transient Deque<IRPCFinalizer> finalizers = new LinkedList<>();
 
     @Override
     public String processCall(String payload) throws SerializationException {
@@ -48,10 +53,11 @@ public abstract class AnnotatedServlet extends RemoteServiceServlet {
             return RPC.encodeResponseForFailure(method, new AlertRuntimeException("method not found: " + method),
                     rpcRequest.getSerializationPolicy(), rpcRequest.getFlags());
         } catch (SecurityException e) {
+            log.warn("Security exception on method resolving: ", e);
             return RPC.encodeResponseForFailure(method, new AlertRuntimeException("security exception on method resolving: " + method),
                     rpcRequest.getSerializationPolicy(), rpcRequest.getFlags());
 
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return RPC.encodeResponseForFailure(method, e, rpcRequest.getSerializationPolicy(), rpcRequest.getFlags());
         }
         result = super.processCall(payload);

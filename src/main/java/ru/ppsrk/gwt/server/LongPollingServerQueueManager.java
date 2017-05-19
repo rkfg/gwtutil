@@ -4,8 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import ru.ppsrk.gwt.client.ClientAuthException;
-import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.dto.LongPollingMessage;
 
 public abstract class LongPollingServerQueueManager<M extends LongPollingMessage> extends LongPollingServer<Collection<M>> {
@@ -16,7 +15,7 @@ public abstract class LongPollingServerQueueManager<M extends LongPollingMessage
     private ThreadLocal<Collection<M>> newMessages = new ThreadLocal<Collection<M>>() {
         @Override
         protected Collection<M> initialValue() {
-            return new LinkedList<M>();
+            return new LinkedList<>();
         }
 
     };
@@ -59,12 +58,12 @@ public abstract class LongPollingServerQueueManager<M extends LongPollingMessage
     }
 
     @Override
-    public Collection<M> exec() throws LogicException, ClientAuthException, ClientAuthException {
+    public Collection<M> exec() throws GwtUtilException {
         if (lastTimestamp.get() == null) {
             lastTimestamp.set(System.currentTimeMillis());
         }
         Collection<M> result = newMessages.get();
-        if (result.size() > 0) {
+        if (!result.isEmpty()) {
             result.clear();
         }
         long maxTimestamp = lastTimestamp.get();
@@ -79,10 +78,10 @@ public abstract class LongPollingServerQueueManager<M extends LongPollingMessage
             }
         }
         lastTimestamp.set(maxTimestamp);
-        if (result.size() > 0) {
+        if (!result.isEmpty()) {
             return result;
         } else {
-            return null;
+            return null; // null has a special meaning here so NOSONAR
         }
     }
 

@@ -19,17 +19,21 @@ import javax.validation.Validator;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.dozer.DozerBeanMapper;
 import org.hibernate.Session;
-
-import ru.ppsrk.gwt.client.AlertRuntimeException;
-import ru.ppsrk.gwt.client.ClientAuthException;
-import ru.ppsrk.gwt.client.ClientAuthenticationException;
-import ru.ppsrk.gwt.client.LogicException;
-import ru.ppsrk.gwt.shared.SharedUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.validation.client.AbstractValidationMessageResolver;
 
+import ru.ppsrk.gwt.client.AlertRuntimeException;
+import ru.ppsrk.gwt.client.ClientAuthenticationException;
+import ru.ppsrk.gwt.client.GwtUtilException;
+import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.shared.SharedUtils;
+
 public class ServerUtils {
+
+    private static Logger log = LoggerFactory.getLogger(ServerUtils.class);
 
     private static Validator validator = null;
     private static DozerBeanMapper mapper = new DozerBeanMapper();
@@ -40,25 +44,26 @@ public class ServerUtils {
     };
 
     protected static void cleanup() {
-        System.out.println("Cleaning up ServerUtils...");
+        log.info("Cleaning up ServerUtils...");
         mapper.destroy();
         mapper = null;
     }
 
     public static List<String> ean13(String code) {
         if (code.length() == 12) { // calc 13th number
-            int n = 0, sum = 0;
+            int n = 0;
+            int sum = 0;
             for (char c : code.toCharArray()) {
                 sum += (c - 48) * (n++ % 2 != 0 ? 3 : 1);
             }
             code += (10 - sum % 10) % 10;
         } else if (code.length() != 13) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
 
         List<String> schemas = Arrays.asList("LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL",
                 "LGGLGL");
-        ArrayList<String> elements = new ArrayList<String>();
+        ArrayList<String> elements = new ArrayList<>();
         elements.add("S");
         int pos = 0;
         for (char c : code.substring(1, 7).toCharArray()) {
@@ -66,14 +71,14 @@ public class ServerUtils {
         }
         elements.add("SM");
         for (char c : code.substring(7, 13).toCharArray()) {
-            elements.add("R" + String.valueOf(c));
+            elements.add("R" + c);
         }
         elements.add("S");
         return elements;
     }
 
     public static <ST, DT> List<DT> mapArray(Collection<ST> list, Class<DT> destClass) {
-        List<DT> result = new ArrayList<DT>();
+        List<DT> result = new ArrayList<>();
         for (ST elem : list) {
             if (elem != null) {
                 result.add(mapModel(elem, destClass));
@@ -91,7 +96,7 @@ public class ServerUtils {
     }
 
     public static <ST, DT, H extends MapperHint> List<DT> mapArray(Collection<ST> list, Class<DT> destClass, Class<H> hintClass) {
-        List<DT> result = new ArrayList<DT>();
+        List<DT> result = new ArrayList<>();
         for (ST elem : list) {
             if (elem != null) {
                 result.add(mapModel(elem, destClass, hintClass));
@@ -151,7 +156,7 @@ public class ServerUtils {
         System.out.println("--------------------------");
     }
 
-    public static void resetTables(final String[] tables) throws LogicException, ClientAuthException {
+    public static void resetTables(final String[] tables) throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
@@ -169,11 +174,11 @@ public class ServerUtils {
 
     }
 
-    public static void importSQL(final String sqlFilename) throws LogicException, ClientAuthException {
+    public static void importSQL(final String sqlFilename) throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthenticationException {
+            public Void run(Session session) throws GwtUtilException {
                 try {
                     session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
                     File sql = new File(Thread.currentThread().getContextClassLoader().getResource(sqlFilename).getPath());
@@ -208,7 +213,7 @@ public class ServerUtils {
         setMappingFiles(Arrays.asList(filename));
     }
 
-    public static void sendErrorTelemetry(Throwable e) throws LogicException, ClientAuthException {
+    public static void sendErrorTelemetry(Throwable e) throws GwtUtilException {
         String result = SharedUtils.getTelemetryString(e.getCause());
         telemetryService.sendTelemetry(result);
     }
@@ -235,6 +240,8 @@ public class ServerUtils {
     }
 
     private static BeanUtilsBean beanMerger = new BeanUtilsBean() {
+
+        @Override
         public void copyProperty(Object bean, String name, Object value)
                 throws IllegalAccessException, java.lang.reflect.InvocationTargetException {
             if (value == null) {
@@ -245,8 +252,8 @@ public class ServerUtils {
     };
 
     /**
-     * Copies non-null fields from source bean to target (from <a href=
-     * "http://stackoverflow.com/questions/1301697/helper-in-order-to-copy-non-null-properties-from-object-to-another-java"
+     * Copies non-null fields from source bean to target (from
+     * <a href= "http://stackoverflow.com/questions/1301697/helper-in-order-to-copy-non-null-properties-from-object-to-another-java"
      * >StackOverflow question</a>)
      * 
      * @param source
@@ -261,13 +268,13 @@ public class ServerUtils {
         try {
             beanMerger.copyProperties(target, source);
         } catch (IllegalAccessException | InvocationTargetException e) {
+            log.warn("Beans merging failed:", e);
             throw new LogicException(e.getMessage());
         }
     }
 
     public static boolean isDebugMode() {
-        String debugStr = System.getenv("debug");
-        return debugStr != null && debugStr.equals("yes");
+        return "yes".equals(System.getenv("debug"));
     }
 
     public static Date setDateInclusive(Date date) {

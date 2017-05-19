@@ -10,8 +10,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.NestedSetManagerException;
 import ru.ppsrk.gwt.server.HibernateCallback;
@@ -29,14 +29,14 @@ public class GWTUtilTest {
     private Object lock = new Object();
 
     @BeforeClass
-    public static void login() throws LogicException, ClientAuthException {
+    public static void login() throws GwtUtilException {
         HibernateUtil.initSessionFactory("hibernate.gwtutil_testmem.cfg.xml");
         ServerUtils.importSQL("depthier.sql");
 
     }
 
     @Before
-    public void init() throws LogicException, ClientAuthException {
+    public void init() throws GwtUtilException {
         ServerUtils.resetTables(new String[] { "terrdepts" });
         Dept rootNode = nsm.insertRootNode(new Dept());
         assertEquals(rootNode.getId().longValue(), 1L);
@@ -57,12 +57,12 @@ public class GWTUtilTest {
     }
 
     @Before
-    public void initNG() throws LogicException, ClientAuthException {
+    public void initNG() throws GwtUtilException {
         ServerUtils.resetTables(new String[] { "terrdeptsNG" });
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 Long rootId = nsmNG.insertRootNode(new DeptNG()).getId();
                 DeptNG sq11 = nsmNG.insertNode(new DeptNG("11 Отряд", "Краснозатонский"), rootId);
@@ -82,7 +82,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testNestedSetInsert() throws LogicException, ClientAuthException {
+    public void testNestedSetInsert() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @SuppressWarnings("unchecked")
@@ -115,7 +115,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testChildrenByParent() throws LogicException, ClientAuthException {
+    public void testChildrenByParent() throws GwtUtilException {
         List<Dept> depts = nsm.getChildren(1L, "id", true);
         assertEquals(2L, depts.size());
         assertEquals("11 Отряд", depts.get(0).getName());
@@ -131,7 +131,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testParentByChild() throws LogicException, ClientAuthException {
+    public void testParentByChild() throws GwtUtilException {
         Dept parent = nsm.getParentByChild(6L, 0L);
         assertEquals(1L, parent.getId().longValue());
         parent = nsm.getParentByChild(6L, -1L);
@@ -141,11 +141,11 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testImportHier() throws LogicException, ClientAuthException {
+    public void testImportHier() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 @SuppressWarnings("unchecked")
                 List<DeptHier> depts = session.createQuery("from DeptHier d where d.name != 'Default' order by d.id").list();
                 nsm.insertHierarchic(mapArray(depts, DeptHierDTO.class), 1L);
@@ -170,7 +170,7 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testDeleteNode() throws LogicException, ClientAuthException {
+    public void testDeleteNode() throws GwtUtilException {
         try {
             nsm.deleteNode(2L, false);
             fail();
@@ -209,11 +209,11 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testDeleteNodeNG() throws LogicException, ClientAuthException {
+    public void testDeleteNodeNG() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 try {
                     nsmNG.deleteNode(2L, false);
@@ -238,7 +238,7 @@ public class GWTUtilTest {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 DeptNG rootNode = nsmNG.getRootNode();
                 assertEquals(1L, rootNode.getLeftNum().longValue());
@@ -261,7 +261,7 @@ public class GWTUtilTest {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 nsmNG.deleteNode(5L, true);
                 session.clear();
@@ -278,11 +278,11 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testMoveNG() throws LogicException, ClientAuthException {
+    public void testMoveNG() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("Before: " + depts);
@@ -316,11 +316,11 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testMoveNGToChild() throws LogicException, ClientAuthException {
+    public void testMoveNGToChild() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 try {
                     nsmNG.move(2L, 4L); // move to sq11
@@ -333,11 +333,11 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testMoveNGToItself() throws LogicException, ClientAuthException {
+    public void testMoveNGToItself() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 try {
                     nsmNG.move(2L, 2L);
@@ -350,11 +350,11 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testMoveNG2() throws LogicException, ClientAuthException {
+    public void testMoveNG2() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("Before: " + depts);
@@ -387,11 +387,11 @@ public class GWTUtilTest {
     }
 
     @Test
-    public void testMoveNG3() throws LogicException, ClientAuthException {
+    public void testMoveNG3() throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 NestedSetManagerNG<DeptNG> nsmNG = new NestedSetManagerNG<>(DeptNG.class, session, lock);
                 List<DeptNG> depts = nsmNG.getChildrenByParentId(1L, "id", false);
                 System.out.println("Before: " + depts);

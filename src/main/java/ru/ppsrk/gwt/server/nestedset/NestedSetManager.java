@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.ppsrk.gwt.client.ClientAuthException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.client.Hierarchic;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.NestedSetManagerException;
@@ -36,11 +37,11 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         entityName = entityClass.getSimpleName();
     }
 
-    public void deleteNode(final Long nodeId, final boolean withChildren) throws LogicException, ClientAuthException {
+    public void deleteNode(final Long nodeId, final boolean withChildren) throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 deleteNode(nodeId, withChildren, session);
                 return null;
             }
@@ -48,11 +49,11 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
     }
 
     private void getByParentIdAndInsert(List<? extends Hierarchic> hierarchics, Long hierarchicRootId, Long parentNodeId, Session session)
-            throws LogicException, ClientAuthException {
+            throws GwtUtilException {
         LinkedList<Hierarchic> selectedChildren = new LinkedList<Hierarchic>();
         for (Hierarchic hierarchic : hierarchics) {
-            if (hierarchic.getParent() == null && hierarchicRootId != null && hierarchicRootId.equals(0L) || hierarchic.getParent() != null
-                    && hierarchic.getParent().getId().equals(hierarchicRootId)) {
+            if (hierarchic.getParent() == null && hierarchicRootId != null && hierarchicRootId.equals(0L)
+                    || hierarchic.getParent() != null && hierarchic.getParent().getId().equals(hierarchicRootId)) {
                 selectedChildren.add(hierarchic);
             }
         }
@@ -79,8 +80,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly) throws LogicException,
-            ClientAuthException {
+    public List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly) throws GwtUtilException {
         return getChildren(parentNodeId, orderField, directOnly, AnnotateChildren.NONE);
     }
 
@@ -90,8 +90,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * @param parentNodeId
      *            use null for the root node
      * @param orderField
-     *            field name by which the results are sorted; several field may
-     *            be supplied, delimited by comma
+     *            field name by which the results are sorted; several field may be supplied, delimited by comma
      * @param directOnly
      *            retrieve only direct descendants
      * @param annotateChildren
@@ -101,28 +100,27 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * @throws ClientAuthException
      */
     public synchronized List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly,
-            final AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+            final AnnotateChildren annotateChildren) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<List<T>>() {
 
             @Override
-            public List<T> run(Session session) throws LogicException, ClientAuthException {
+            public List<T> run(Session session) throws GwtUtilException {
                 return getChildren(parentNodeId, orderField, directOnly, annotateChildren, session);
             }
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     public synchronized List<T> getChildren(final Long parentNodeId, final String orderField, final boolean directOnly,
-            final AnnotateChildren annotateChildren, final Session session) throws LogicException, ClientAuthException {
+            final AnnotateChildren annotateChildren, final Session session) throws GwtUtilException {
         T parentNode = (T) session.get(entityClass, parentNodeId);
         if (directOnly) {
             session.enableFilter("depthFilter").setParameter("depth", parentNode.getDepth() + 1);
         }
         List<T> entities = session
                 .createQuery(
-                        "from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node."
-                                + orderField).setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum())
-                .list();
+                        "from " + entityName + " node where node.leftnum > :left and node.rightnum < :right order by node." + orderField)
+                .setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum()).list();
         switch (annotateChildren) {
         case DIRECT:
             annotateChildrenCount(entities, true);
@@ -140,11 +138,11 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         return entities;
     }
 
-    public Long getChildrenCount(final Long parentNodeId, final boolean directOnly) throws LogicException, ClientAuthException {
+    public Long getChildrenCount(final Long parentNodeId, final boolean directOnly) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<Long>() {
 
             @Override
-            public Long run(Session session) throws LogicException, ClientAuthException {
+            public Long run(Session session) throws GwtUtilException {
                 return getChildrenCount(parentNodeId, directOnly, session);
             }
         });
@@ -161,7 +159,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 .setLong("left", parentNode.getLeftNum()).setLong("right", parentNode.getRightNum()).uniqueResult();
     }
 
-    public void annotateChildrenCount(List<T> entities, boolean directOnly) throws LogicException, ClientAuthException {
+    public void annotateChildrenCount(List<T> entities, boolean directOnly) throws GwtUtilException {
         for (T entity : entities) {
             Long childrenCount = getChildrenCount(entity.getId(), directOnly);
             if (directOnly) {
@@ -172,11 +170,11 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         }
     }
 
-    public D getHierarchicById(final Long id) throws LogicException, ClientAuthException {
+    public D getHierarchicById(final Long id) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<D>() {
 
             @Override
-            public D run(Session session) throws LogicException, ClientAuthException {
+            public D run(Session session) throws GwtUtilException {
                 @SuppressWarnings("unchecked")
                 T entity = (T) session.get(entityClass, id);
                 if (entity == null) {
@@ -187,34 +185,33 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public List<D> getHierarchicByParentId(Long parentId, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+    public List<D> getHierarchicByParentId(Long parentId, AnnotateChildren annotateChildren) throws GwtUtilException {
         return getHierarchicByParent(getHierarchicById(ensureParentId(parentId)), annotateChildren);
     }
 
-    public List<D> getHierarchicByParent(D parent) throws LogicException, ClientAuthException {
+    public List<D> getHierarchicByParent(D parent) throws GwtUtilException {
         return getHierarchicByParent(parent, AnnotateChildren.NONE);
     }
 
-    public List<D> getHierarchicByParent(D parent, AnnotateChildren annotateChildren) throws LogicException, ClientAuthException {
+    public List<D> getHierarchicByParent(D parent, AnnotateChildren annotateChildren) throws GwtUtilException {
         return getHierarchicByParent(parent, "name", annotateChildren);
     }
 
-    public List<D> getHierarchicByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren) throws LogicException,
-            ClientAuthException {
+    public List<D> getHierarchicByParentId(Long parentId, String orderField, AnnotateChildren annotateChildren) throws GwtUtilException {
         return getHierarchicByParent(getHierarchicById(ensureParentId(parentId)), orderField, annotateChildren);
     }
 
-    public List<D> getHierarchicByParent(D parent, String orderField) throws LogicException, ClientAuthException {
+    public List<D> getHierarchicByParent(D parent, String orderField) throws GwtUtilException {
         return getHierarchicByParent(parent, orderField, AnnotateChildren.NONE);
     }
 
-    public List<D> getHierarchicByParent(final D parent, final String orderField, final AnnotateChildren annotateChildren) throws LogicException,
-            ClientAuthException {
-        
+    public List<D> getHierarchicByParent(final D parent, final String orderField, final AnnotateChildren annotateChildren)
+            throws GwtUtilException {
+
         return HibernateUtil.exec(new HibernateCallback<List<D>>() {
 
             @Override
-            public List<D> run(Session session) throws LogicException, ClientAuthException {
+            public List<D> run(Session session) throws GwtUtilException {
                 Long parentId = getId(parent, false);
                 List<D> dtos = mapArray(getChildren(parentId, orderField, true, annotateChildren, session), dtoClass);
                 for (D dto : dtos) {
@@ -224,7 +221,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
             }
         });
     }
-    
+
     /**
      * Retrieves parent node by child node id.
      * 
@@ -235,30 +232,29 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public synchronized T getParentByChild(final Long childId, final Long depth) throws LogicException, ClientAuthException {
+    public synchronized T getParentByChild(final Long childId, final Long depth) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
             @Override
-            public T run(Session session) throws LogicException, ClientAuthException {
+            public T run(Session session) throws GwtUtilException {
                 T childNode = (T) session.get(entityClass, childId);
                 Long parentDepth = null;
                 if (depth < 0) {
                     parentDepth = childNode.getDepth() + depth;
                     if (parentDepth < 0) {
-                        throw new NestedSetManagerException("parentDepth < 0, childDepth = " + childNode.getDepth() + " requested depth = "
-                                + depth);
+                        throw new NestedSetManagerException(
+                                "parentDepth < 0, childDepth = " + childNode.getDepth() + " requested depth = " + depth);
                     }
                 } else {
                     parentDepth = depth;
                 }
                 try {
                     return (T) session
-                            .createQuery(
-                                    "from " + entityName
-                                            + " node where node.leftnum <= :left and node.rightnum >= :right and depth = :depth")
-                            .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum())
-                            .setLong("depth", parentDepth).uniqueResult();
+                            .createQuery("from " + entityName
+                                    + " node where node.leftnum <= :left and node.rightnum >= :right and depth = :depth")
+                            .setLong("left", childNode.getLeftNum()).setLong("right", childNode.getRightNum()).setLong("depth", parentDepth)
+                            .uniqueResult();
                 } catch (NonUniqueResultException e) {
                     throw new NestedSetManagerException("Non-unique parent: " + e.getMessage());
                 }
@@ -266,7 +262,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public Long getId(D parent, boolean getParent) throws LogicException, ClientAuthException {
+    public Long getId(D parent, boolean getParent) throws GwtUtilException {
         if (parent != null) {
             if (getParent) {
                 if (parent.getParent() != null) {
@@ -283,12 +279,12 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         return rootNode.getId();
     }
 
-    public synchronized T getRootNode() throws LogicException, ClientAuthException {
+    public synchronized T getRootNode() throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
             @Override
-            public T run(Session session) throws LogicException, ClientAuthException {
+            public T run(Session session) throws GwtUtilException {
                 try {
                     return (T) session.createQuery("from " + entityName + " where leftnum = 1").uniqueResult();
                 } catch (NonUniqueResultException e) {
@@ -298,25 +294,24 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public void insertHierarchic(final List<? extends Hierarchic> hierarchics, final Long parentNodeId) throws LogicException,
-            ClientAuthException {
+    public void insertHierarchic(final List<? extends Hierarchic> hierarchics, final Long parentNodeId) throws GwtUtilException {
         HibernateUtil.exec(new HibernateCallback<Void>() {
 
             @Override
-            public Void run(Session session) throws LogicException, ClientAuthException {
+            public Void run(Session session) throws GwtUtilException {
                 getByParentIdAndInsert(hierarchics, 0L, parentNodeId, session);
                 return null;
             }
         });
     }
 
-    public synchronized T insertNode(final T node, Long parentId) throws LogicException, ClientAuthException {
+    public synchronized T insertNode(final T node, Long parentId) throws GwtUtilException {
         final Long sureParentId = ensureParentId(parentId);
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @SuppressWarnings("unchecked")
             @Override
-            public T run(Session session) throws LogicException, ClientAuthException {
+            public T run(Session session) throws GwtUtilException {
                 T parentNode = (T) session.get(entityClass, sureParentId);
                 if (parentNode == null) {
                     throw new NestedSetManagerException("Parent node with id=" + sureParentId + " not found.");
@@ -331,11 +326,11 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public synchronized T insertRootNode(final T node) throws LogicException, ClientAuthException {
+    public synchronized T insertRootNode(final T node) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<T>() {
 
             @Override
-            public T run(Session session) throws LogicException, ClientAuthException {
+            public T run(Session session) throws GwtUtilException {
                 node.setLeftNum(1L);
                 node.setRightNum(2L);
                 node.setDepth(0L);
@@ -346,7 +341,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         });
     }
 
-    public D saveDTONode(D dto) throws LogicException, ClientAuthException {
+    public D saveDTONode(D dto) throws GwtUtilException {
         Long parentId = getId(dto, true);
         return mapModel(insertNode(mapModel(dto, entityClass), parentId), dtoClass);
     }
@@ -358,7 +353,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
                 .setLong("left", left).setLong("shift", shift).executeUpdate();
     }
 
-    private Long ensureParentId(Long parentId) throws LogicException, ClientAuthException {
+    private Long ensureParentId(Long parentId) throws GwtUtilException {
         if (parentId == null) {
             T rootNode = getRootNode();
             if (rootNode == null) {
@@ -377,8 +372,7 @@ public class NestedSetManager<T extends NestedSetNode, D extends SettableParent>
         @SuppressWarnings("unchecked")
         T node = (T) session.get(entityClass, nodeId);
         if (node.getRightNum() - node.getLeftNum() > 1 && !withChildren) {
-            throw new NestedSetManagerException(
-                    "Need to delete more than one node but children deleting was explicitly prohibited.");
+            throw new NestedSetManagerException("Need to delete more than one node but children deleting was explicitly prohibited.");
         }
         session.createQuery("delete from " + entityName + " node where node.leftnum >= :left and node.rightnum <= :right")
                 .setLong("left", node.getLeftNum()).setLong("right", node.getRightNum()).executeUpdate();

@@ -6,6 +6,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("telemetry")
 public interface TelemetryService extends RemoteService {
 
-    void sendTelemetry(String message) throws LogicException, ClientAuthException;
+    void sendTelemetry(String message) throws GwtUtilException;
 
 }

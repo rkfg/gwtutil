@@ -11,11 +11,12 @@ import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.util.ByteSource;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
-import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.domain.Perm;
 import ru.ppsrk.gwt.domain.Role;
 import ru.ppsrk.gwt.domain.User;
@@ -23,9 +24,13 @@ import ru.ppsrk.gwt.dto.UserDTO;
 
 public class HibernateRealm extends GwtUtilRealm {
 
+    private static final String USERNAME_QUERY = "from User where username = :un";
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(final AuthenticationToken token) throws AuthenticationException {
-        Object principal, credentials;
+        Object principal;
+        Object credentials;
         ByteSource salt;
         List<User> user = null;
         try {
@@ -34,17 +39,13 @@ public class HibernateRealm extends GwtUtilRealm {
                 @SuppressWarnings("unchecked")
                 @Override
                 public List<User> run(Session session) {
-                    return session.createQuery("from User where username = :un").setParameter("un", token.getPrincipal()).list();
+                    return session.createQuery(USERNAME_QUERY).setParameter("un", token.getPrincipal()).list();
                 }
             });
-        } catch (LogicException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClientAuthException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (GwtUtilException e) {
+            log.warn("Exception while getting user from the database:", e);
         }
-        if (user == null || user.size() == 0) {
+        if (user == null || user.isEmpty()) {
             // actually, user wasn't found
             throw new AuthenticationException(INVALID_CREDS);
         }
@@ -64,22 +65,20 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public void loginSuccessful(final String username) throws LogicException, ClientAuthException {
+    public void loginSuccessful(final String username) throws GwtUtilException {
         List<User> user = HibernateUtil.exec(new HibernateCallback<List<User>>() {
 
             @SuppressWarnings("unchecked")
             @Override
             public List<User> run(Session session) {
-                // TODO Auto-generated method stub
-                return session.createQuery("from User where username = :un").setParameter("un", username).list();
+                return session.createQuery(USERNAME_QUERY).setParameter("un", username).list();
             }
         });
         AuthServiceImpl.setSessionAttribute("userid", user.get(0).getId());
     }
 
     @Override
-    public Long register(final String username, final String password, final RandomNumberGenerator rng) throws LogicException,
-            ClientAuthException {
+    public Long register(final String username, final String password, final RandomNumberGenerator rng) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<Long>() {
 
             @Override
@@ -104,12 +103,12 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public List<String> getRoles(final String principal) throws LogicException, ClientAuthException {
+    public List<String> getRoles(final String principal) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 
             @Override
             public List<String> run(Session session) {
-                List<String> result = new LinkedList<String>();
+                List<String> result = new LinkedList<>();
                 @SuppressWarnings("unchecked")
                 List<Role> roles = session.createQuery("from Role r where r.user.username = :un").setParameter("un", principal).list();
                 for (Role role : roles) {
@@ -121,12 +120,12 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public List<String> getPerms(final String principal) throws LogicException, ClientAuthException {
+    public List<String> getPerms(final String principal) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<List<String>>() {
 
             @Override
             public List<String> run(Session session) {
-                List<String> result = new LinkedList<String>();
+                List<String> result = new LinkedList<>();
                 @SuppressWarnings("unchecked")
                 List<Perm> perms = session.createQuery("from Perm p where p.user.username = :un").setParameter("un", principal).list();
                 for (Perm perm : perms) {
@@ -138,13 +137,13 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    public UserDTO getUser(final String principal) throws LogicException, ClientAuthException {
+    public UserDTO getUser(final String principal) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<UserDTO>() {
 
             @Override
-            public UserDTO run(Session session) throws LogicException, ClientAuthenticationException {
+            public UserDTO run(Session session) throws GwtUtilException {
                 @SuppressWarnings("unchecked")
-                List<User> users = session.createQuery("from User where username = :un").setParameter("un", principal).list();
+                List<User> users = session.createQuery(USERNAME_QUERY).setParameter("un", principal).list();
                 if (users.size() != 1) {
                     throw new ClientAuthenticationException("Not authenticated");
                 }
@@ -154,7 +153,7 @@ public class HibernateRealm extends GwtUtilRealm {
     }
 
     @Override
-    protected String getRoleId(final Long roleId) throws LogicException, ClientAuthException {
+    protected String getRoleId(final Long roleId) throws GwtUtilException {
         return HibernateUtil.exec(new HibernateCallback<String>() {
 
             @Override

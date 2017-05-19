@@ -35,17 +35,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+
 import ru.ppsrk.gwt.client.AuthService;
 import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.domain.User;
 import ru.ppsrk.gwt.dto.UserDTO;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-
 public class AuthServiceImpl extends RemoteServiceServlet implements AuthService {
+    private static final String NOT_AUTHENTICATED = "Not authenticated";
+
     private static final String USER_DTO = "userDTO";
 
     private static Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
@@ -60,14 +63,14 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return (GwtUtilRealm) realm;
     }
 
-    public static List<String> getRoles() throws LogicException, ClientAuthException {
+    public static List<String> getRoles() throws GwtUtilException {
         return getRealm().getRoles(requiresAuthUser().getUsername());
     }
 
-    public static UserDTO getUserDTO() throws LogicException, ClientAuthException {
+    public static UserDTO getUserDTO() throws GwtUtilException {
         Subject subject = SecurityUtils.getSubject();
         if (subject == null) {
-            throw new ClientAuthenticationException("Not authenticated");
+            throw new ClientAuthenticationException(NOT_AUTHENTICATED);
         }
         return getRealm().getUser((String) subject.getPrincipal());
     }
@@ -75,7 +78,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     public static Object getSessionAttribute(Object key) throws ClientAuthException {
         Subject subject = SecurityUtils.getSubject();
         if (subject == null) {
-            throw new ClientAuthenticationException("Not authenticated");
+            throw new ClientAuthenticationException(NOT_AUTHENTICATED);
         }
         return subject.getSession().getAttribute(key);
     }
@@ -83,20 +86,20 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     public static boolean hasPerm(String perm) throws ClientAuthException {
         Subject subject = SecurityUtils.getSubject();
         if (subject == null) {
-            throw new ClientAuthenticationException("Not authenticated");
+            throw new ClientAuthenticationException(NOT_AUTHENTICATED);
         }
         return subject.isPermitted(perm);
     }
 
-    public static boolean hasRole(String role) throws LogicException, ClientAuthException {
+    public static boolean hasRole(String role) throws GwtUtilException {
         Subject subject = SecurityUtils.getSubject();
         if (subject == null) {
-            throw new ClientAuthenticationException("Not authenticated");
+            throw new ClientAuthenticationException(NOT_AUTHENTICATED);
         }
         return subject.hasRole(role);
     }
 
-    public static boolean hasRole(Long roleId) throws LogicException, ClientAuthException {
+    public static boolean hasRole(Long roleId) throws GwtUtilException {
         return hasRole(getRealm().getRoleById(roleId));
     }
 
@@ -109,12 +112,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     public static void removeSessionAttribute(Object key) throws ClientAuthenticationException {
         Subject subject = SecurityUtils.getSubject();
         if (subject == null) {
-            throw new ClientAuthenticationException("Not authenticated");
+            throw new ClientAuthenticationException(NOT_AUTHENTICATED);
         }
         subject.getSession().removeAttribute(key);
     }
 
-    public static Long requiresAuth() throws LogicException, ClientAuthException {
+    public static Long requiresAuth() throws GwtUtilException {
         User user = requiresAuthUser();
         if (user == null) {
             return 0L;
@@ -123,9 +126,9 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         }
     }
 
-    public static User requiresAuthUser() throws LogicException, ClientAuthException {
+    public static User requiresAuthUser() throws GwtUtilException {
         if (!isAuthenticated())
-            throw new ClientAuthenticationException("Not authenticated");
+            throw new ClientAuthenticationException(NOT_AUTHENTICATED);
         UserDTO user = (UserDTO) getSessionAttribute("user");
         if (user == null) {
             user = getRealm().getUser((String) SecurityUtils.getSubject().getPrincipal());
@@ -134,12 +137,12 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return ServerUtils.mapModel(user, User.class);
     }
 
-    public static void requiresPerm(String perm) throws LogicException, ClientAuthException {
+    public static void requiresPerm(String perm) throws GwtUtilException {
         if (!hasPerm(perm))
             throw new ClientAuthorizationException("Not authorized [perm: " + perm + "]");
     }
 
-    public static void requiresRole(String role) throws LogicException, ClientAuthException {
+    public static void requiresRole(String role) throws GwtUtilException {
         if (!hasRole(role))
             throw new ClientAuthorizationException("Not authorized [role: " + role + "]");
     }
@@ -148,7 +151,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         SecurityUtils.getSubject().getSession().setAttribute(key, value);
     }
 
-    public static UserDTO getUserByName(String username) throws LogicException, ClientAuthException {
+    public static UserDTO getUserByName(String username) throws GwtUtilException {
         return getRealm().getUser(username);
     }
 
@@ -159,15 +162,15 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         ThreadContext.bind(sm);
     }
 
-    RandomNumberGenerator rng = new SecureRandomNumberGenerator();
+    final transient RandomNumberGenerator rng = new SecureRandomNumberGenerator();
 
     /**
      * 
      */
     private static final long serialVersionUID = -5049525086987492554L;
 
-    public static boolean registrationEnabled = false;
-    public static boolean rememberMeOverridesLogin = true;
+    public static boolean registrationEnabled = false; // NOSONAR
+    public static boolean rememberMeOverridesLogin = true;  // NOSONAR
 
     @Override
     public String getUsername() {
@@ -175,7 +178,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public List<String> getUserRoles() throws LogicException, ClientAuthException {
+    public List<String> getUserRoles() throws GwtUtilException {
         requiresAuth();
         return getRoles();
     }
@@ -195,7 +198,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public boolean login(final String username, String password, boolean remember) throws LogicException, ClientAuthException {
+    public boolean login(final String username, String password, boolean remember) throws GwtUtilException {
         try {
             setMDCIP();
             boolean result = getRealm().login(username, password, remember);
@@ -216,7 +219,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public void logout() throws LogicException, ClientAuthException {
+    public void logout() throws GwtUtilException {
         setMDCIP();
         logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
         removeSessionAttribute("userid");
@@ -224,19 +227,19 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public Long register(final String username, final String password) throws LogicException, ClientAuthException {
+    public Long register(final String username, final String password) throws GwtUtilException {
         if (!registrationEnabled) {
             return -1L;
         }
         return getRealm().register(username, password, rng);
     }
 
-    private void setMDCIP() throws LogicException, ClientAuthException {
+    private void setMDCIP() throws GwtUtilException {
         HttpServletRequest req = getThreadLocalRequest();
         setMDCIP(req);
     }
 
-    public static void setMDCIP(HttpServletRequest req) throws LogicException, ClientAuthException {
+    public static void setMDCIP(HttpServletRequest req) throws GwtUtilException {
         if (req != null) {
             MDC.put("ip", req.getRemoteAddr());
             try {
@@ -251,8 +254,9 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
                 } else {
                     MDC.remove("user");
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 MDC.remove("user");
+                logger.warn("Setting MDC IP failed:", e);
             }
         } else {
             MDC.put("ip", "---");

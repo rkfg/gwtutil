@@ -19,18 +19,21 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.ClientAuthenticationException;
 import ru.ppsrk.gwt.client.ClientAuthorizationException;
-import ru.ppsrk.gwt.client.LogicException;
+import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.dto.UserDTO;
 
 public abstract class GwtUtilRealm extends AuthorizingRealm {
 
+    private Logger log = LoggerFactory.getLogger(getClass());
+    
     protected static final String INVALID_CREDS = "invalid creds";
 
-    private Map<Long, String> rolesCache = new HashMap<Long, String>();
+    private Map<Long, String> rolesCache = new HashMap<>();
 
     public class HashedBase64Password {
         private String password;
@@ -62,7 +65,7 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
 
     }
 
-    public boolean login(final String username, String password, boolean remember) throws LogicException, ClientAuthException {
+    public boolean login(final String username, String password, boolean remember) throws GwtUtilException {
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(new UsernamePasswordToken(username, password, remember));
@@ -70,9 +73,11 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
                 loginSuccessful(username);
             }
         } catch (AuthenticationException e) {
-            throw new ClientAuthenticationException(e.getMessage());
+            log.warn("Auth exception:", e);
+            throw new ClientAuthenticationException("Authentication exception on login: " + e.getMessage());
         } catch (AuthorizationException e) {
-            throw new ClientAuthorizationException(e.getMessage());
+            log.warn("Auth exception:", e);
+            throw new ClientAuthorizationException("Authorization exception on login: " + e.getMessage());
         }
         return subject.isAuthenticated();
     }
@@ -95,32 +100,29 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
                 }
             }
             return sai;
-        } catch (LogicException e) {
-            e.printStackTrace();
-        } catch (ClientAuthException e) {
-            e.printStackTrace();
+        } catch (GwtUtilException e) {
+            log.warn("Exception getting authorization info: {}", e);
         }
         return null;
     }
 
-    public Long register(final String username, final String password) throws LogicException, ClientAuthException {
+    public Long register(final String username, final String password) throws GwtUtilException {
         return register(username, password, new SecureRandomNumberGenerator());
     }
 
-    public abstract Long register(final String username, final String password, RandomNumberGenerator rng) throws LogicException,
-            ClientAuthException;
+    public abstract Long register(final String username, final String password, RandomNumberGenerator rng) throws GwtUtilException;
 
-    public abstract List<String> getRoles(String principal) throws LogicException, ClientAuthException;
+    public abstract List<String> getRoles(String principal) throws GwtUtilException;
 
-    public abstract List<String> getPerms(String principal) throws LogicException, ClientAuthException;
+    public abstract List<String> getPerms(String principal) throws GwtUtilException;
 
-    public abstract UserDTO getUser(String principal) throws LogicException, ClientAuthException;
+    public abstract UserDTO getUser(String principal) throws GwtUtilException;
 
-    public void loginSuccessful(String username) throws LogicException, ClientAuthException {
+    public void loginSuccessful(String username) throws GwtUtilException {
 
     }
 
-    public String getRoleById(Long roleId) throws LogicException, ClientAuthException {
+    public String getRoleById(Long roleId) throws GwtUtilException {
         String result = rolesCache.get(roleId);
         if (result == null) {
             result = getRoleId(roleId);
@@ -132,5 +134,5 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
         return result;
     }
 
-    protected abstract String getRoleId(Long roleId) throws LogicException, ClientAuthException;
+    protected abstract String getRoleId(Long roleId) throws GwtUtilException;
 }

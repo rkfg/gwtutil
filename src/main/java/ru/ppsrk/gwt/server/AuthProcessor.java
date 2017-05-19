@@ -14,7 +14,7 @@ import ru.ppsrk.gwt.shared.RequiresRoles;
 public class AuthProcessor implements IAnnotationProcessor {
 
     @Override
-    public void process(Method implMethod, RPCRequest rpcRequest) throws Throwable {
+    public void process(Method implMethod, RPCRequest rpcRequest) throws Exception {
         if (implMethod.isAnnotationPresent(RequiresAuth.class)) {
             AuthServiceImpl.requiresAuth();
         }
