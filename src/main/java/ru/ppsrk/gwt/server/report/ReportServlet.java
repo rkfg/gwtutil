@@ -3,27 +3,28 @@ package ru.ppsrk.gwt.server.report;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.ppsrk.gwt.client.ClientAuthException;
-import ru.ppsrk.gwt.client.LogicException;
-
 import com.programmisty.numerals.Numerals;
 
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import ru.ppsrk.gwt.client.ClientAuthException;
+import ru.ppsrk.gwt.client.GwtUtilException;
+import ru.ppsrk.gwt.client.LogicException;
 
 public abstract class ReportServlet extends HttpServlet {
     /**
      * 
      */
     private static final long serialVersionUID = -9071759488979347272L;
-    private HashMap<String, ReportHandler> reportHandlerMap = new HashMap<String, ReportHandler>(10);
+    private Map<String, ReportHandler> reportHandlerMap = new HashMap<>(10);
 
     protected ReportServlet(ReportHandler... reportHandlers) {
         for (ReportHandler handler : reportHandlers) {
@@ -45,7 +46,7 @@ public abstract class ReportServlet extends HttpServlet {
                             }
                         }
                     }
-                    HashMap<String, Object> params = new HashMap<String, Object>();
+                    Map<String, Object> params = new HashMap<>();
                     params.put("num2textru", new TemplateMethodModelEx() {
 
                         @Override
@@ -68,15 +69,12 @@ public abstract class ReportServlet extends HttpServlet {
                 }
             }
         } catch (NumberFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (LogicException e) {
-            resp.getWriter().write(e.getMessage());
-        } catch (TemplateException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ClientAuthException e) {
-            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (GwtUtilException e) {
+            resp.getWriter().write(e.getMessage());
+        } catch (TemplateException e) {
             e.printStackTrace();
         }
 

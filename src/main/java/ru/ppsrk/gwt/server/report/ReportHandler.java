@@ -1,13 +1,14 @@
 package ru.ppsrk.gwt.server.report;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import ru.ppsrk.gwt.client.ClientAuthException;
-import ru.ppsrk.gwt.client.LogicException;
 import freemarker.template.TemplateException;
+import ru.ppsrk.gwt.client.ClientAuthException;
+import ru.ppsrk.gwt.client.GwtUtilException;
+import ru.ppsrk.gwt.client.LogicException;
 
 public interface ReportHandler {
     /**
@@ -25,8 +26,8 @@ public interface ReportHandler {
      * @throws LogicException
      * @throws ClientAuthException
      */
-    public String exec(HttpServletRequestReportWrapper req, HttpServletResponse resp, HashMap<String, Object> params)
-            throws TemplateException, IOException, LogicException, ClientAuthException;
+    public String exec(HttpServletRequestReportWrapper req, HttpServletResponse resp, Map<String, Object> params)
+            throws TemplateException, IOException, GwtUtilException;
 
     public String[] getRequiredParams();
 
