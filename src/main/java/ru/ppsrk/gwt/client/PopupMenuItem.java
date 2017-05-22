@@ -52,7 +52,11 @@ public class PopupMenuItem extends Label implements HasSelectionHandlers<PopupMe
         return result;
     }
 
+    /**
+     * use {@link #isValueEquals(String)} instead
+     */
     @Override
+    @Deprecated
     public boolean equals(Object obj) {
         if (obj instanceof String) {
             return obj.equals(value);
@@ -60,6 +64,10 @@ public class PopupMenuItem extends Label implements HasSelectionHandlers<PopupMe
         return super.equals(obj);
     }
 
+    public boolean isValueEquals(String val) {
+        return val.equals(value);
+    }
+    
     @Override
     public HandlerRegistration addSelectionHandler(SelectionHandler<PopupMenuItem> handler) {
         return addHandler(handler, SelectionEvent.getType());
