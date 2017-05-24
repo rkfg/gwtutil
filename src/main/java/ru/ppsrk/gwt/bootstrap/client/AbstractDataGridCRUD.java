@@ -1,19 +1,52 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
 import static ru.ppsrk.gwt.client.ClientUtils.*;
+
+import java.util.Collection;
+
 import ru.ppsrk.gwt.client.ClientUtils.MyAsyncCallback;
+import ru.ppsrk.gwt.client.event.ReloadDataEvent;
+import ru.ppsrk.gwt.client.event.ReloadDataEvent.ReloadDataHandler;
 import ru.ppsrk.gwt.client.HasListboxValue;
 
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.Messages;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.view.client.SingleSelectionModel;
 
-public abstract class AbstractDataGridCRUD<T extends HasListboxValue> extends AbstractDataGridTabPane<T> {
+import fr.mikrosimage.gwt.client.CompleteResizableDataGrid;
+
+public abstract class AbstractDataGridCRUD<T extends HasListboxValue> implements IsWidget {
+
+    @UiField(provided = true)
+    public CompleteResizableDataGrid<T, SingleSelectionModel<T>> dg_data = new CompleteResizableDataGrid<>(new SingleSelectionModel<T>());
+    private EventBus eventBus;
 
     private CRUDMessages messages;
     private Class<T> itemsClass;
+
+    public HandlerRegistration registerReload(EventBus eventBus, final Long groupId) {
+        this.eventBus = eventBus;
+        return eventBus.addHandler(ReloadDataEvent.TYPE, new ReloadDataHandler() {
+
+            @Override
+            public void onReloadData(ReloadDataEvent event) {
+                if (event.groupId == null || event.groupId.equals(groupId)) {
+                    loadData();
+                }
+            }
+        });
+    }
+
+    public void broadcastReload(Long groupId) {
+        eventBus.fireEvent(new ReloadDataEvent(groupId));
+    }
 
     private MyAsyncCallback<Void> reloadDataCallback = new MyAsyncCallback<Void>() {
 
@@ -73,4 +106,21 @@ public abstract class AbstractDataGridCRUD<T extends HasListboxValue> extends Ab
         openEditor(item, reloadDataCallback);
     }
 
+    protected void loadData() {
+        loadData(false);
+    }
+    
+    protected abstract void getData(AsyncCallback<Collection<T>> dataCallback);
+
+    protected void loadData(final boolean restorePosition) {
+        dg_data.setLoadingData(null);
+        getData(new MyAsyncCallback<Collection<T>>() {
+
+            @Override
+            public void onSuccess(Collection<T> result) {
+                dg_data.setLoadingData(result, restorePosition);
+            }
+        });
+    }
+    
 }

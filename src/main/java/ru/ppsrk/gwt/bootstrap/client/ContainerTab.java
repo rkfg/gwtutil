@@ -15,10 +15,10 @@ public abstract class ContainerTab extends TabPaneFixed {
     @UiField(provided = true)
     protected TabPanelFixed tp_main = new TabPanelFixed();
 
-    public ContainerTab(String header, AbstractDataGridTabPane<?>... tabs) {
+    public ContainerTab(String header, TabPaneFixed... tabs) {
         initWidget(uiBinder.createAndBindUi(this), header);
         if (tabs.length > 0) {
-            for (AbstractDataGridTabPane<?> tab : tabs) {
+            for (TabPaneFixed tab : tabs) {
                 tp_main.add(tab);
             }
             tp_main.selectTab(0);
@@ -27,7 +27,7 @@ public abstract class ContainerTab extends TabPaneFixed {
 
     @Override
     protected void onShown() {
-        ((AbstractDataGridTabPane<?>) tp_main.getSelectedTabPane()).onShown();
+        tp_main.getSelectedTabPane().onShown();
     }
 
 }
