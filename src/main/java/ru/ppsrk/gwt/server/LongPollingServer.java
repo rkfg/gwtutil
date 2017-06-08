@@ -4,9 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
-import ru.ppsrk.gwt.client.ClientAuthException;
 import ru.ppsrk.gwt.client.GwtUtilException;
-import ru.ppsrk.gwt.client.LogicException;
 import ru.ppsrk.gwt.client.LongPollingClient;
 import ru.ppsrk.gwt.client.LongPollingClient.LongPollingAsyncCallback;
 
