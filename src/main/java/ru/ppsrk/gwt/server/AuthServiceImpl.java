@@ -170,7 +170,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     private static final long serialVersionUID = -5049525086987492554L;
 
     public static boolean registrationEnabled = false; // NOSONAR
-    public static boolean rememberMeOverridesLogin = true;  // NOSONAR
+    public static boolean rememberMeOverridesLogin = true; // NOSONAR
 
     @Override
     public String getUsername() {
@@ -200,7 +200,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     @Override
     public boolean login(final String username, String password, boolean remember) throws GwtUtilException {
         try {
-            setMDCIP();
+            setMDCIP(false);
             boolean result = getRealm().login(username, password, remember);
             if (result) {
                 logger.info("User \"{}\" logged in, {}remembered.", username, (remember ? "" : "not "));
@@ -220,7 +220,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
 
     @Override
     public void logout() throws GwtUtilException {
-        setMDCIP();
+        setMDCIP(true);
         logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
         removeSessionAttribute("userid");
         SecurityUtils.getSubject().logout();
@@ -234,33 +234,39 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRealm().register(username, password, rng);
     }
 
-    private void setMDCIP() throws GwtUtilException {
+    private void setMDCIP(boolean setUser) throws GwtUtilException {
         HttpServletRequest req = getThreadLocalRequest();
-        setMDCIP(req);
+        setMDCIP(req, setUser);
     }
 
-    public static void setMDCIP(HttpServletRequest req) throws GwtUtilException {
+    private static void setMDCIP(HttpServletRequest req, boolean setUser) throws GwtUtilException {
         if (req != null) {
             MDC.put("ip", req.getRemoteAddr());
-            try {
-                HttpSession session = req.getSession();
-                UserDTO userDTO = (UserDTO) session.getAttribute(USER_DTO);
-                if (userDTO == null) {
-                    userDTO = getUserDTO();
-                    session.setAttribute(USER_DTO, userDTO);
-                }
-                if (userDTO != null && userDTO.getUsername() != null) {
-                    MDC.put("user", userDTO.getUsername());
-                } else {
+            if (setUser) {
+                try {
+                    HttpSession session = req.getSession();
+                    UserDTO userDTO = (UserDTO) session.getAttribute(USER_DTO);
+                    if (userDTO == null) {
+                        userDTO = getUserDTO();
+                        session.setAttribute(USER_DTO, userDTO);
+                    }
+                    if (userDTO != null && userDTO.getUsername() != null) {
+                        MDC.put("user", userDTO.getUsername());
+                    } else {
+                        MDC.remove("user");
+                    }
+                } catch (Exception e) {
                     MDC.remove("user");
+                    logger.warn("Setting MDC IP failed:", e);
                 }
-            } catch (Exception e) {
-                MDC.remove("user");
-                logger.warn("Setting MDC IP failed:", e);
             }
         } else {
             MDC.put("ip", "---");
         }
+    }
+
+    public static void setMDCIP(HttpServletRequest req) throws GwtUtilException {
+        setMDCIP(req, true);
     }
 
     @Override
