@@ -49,8 +49,7 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
      * 
      * @return
      * @throws InterruptedException
-     * @throws LogicException
-     * @throws ClientAuthException
+     * @throws GwtUtilException
      */
 
     public T start() throws InterruptedException, GwtUtilException {
@@ -93,8 +92,7 @@ public abstract class LongPollingServer<T> implements AutoCloseable {
      * realtime results.
      * 
      * @return
-     * @throws LogicException
-     * @throws ClientAuthException
+     * @throws GwtUtilException
      */
     public abstract T exec() throws GwtUtilException;
 
