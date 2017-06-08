@@ -15,6 +15,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.Messages;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -109,7 +110,7 @@ public abstract class AbstractDataGridCRUD<T extends HasListboxValue> implements
     protected void loadData() {
         loadData(false);
     }
-    
+
     protected abstract void getData(AsyncCallback<Collection<T>> dataCallback);
 
     protected void loadData(final boolean restorePosition) {
@@ -119,8 +120,11 @@ public abstract class AbstractDataGridCRUD<T extends HasListboxValue> implements
             @Override
             public void onSuccess(Collection<T> result) {
                 dg_data.setLoadingData(result, restorePosition);
+                if (dg_data.getKeyboardSelectionPolicy() == KeyboardSelectionPolicy.BOUND_TO_SELECTION) {
+                    dg_data.setKeyboardSelectedRow(0);
+                }
             }
         });
     }
-    
+
 }
