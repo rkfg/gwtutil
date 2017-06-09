@@ -49,7 +49,7 @@ public abstract class AbstractDataGridCRUD<T extends HasListboxValue> implements
         eventBus.fireEvent(new ReloadDataEvent(groupId));
     }
 
-    private MyAsyncCallback<Void> reloadDataCallback = new MyAsyncCallback<Void>() {
+    protected MyAsyncCallback<Void> reloadDataCallback = new MyAsyncCallback<Void>() {
 
         @Override
         public void onSuccess(Void result) {

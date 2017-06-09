@@ -11,7 +11,7 @@ public class ReloadDataEvent extends GwtEvent<ReloadDataHandler> {
         public void onReloadData(ReloadDataEvent event);
     }
 
-    public static final Type<ReloadDataHandler> TYPE = new Type<ReloadDataHandler>();
+    public static final Type<ReloadDataHandler> TYPE = new Type<>();
     public Long groupId;
 
     @Override
