@@ -16,8 +16,8 @@ import ru.ppsrk.gwt.client.HasId;
 public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionModel<T>> extends ResizableDataGrid<T> {
     private Set<Long> selectedSet = new HashSet<>();
     private S selectionModel;
-    private ListDataProvider<T> dataProvider = new ListDataProvider<T>();
-    private ListHandler<T> sortHandler = new ListHandler<T>(dataProvider.getList());
+    private ListDataProvider<T> dataProvider = new ListDataProvider<>();
+    private ListHandler<T> sortHandler = new ListHandler<>(dataProvider.getList());
     private Range visibleRange = null;
     private int scrollPos = 0;
 
@@ -26,6 +26,7 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
         setup(dataProvider, selectionModel, null, sortHandler);
     }
 
+    @Override
     public S getSelectionModel() {
         return selectionModel;
     }
