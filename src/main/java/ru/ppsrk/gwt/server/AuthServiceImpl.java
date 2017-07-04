@@ -103,8 +103,8 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return hasRole(getRealm().getRoleById(roleId));
     }
 
-    public static void initShiro() {
-        Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+    public static void initShiroDebug() {
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro_dev.ini");
         SecurityManager securityManager = factory.getInstance();
         SecurityUtils.setSecurityManager(securityManager);
     }
