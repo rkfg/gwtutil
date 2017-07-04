@@ -39,6 +39,12 @@ public class ListBoxDecorator<T extends HasListboxValue> extends DecoratorBase<L
         }
     }
 
+    public void addAll(T[] values) {
+        for (T value : values) {
+            addItem(value);
+        }
+    }
+
     public void fill(Collection<T> values) {
         removeAll();
         addAll(values);
