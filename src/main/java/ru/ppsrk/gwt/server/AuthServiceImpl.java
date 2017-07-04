@@ -155,8 +155,8 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return getRealm().getUser(username);
     }
 
-    public static void startTest(String DBConfig) {
-        HibernateUtil.initSessionFactory(DBConfig);
+    public static void startTest(String dbConfig) {
+        HibernateUtil.initSessionFactory(dbConfig);
         Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
         SecurityManager sm = factory.getInstance();
         ThreadContext.bind(sm);
