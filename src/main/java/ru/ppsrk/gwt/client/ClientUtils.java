@@ -883,7 +883,11 @@ public class ClientUtils {
      * @param date date to fix
      * @return the same date for chaining
      */
+    @SuppressWarnings("deprecation")
     public static Date fixTZ(Date date) {
+        date.setHours(0); // NOSONAR
+        date.setMinutes(0); // NOSONAR
+        date.setSeconds(0); // NOSONAR
         date.setTime(date.getTime() + TimeUnit.HOURS.toMillis(12));
         return date;
     }
