@@ -51,17 +51,14 @@ public class TestTemporalManager extends HibernateTests {
                 try {
                     TestEntity testEntity1 = new TestEntity(TEST_ENTITY_NAME);
                     testEntity1.setStartDate(df.parse("07/03/1987"));
-                    testEntity1.setEndDate(df.parse("20/03/1987"));
                     session.save(testEntity1);
 
                     TestEntity testEntity2 = new TestEntity(TEST_ENTITY_NAME);
                     testEntity2.setStartDate(df.parse("20/03/1987"));
-                    testEntity2.setEndDate(df.parse("30/03/1987"));
                     session.save(testEntity2);
 
                     TestEntity testEntity3 = new TestEntity(TEST_ENTITY_NAME);
                     testEntity3.setStartDate(df.parse("30/03/1987"));
-                    testEntity3.setEndDate(TemporalManager.MAX_DATE);
                     session.save(testEntity3);
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -78,14 +75,11 @@ public class TestTemporalManager extends HibernateTests {
         getManager().save(testEntity);
         TestEntity testEntity1 = (TestEntity) session.get(TestEntity.class, 1L);
         assertEquals(df.parse("07/03/1987"), testEntity1.getStartDate());
-        assertEquals(df.parse("10/03/1987"), testEntity1.getEndDate());
 
         TestEntity testEntity2 = (TestEntity) session.get(TestEntity.class, 2L);
         assertEquals(df.parse("20/03/1987"), testEntity2.getStartDate());
-        assertEquals(df.parse("30/03/1987"), testEntity2.getEndDate());
 
         assertEquals(df.parse("10/03/1987"), testEntity.getStartDate());
-        assertEquals(df.parse("20/03/1987"), testEntity.getEndDate());
     }
 
     @Test
@@ -95,18 +89,14 @@ public class TestTemporalManager extends HibernateTests {
         getManager().save(testEntity);
         TestEntity testEntity1 = (TestEntity) session.get(TestEntity.class, 1L);
         assertEquals(df.parse("07/03/1987"), testEntity1.getStartDate());
-        assertEquals(df.parse("20/03/1987"), testEntity1.getEndDate());
 
         assertEquals(df.parse("15/04/1987"), testEntity.getStartDate());
-        assertEquals(TemporalManager.MAX_DATE, testEntity.getEndDate());
 
         TestEntity testEntity2 = (TestEntity) session.get(TestEntity.class, 2L);
         assertEquals(df.parse("20/03/1987"), testEntity2.getStartDate());
-        assertEquals(df.parse("30/03/1987"), testEntity2.getEndDate());
 
         TestEntity testEntity3 = (TestEntity) session.get(TestEntity.class, 3L);
         assertEquals(df.parse("30/03/1987"), testEntity3.getStartDate());
-        assertEquals(df.parse("15/04/1987"), testEntity3.getEndDate());
     }
 
     private TestEntity makeTestEntity(int idx) {
@@ -124,7 +114,6 @@ public class TestTemporalManager extends HibernateTests {
         getManager().save(testEntity);
         testEntity = getManager().get(df.parse("08/03/1987"), TEST_ENTITY_NAME + 1);
         assertEquals(df.parse("07/03/1987"), testEntity.getStartDate());
-        assertEquals(TemporalManager.MAX_DATE, testEntity.getEndDate());
     }
 
     @Test
@@ -136,8 +125,6 @@ public class TestTemporalManager extends HibernateTests {
         assertNull(testEntity1);
         testEntity = getManager().get(df.parse("08/03/1987"), TEST_ENTITY_NAME);
         assertEquals(df.parse("07/03/1987"), testEntity.getStartDate());
-        assertEquals(df.parse("20/03/1987"), testEntity.getEndDate());
-
     }
 
     @Test
@@ -149,7 +136,6 @@ public class TestTemporalManager extends HibernateTests {
         TestEntity testEntity1 = manager.get(df.parse("05/03/1987"), testEntity.getUniqValue());
         assertNotNull(testEntity1);
         assertEquals(df.parse("01/03/1987"), testEntity1.getStartDate());
-        assertEquals(df.parse("07/03/1987"), testEntity1.getEndDate());
     }
 
     @Test
@@ -161,7 +147,6 @@ public class TestTemporalManager extends HibernateTests {
         assertNull(testEntity1);
         testEntity = getManager().get(df.parse("25/03/1987"), TEST_ENTITY_NAME);
         assertEquals(df.parse("20/03/1987"), testEntity.getStartDate());
-        assertEquals(df.parse("30/03/1987"), testEntity.getEndDate());
 
     }
 
@@ -180,7 +165,6 @@ public class TestTemporalManager extends HibernateTests {
         TestEntity retrieved1 = retrievedTestEntitys1.get(0);
         assertEquals(retrieved1.getName(), testEntity1.getName());
         assertEquals(retrieved1.getStartDate(), df.parse("07/03/1987"));
-        assertEquals(retrieved1.getEndDate(), TemporalManager.MAX_DATE);
 
         List<TestEntity> retrievedTestEntitys2 = manager.list(df.parse("07/03/1987"), df.parse("08/03/1987"), "TestEntity2");
         assertNotNull(retrievedTestEntitys2);
@@ -188,7 +172,6 @@ public class TestTemporalManager extends HibernateTests {
         TestEntity retrieved2 = retrievedTestEntitys2.get(0);
         assertEquals(retrieved2.getName(), testEntity2.getName());
         assertEquals(retrieved2.getStartDate(), df.parse("07/03/1987"));
-        assertEquals(retrieved2.getEndDate(), TemporalManager.MAX_DATE);
     }
 
     @Test
@@ -196,14 +179,12 @@ public class TestTemporalManager extends HibernateTests {
         getManager().delete(2L);
         TestEntity testEntity1 = (TestEntity) session.get(TestEntity.class, 1L);
         assertEquals(df.parse("07/03/1987"), testEntity1.getStartDate());
-        assertEquals(df.parse("30/03/1987"), testEntity1.getEndDate());
 
         TestEntity testEntity2 = (TestEntity) session.get(TestEntity.class, 2L);
         assertNull(testEntity2);
 
         TestEntity testEntity3 = (TestEntity) session.get(TestEntity.class, 3L);
         assertEquals(df.parse("30/03/1987"), testEntity3.getStartDate());
-        assertEquals(TemporalManager.MAX_DATE, testEntity3.getEndDate());
     }
 
     @Test
@@ -214,11 +195,9 @@ public class TestTemporalManager extends HibernateTests {
 
         TestEntity testEntity2 = (TestEntity) session.get(TestEntity.class, 2L);
         assertEquals(df.parse("20/03/1987"), testEntity2.getStartDate());
-        assertEquals(df.parse("30/03/1987"), testEntity2.getEndDate());
 
         TestEntity testEntity3 = (TestEntity) session.get(TestEntity.class, 3L);
         assertEquals(df.parse("30/03/1987"), testEntity3.getStartDate());
-        assertEquals(TemporalManager.MAX_DATE, testEntity3.getEndDate());
     }
 
     @Test
@@ -226,18 +205,16 @@ public class TestTemporalManager extends HibernateTests {
         getManager().delete(3L);
         TestEntity testEntity1 = (TestEntity) session.get(TestEntity.class, 1L);
         assertEquals(df.parse("07/03/1987"), testEntity1.getStartDate());
-        assertEquals(df.parse("20/03/1987"), testEntity1.getEndDate());
 
         TestEntity testEntity2 = (TestEntity) session.get(TestEntity.class, 2L);
         assertEquals(df.parse("20/03/1987"), testEntity2.getStartDate());
-        assertEquals(TemporalManager.MAX_DATE, testEntity2.getEndDate());
 
         TestEntity testEntity3 = (TestEntity) session.get(TestEntity.class, 3L);
         assertNull(testEntity3);
     }
 
     @Test
-    public void listTwo() throws ParseException {
+    public void listTwo() throws ParseException, LogicException {
         List<TestEntity> result = getManager().list(df.parse("01/03/1987"), df.parse("21/03/1987"), TEST_ENTITY_NAME);
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -295,17 +272,14 @@ public class TestTemporalManager extends HibernateTests {
         // edge of the first entity
         TestEntity testEntity1 = manager.get(df.parse("07/03/1987"), TEST_ENTITY_NAME);
         assertEquals(df.parse("07/03/1987"), testEntity1.getStartDate());
-        assertEquals(df.parse("20/03/1987"), testEntity1.getEndDate());
 
         // middle of the first entity
         TestEntity testEntity2 = manager.get(df.parse("10/03/1987"), TEST_ENTITY_NAME);
         assertEquals(df.parse("07/03/1987"), testEntity2.getStartDate());
-        assertEquals(df.parse("20/03/1987"), testEntity2.getEndDate());
 
         // joint
         TestEntity testEntity3 = manager.get(df.parse("20/03/1987"), TEST_ENTITY_NAME);
         assertEquals(df.parse("20/03/1987"), testEntity3.getStartDate());
-        assertEquals(df.parse("30/03/1987"), testEntity3.getEndDate());
 
         // before times
         TestEntity testEntity4 = manager.get(df.parse("01/03/1987"), TEST_ENTITY_NAME);
@@ -314,7 +288,6 @@ public class TestTemporalManager extends HibernateTests {
         // after times
         TestEntity testEntity5 = manager.get(df.parse("08/12/2015"), TEST_ENTITY_NAME);
         assertEquals(df.parse("30/03/1987"), testEntity5.getStartDate());
-        assertEquals(TemporalManager.MAX_DATE, testEntity5.getEndDate());
     }
 
     private void initMultiTestEntity(TestEntityManager manager) throws GwtUtilException, ParseException {
@@ -375,42 +348,34 @@ public class TestTemporalManager extends HibernateTests {
             TestEntity testEntity1 = manager.get(df.parse("05/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("01/03/1987"), testEntity1.getStartDate());
-            assertEquals(df.parse("07/03/1987"), testEntity1.getEndDate());
 
             testEntity1 = manager.get(df.parse("09/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("07/03/1987"), testEntity1.getStartDate());
-            assertEquals(df.parse("15/03/1987"), testEntity1.getEndDate());
 
             testEntity1 = manager.get(df.parse("18/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("15/03/1987"), testEntity1.getStartDate());
-            assertEquals(df.parse("20/03/1987"), testEntity1.getEndDate());
 
             testEntity1 = manager.get(df.parse("21/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("20/03/1987"), testEntity1.getStartDate());
-            assertEquals(df.parse("22/03/1987"), testEntity1.getEndDate());
 
             testEntity1 = manager.get(df.parse("24/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("22/03/1987"), testEntity1.getStartDate());
-            assertEquals(df.parse("25/03/1987"), testEntity1.getEndDate());
 
             testEntity1 = manager.get(df.parse("27/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("25/03/1987"), testEntity1.getStartDate());
-            assertEquals(df.parse("30/03/1987"), testEntity1.getEndDate());
 
             testEntity1 = manager.get(df.parse("30/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("30/03/1987"), testEntity1.getStartDate());
-            assertEquals(df.parse("31/03/1987"), testEntity1.getEndDate());
 
             testEntity1 = manager.get(df.parse("31/03/1987"), TEST_ENTITY_NAME);
             assertNotNull(testEntity1);
             assertEquals(df.parse("31/03/1987"), testEntity1.getStartDate());
-            assertEquals(TemporalManager.MAX_DATE, testEntity1.getEndDate());
 
             cleanup();
             setSession();

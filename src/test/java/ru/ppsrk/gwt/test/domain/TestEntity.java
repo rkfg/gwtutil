@@ -32,8 +32,7 @@ public class TestEntity extends SCDBase {
 
     @Override
     public String toString() {
-        return String.format(TemporalManager.DATE_FORMAT + " — " + TemporalManager.DATE_FORMAT2 + ": %3$s", getStartDate(), getEndDate(),
-                getName());
+        return String.format(TemporalManager.DATE_FORMAT + ": %3$s", getStartDate(), getName());
     }
 
 }

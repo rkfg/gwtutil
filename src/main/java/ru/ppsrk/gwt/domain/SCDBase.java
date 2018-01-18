@@ -13,8 +13,6 @@ import ru.ppsrk.gwt.dto.BasicDTO;
 public abstract class SCDBase extends BasicDTO {
     @Temporal(TemporalType.DATE)
     Date startDate;
-    @Temporal(TemporalType.DATE)
-    Date endDate;
 
     public Date getStartDate() {
         return startDate;
@@ -22,14 +20,6 @@ public abstract class SCDBase extends BasicDTO {
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
     }
 
     public abstract Object getUniqValue();
