@@ -13,6 +13,7 @@
 		<mapping class="ru.ppsrk.gwt.test.domain.Dept" />
         <mapping class="ru.ppsrk.gwt.test.domain.DeptNG" />
 		<mapping class="ru.ppsrk.gwt.test.domain.DeptHier" />
+        <mapping class="ru.ppsrk.gwt.test.domain.TestEntity" />
 		<mapping class="ru.ppsrk.gwt.domain.User" />
 		<mapping class="ru.ppsrk.gwt.domain.Perm" />
 		<mapping class="ru.ppsrk.gwt.domain.Role" />
