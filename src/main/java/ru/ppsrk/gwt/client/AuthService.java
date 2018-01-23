@@ -14,7 +14,7 @@
  *******************************************************************************/
 package ru.ppsrk.gwt.client;
 
-import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -46,7 +46,7 @@ public interface AuthService extends RemoteService {
 
     public Long register(String username, String password) throws GwtUtilException;
 
-    public List<String> getUserRoles() throws GwtUtilException;
+    public Set<String> getUserRoles() throws GwtUtilException;
 
     public String getUsername();
 }

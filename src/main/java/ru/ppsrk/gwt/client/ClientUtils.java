@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import net.lightoze.gwt.i18n.client.LocaleFactory;
-import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
-import ru.ppsrk.gwt.shared.SharedUtils;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.event.shared.UmbrellaException;
@@ -35,6 +31,10 @@ import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 
 import fr.mikrosimage.gwt.client.ResizableDataGrid;
+import net.lightoze.gwt.i18n.client.LocaleFactory;
+import ru.ppsrk.gwt.client.ClientUtils.ValueCondition.ValueConditionException;
+import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
+import ru.ppsrk.gwt.shared.SharedUtils;
 
 public class ClientUtils {
 
@@ -263,7 +263,7 @@ public class ClientUtils {
 
     static private HashMap<SelectionModel<? extends Hierarchic>, PathProvider> pathDataProviders = new HashMap<SelectionModel<? extends Hierarchic>, ClientUtils.PathProvider>();
 
-    private static List<String> roles = null;
+    private static Set<String> roles = null;
 
     public static void addItemToListbox(HasListboxValue value, ListBox listBox) {
         listBox.addItem(value.getListboxValue(), value.getId().toString());
@@ -625,15 +625,15 @@ public class ClientUtils {
         });
     }
 
-    public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback) {
-        requireLoginWithRoles(rolesCallback, true);
+    public static void requireLoginWithRoles(final AsyncCallback<Set<String>> rolesCallback) {
+        requireLoginWithRoles(rolesCallback, false, false);
     }
 
-    public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback, final boolean rememberMe) {
-        requireLoginWithRoles(rolesCallback, rememberMe, true);
+    public static void requireLoginWithRoles(final AsyncCallback<Set<String>> rolesCallback, final boolean rememberMe) {
+        requireLoginWithRoles(rolesCallback, rememberMe, false);
     }
 
-    public static void requireLoginWithRoles(final AsyncCallback<List<String>> rolesCallback, final boolean rememberMe,
+    public static void requireLoginWithRoles(final AsyncCallback<Set<String>> rolesCallback, final boolean rememberMe,
             final boolean showRememberMe) {
         AuthServiceAsync.Util.getInstance().isLoggedIn(new MyAsyncCallback<Boolean>() {
 
@@ -644,10 +644,10 @@ public class ClientUtils {
                     popupPanel.center();
                     return;
                 }
-                getRoles(new AsyncCallback<List<String>>() {
+                getRoles(new AsyncCallback<Set<String>>() {
 
                     @Override
-                    public void onSuccess(List<String> result) {
+                    public void onSuccess(Set<String> result) {
                         if (result.isEmpty()) {
                             logout();
                             return;
@@ -664,15 +664,15 @@ public class ClientUtils {
         });
     }
 
-    public static void getRoles(final AsyncCallback<List<String>> callback) {
+    public static void getRoles(final AsyncCallback<Set<String>> callback) {
         if (roles != null) {
             callback.onSuccess(roles);
         }
-        AuthService.Util.getInstance().getUserRoles(new AsyncCallback<List<String>>() {
+        AuthService.Util.getInstance().getUserRoles(new AsyncCallback<Set<String>>() {
 
             @Override
-            public void onSuccess(List<String> result) {
-                roles = Collections.unmodifiableList(result);
+            public void onSuccess(Set<String> result) {
+                roles = Collections.unmodifiableSet(result);
                 callback.onSuccess(roles);
             }
 
@@ -853,9 +853,15 @@ public class ClientUtils {
         });
     }
 
+    @Deprecated
     public static <T extends LocalizableResource> T setupLocale(T messages, Class<T> clazz) {
-        if (messages != null && clazz != null) {
-            LocaleFactory.put(clazz, messages);
+        return setupLocale(messages);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends LocalizableResource> T setupLocale(T messages) {
+        if (messages != null) {
+            LocaleFactory.put((Class<T>) messages.getClass(), messages);
         }
         Cookies.setCookie("locale", LocaleInfo.getCurrentLocale().getLocaleName());
         return messages;

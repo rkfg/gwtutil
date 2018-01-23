@@ -16,8 +16,11 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 public class Freemarker {
+    
+    private Freemarker() {
+    }
 
-    private static Map<String, Configuration> cfgs = new HashMap<String, Configuration>();
+    private static Map<String, Configuration> cfgs = new HashMap<>();
 
     private static Configuration getCfg(GenericServlet servlet) throws IOException {
         String localeStr = "default";
@@ -42,7 +45,6 @@ public class Freemarker {
         try {
             return getCfg(servlet).getTemplate(templateName);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
         }

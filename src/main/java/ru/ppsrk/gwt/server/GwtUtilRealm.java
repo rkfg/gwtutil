@@ -1,11 +1,13 @@
 package ru.ppsrk.gwt.server;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationException;
@@ -30,7 +32,7 @@ import ru.ppsrk.gwt.dto.UserDTO;
 public abstract class GwtUtilRealm extends AuthorizingRealm {
 
     private Logger log = LoggerFactory.getLogger(getClass());
-    
+
     protected static final String INVALID_CREDS = "invalid creds";
 
     private Map<Long, String> rolesCache = new HashMap<>();
@@ -60,9 +62,13 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
         }
 
         public ByteSource getByteSourceSalt() {
-            return ByteSource.Util.bytes(Base64.decode(salt));
+            return GwtUtilRealm.getByteSourceSalt(salt);
         }
 
+    }
+
+    public static ByteSource getByteSourceSalt(String salt) {
+        return ByteSource.Util.bytes(Base64.decode(salt));
     }
 
     public boolean login(final String username, String password, boolean remember) throws GwtUtilException {
@@ -82,18 +88,28 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
         return subject.isAuthenticated();
     }
 
+    protected SimpleAuthenticationInfo verify(AuthenticationToken token, String principal, String credentials, String salt) {
+        SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(principal, credentials, getByteSourceSalt(salt),
+                getClass().getSimpleName());
+        if (getCredentialsMatcher().doCredentialsMatch(token, authinfo)) {
+            return authinfo;
+        } else {
+            throw new AuthenticationException(INVALID_CREDS);
+        }
+    }
+
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(final PrincipalCollection principals) {
         try {
             String principal = (String) principals.getPrimaryPrincipal();
             SimpleAuthorizationInfo sai = new SimpleAuthorizationInfo();
-            List<String> perms = getPerms(principal);
+            Set<String> perms = getPerms(principal);
             if (perms != null) {
                 for (String perm : perms) {
                     sai.addStringPermission(perm);
                 }
             }
-            List<String> roles = getRoles(principal);
+            Set<String> roles = getRoles(principal);
             if (roles != null) {
                 for (String role : roles) {
                     sai.addRole(role);
@@ -112,9 +128,9 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
 
     public abstract Long register(final String username, final String password, RandomNumberGenerator rng) throws GwtUtilException;
 
-    public abstract List<String> getRoles(String principal) throws GwtUtilException;
+    public abstract Set<String> getRoles(String principal) throws GwtUtilException;
 
-    public abstract List<String> getPerms(String principal) throws GwtUtilException;
+    public abstract Set<String> getPerms(String principal) throws GwtUtilException;
 
     public abstract UserDTO getUser(String principal) throws GwtUtilException;
 

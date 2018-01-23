@@ -2,17 +2,13 @@ package ru.ppsrk.gwt.server;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.RandomNumberGenerator;
-import org.apache.shiro.util.ByteSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,13 +40,7 @@ public class IniRealm extends GwtUtilRealm {
                 throw new AuthenticationException(INVALID_CREDS);
             }
             String[] credentials = passData.split("\\|");
-            SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(token.getPrincipal(), credentials[0],
-                    ByteSource.Util.bytes(Base64.decode(credentials[1])), "IniRealm");
-            if (getCredentialsMatcher().doCredentialsMatch(token, authinfo)) {
-                return authinfo;
-            } else {
-                throw new AuthenticationException(INVALID_CREDS);
-            }
+            return verify(token, (String) token.getPrincipal(), credentials[0], credentials[1]);
         } catch (FileNotFoundException e) {
             throw new AuthenticationException("auth.ini not found.", e);
         } catch (IOException e) {
@@ -58,14 +48,17 @@ public class IniRealm extends GwtUtilRealm {
         }
     }
 
+    /**
+     * Not implemented, always returns an empty set
+     */
     @Override
-    public List<String> getPerms(String principal) throws LogicException, ClientAuthenticationException {
-        return new ArrayList<>();
+    public Set<String> getPerms(String principal) throws LogicException, ClientAuthenticationException {
+        return new HashSet<>();
     }
 
     @Override
-    public List<String> getRoles(String principal) {
-        List<String> result = new LinkedList<>();
+    public Set<String> getRoles(String principal) {
+        Set<String> result = new HashSet<>();
         try {
             smRoles.setFilename("roles.ini");
             smRoles.loadSettings();

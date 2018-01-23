@@ -15,7 +15,7 @@
 package ru.ppsrk.gwt.server;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +63,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         return (GwtUtilRealm) realm;
     }
 
-    public static List<String> getRoles() throws GwtUtilException {
+    public static Set<String> getRoles() throws GwtUtilException {
         return getRealm().getRoles(requiresAuthUser().getUsername());
     }
 
@@ -178,7 +178,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
-    public List<String> getUserRoles() throws GwtUtilException {
+    public Set<String> getUserRoles() throws GwtUtilException {
         requiresAuth();
         return getRoles();
     }
