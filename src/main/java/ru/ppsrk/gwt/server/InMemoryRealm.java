@@ -40,7 +40,7 @@ public class InMemoryRealm extends GwtUtilRealm {
 
     @Override
     public Set<String> getPerms(String principal) throws GwtUtilException {
-        throw new LogicException("Unsupported");
+        return new HashSet<>();
     }
 
     @Override
