@@ -6,27 +6,21 @@ import com.google.gwt.view.client.TreeViewModel;
 
 public class RuCellTree extends CellTree {
 
-    public static Resources cellTreeResources = GWT.create(Resources.class);
+    interface RussianCellTreeMessages extends CellTreeMessages {
 
-    public static CellTreeMessages russianCellTreeMessages = new CellTreeMessages() {
+        @DefaultMessage("Пусто")
+        public String emptyTree();
 
-        @Override
-        public String emptyTree() {
-            return "Пусто";
-        }
-
-        @Override
-        public String showMore() {
-            return "Ещё...";
-        }
+        @DefaultMessage("Ещё...")
+        public String showMore();
     };
 
     public RuCellTree(TreeViewModel viewModel) {
-        super(viewModel, null, cellTreeResources, russianCellTreeMessages);
+        super(viewModel, null, GWT.create(Resources.class), GWT.create(RussianCellTreeMessages.class));
     }
 
     public RuCellTree(TreeViewModel viewModel, int size) {
-        super(viewModel, null, cellTreeResources, russianCellTreeMessages, size);
+        super(viewModel, null, GWT.create(Resources.class), GWT.create(RussianCellTreeMessages.class), size);
     }
 
 }
