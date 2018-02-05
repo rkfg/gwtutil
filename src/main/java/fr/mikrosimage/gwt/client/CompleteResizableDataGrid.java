@@ -42,7 +42,11 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
     public void setLoadingData(Collection<? extends T> data) {
         setLoadingData(data, false);
     }
-    
+
+    public void resetLoadingData() {
+        super.resetLoadingData(dataProvider);
+    }
+
     public void setLoadingData(Collection<? extends T> data, boolean restorePosition) {
         if (data == null) {
             saveSelection();
@@ -57,7 +61,7 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
             }
             if (restorePosition && visibleRange != null) {
                 Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                    
+
                     @Override
                     public void execute() {
                         setVisibleRange(visibleRange);
