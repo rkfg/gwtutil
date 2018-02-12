@@ -3,6 +3,7 @@ package ru.ppsrk.gwt.bootstrap.client;
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.Modal;
+import com.github.gwtbootstrap.client.ui.constants.BackdropType;
 import com.github.gwtbootstrap.client.ui.event.HiddenEvent;
 import com.github.gwtbootstrap.client.ui.event.HiddenHandler;
 import com.github.gwtbootstrap.client.ui.event.ShownEvent;
@@ -64,7 +65,7 @@ public class ModalDialog<T> extends Composite {
             }
         });
         m_dialog.addHiddenHandler(new HiddenHandler() {
-            
+
             @Override
             public void onHidden(HiddenEvent hiddenEvent) {
                 showParent();
@@ -159,6 +160,14 @@ public class ModalDialog<T> extends Composite {
     @Override
     public void removeStyleName(String style) {
         m_dialog.removeStyleName(style);
+    }
+
+    public void setAnimation(boolean animated) {
+        m_dialog.setAnimation(animated);
+    }
+
+    public void setBackdrop(BackdropType type) {
+        m_dialog.setBackdrop(type);
     }
 
 }
