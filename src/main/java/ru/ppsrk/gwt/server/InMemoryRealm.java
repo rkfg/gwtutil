@@ -57,6 +57,9 @@ public class InMemoryRealm extends GwtUtilRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         Object principal = token.getPrincipal();
         UserDTO user = users.get(principal);
+        if (user == null) {
+            throw new AuthenticationException(INVALID_CREDS);
+        }
         return verify(token, user.getUsername(), user.getPassword(), user.getSalt());
     }
 
