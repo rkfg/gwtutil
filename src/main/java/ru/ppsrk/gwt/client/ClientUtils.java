@@ -126,6 +126,45 @@ public class ClientUtils {
         }
     }
 
+    public static class AsyncCallbackWrapper<T> implements AsyncCallback<T> {
+
+        private AsyncCallback<T> wrappee;
+
+        public AsyncCallbackWrapper(AsyncCallback<T> wrappee) {
+            this.wrappee = wrappee;
+        }
+
+        @Override
+        public void onSuccess(T result) {
+            beforeSuccess(result);
+            wrappee.onSuccess(result);
+            afterSuccess(result);
+        }
+
+        @Override
+        public void onFailure(Throwable caught) {
+            beforeFailure(caught);
+            wrappee.onFailure(caught);
+            afterFailure(caught);
+        }
+
+        protected void beforeSuccess(T result) {
+
+        }
+
+        protected void afterSuccess(T result) {
+
+        }
+
+        protected void beforeFailure(Throwable caught) {
+
+        }
+
+        protected void afterFailure(Throwable caught) {
+
+        }
+    }
+
     private static class PathProvider extends HashMap<String, ListDataProvider<? extends Hierarchic>> {
 
         /**
