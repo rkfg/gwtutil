@@ -149,19 +149,19 @@ public class ClientUtils {
         }
 
         protected void beforeSuccess(T result) {
-
+            // empty by default
         }
 
         protected void afterSuccess(T result) {
-
+            // empty by default
         }
 
         protected void beforeFailure(Throwable caught) {
-
+            // empty by default
         }
 
         protected void afterFailure(Throwable caught) {
-
+            // empty by default
         }
     }
 
