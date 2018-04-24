@@ -555,7 +555,7 @@ public class ClientUtils {
     }
 
     public static void openWindow(String url) {
-        openWindow(url, null, null, false);
+        openWindow(url, System.currentTimeMillis() + "", null, false);
     }
 
     public static void openWindow(String url, String name, String features, boolean rootRelative) {
