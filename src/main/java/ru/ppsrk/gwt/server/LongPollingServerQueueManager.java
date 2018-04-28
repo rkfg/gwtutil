@@ -7,18 +7,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import ru.ppsrk.gwt.client.GwtUtilException;
 import ru.ppsrk.gwt.dto.LongPollingMessage;
 
-public abstract class LongPollingServerQueueManager<M extends LongPollingMessage> extends LongPollingServer<Collection<M>> {
+public class LongPollingServerQueueManager<M extends LongPollingMessage> extends LongPollingServer<Collection<M>> {
 
     private ConcurrentLinkedQueue<M> queue = new ConcurrentLinkedQueue<>();
 
     private ThreadLocal<Long> lastTimestamp = new ThreadLocal<>();
-    private ThreadLocal<Collection<M>> newMessages = new ThreadLocal<Collection<M>>() {
-        @Override
-        protected Collection<M> initialValue() {
-            return new LinkedList<>();
-        }
-
-    };
+    private ThreadLocal<Collection<M>> newMessages = ThreadLocal.withInitial(LinkedList::new);
 
     private long messagesTimeout;
 

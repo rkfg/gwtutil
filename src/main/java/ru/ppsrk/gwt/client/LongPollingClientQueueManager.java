@@ -1,6 +1,8 @@
 package ru.ppsrk.gwt.client;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import ru.ppsrk.gwt.dto.LongPollingMessage;
 
@@ -41,15 +43,8 @@ public abstract class LongPollingClientQueueManager<M extends LongPollingMessage
      */
     @Override
     public void success(Collection<M> result) {
-        if (lastTimestamp == null && result.size() > 0) {
-            lastTimestamp = result.iterator().next().getTimestamp();
-        }
-        for (M message : result) {
-            Long msgTimestamp = message.getTimestamp();
-            if (msgTimestamp != null && msgTimestamp > lastTimestamp) {
-                lastTimestamp = msgTimestamp;
-            }
-        }
+        Stream.concat(result.stream().map(M::getTimestamp), Stream.of(lastTimestamp)).max(Comparator.naturalOrder())
+                .ifPresent(v -> lastTimestamp = v);
     }
 
 }
