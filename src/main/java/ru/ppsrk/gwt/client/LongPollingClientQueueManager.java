@@ -8,7 +8,7 @@ import ru.ppsrk.gwt.dto.LongPollingMessage;
 
 public abstract class LongPollingClientQueueManager<M extends LongPollingMessage> extends LongPollingClient<Collection<M>> {
 
-    private Long lastTimestamp = null;
+    private Long lastTimestamp = 0L;
 
     /**
      * Create a new long polling queue manager.
