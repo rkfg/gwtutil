@@ -1,8 +1,9 @@
 package ru.ppsrk.gwt.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
-public class LongPollingMessage implements IsSerializable {
+@SuppressWarnings("serial")
+public class LongPollingMessage implements Serializable {
     private long timestamp;
 
     public LongPollingMessage() {
