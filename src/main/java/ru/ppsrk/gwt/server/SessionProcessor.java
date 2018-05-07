@@ -1,6 +1,7 @@
 package ru.ppsrk.gwt.server;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -13,6 +14,7 @@ import ru.ppsrk.gwt.server.AnnotatedServlet.IRPCFinalizer;
 public class SessionProcessor implements IAnnotationProcessor, IRPCFinalizer {
 
     private ThreadLocal<Session> sessionTL = new ThreadLocal<>();
+    private ThreadLocal<LinkedList<Runnable>> oneTimers = ThreadLocal.withInitial(LinkedList::new);
 
     @Override
     public void process(Method implMethod, RPCRequest rpcRequest) throws Exception {
@@ -46,6 +48,9 @@ public class SessionProcessor implements IAnnotationProcessor, IRPCFinalizer {
                     if (session.getTransaction().isActive()) {
                         session.getTransaction().commit();
                     }
+                    LinkedList<Runnable> t = oneTimers.get();
+                    t.stream().forEach(Runnable::run);
+                    t.clear();
                 }
             } finally {
                 session.close();
@@ -59,4 +64,8 @@ public class SessionProcessor implements IAnnotationProcessor, IRPCFinalizer {
         annotatedServlet.addFinalizer(this);
     }
 
+    public void registerOneTimer(Runnable r) {
+        oneTimers.get().add(r);
+    }
+    
 }

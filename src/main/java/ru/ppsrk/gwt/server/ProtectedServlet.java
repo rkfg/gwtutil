@@ -11,7 +11,7 @@ public class ProtectedServlet extends AnnotatedServlet {
      */
     private static final long serialVersionUID = -6677960915796966071L;
 
-    private final SessionProcessor sproc = new SessionProcessor();
+    protected final SessionProcessor sproc = new SessionProcessor();
 
     protected Session getSession() {
         return sproc.getSession();
