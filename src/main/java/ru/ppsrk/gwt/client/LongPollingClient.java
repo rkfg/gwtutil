@@ -26,6 +26,8 @@ public abstract class LongPollingClient<T> {
             try {
                 if (result != null) {
                     success(result);
+                } else {
+                    nothing();
                 }
             } finally {
                 start();
@@ -71,4 +73,7 @@ public abstract class LongPollingClient<T> {
         // do nothing by default
     }
 
+    public void nothing() {
+        // do nothing when no updates came
+    }
 }

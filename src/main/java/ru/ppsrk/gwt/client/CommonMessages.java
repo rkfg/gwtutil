@@ -81,7 +81,7 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("<не реализовано>")
     public String notImplemented();
-    
+
     @DefaultMessage("Настройки")
     public String settings();
 }
