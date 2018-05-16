@@ -51,6 +51,26 @@ public abstract class AbstractDataGridCRUD<T extends HasListboxValue> implements
             loadData(true);
         }
     };
+    
+    public class ListDataCallbackAdapter implements AsyncCallback<List<T>> {
+
+        private AsyncCallback<Collection<T>> adaptee;
+
+        public ListDataCallbackAdapter(AsyncCallback<Collection<T>> adaptee) {
+            this.adaptee = adaptee;
+        }
+        
+        @Override
+        public void onFailure(Throwable caught) {
+            adaptee.onFailure(caught);
+        }
+
+        @Override
+        public void onSuccess(List<T> result) {
+            adaptee.onSuccess(result);
+        }
+        
+    }
 
     public interface CRUDMessages extends Messages {
 
