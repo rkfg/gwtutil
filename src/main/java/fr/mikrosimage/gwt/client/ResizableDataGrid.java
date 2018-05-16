@@ -3,14 +3,10 @@ package fr.mikrosimage.gwt.client;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import ru.ppsrk.gwt.client.ClientUtils;
-
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
@@ -23,6 +19,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.AbstractDataProvider;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
+
+import ru.ppsrk.gwt.client.ClientUtils;
 
 public class ResizableDataGrid<T> extends DataGrid<T> {
     Widget emptyTableWidget = getEmptyTableWidget();
@@ -47,7 +45,7 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
         protected int getTableBodyHeight() {
             return ResizableDataGrid.this.getTableBodyElement().getOffsetHeight();
         }
-        
+
         @Override
         public boolean onPreviewColumnSortEvent(Context context, Element elem, NativeEvent event) {
             setKeyboardSelectedColumn(getColumnIndex(column));
@@ -62,13 +60,7 @@ public class ResizableDataGrid<T> extends DataGrid<T> {
     }
 
     public ResizableDataGrid() {
-        Window.addResizeHandler(new ResizeHandler() {
-
-            @Override
-            public void onResize(ResizeEvent event) {
-                redraw();
-            }
-        });
+        Window.addResizeHandler(event -> redraw());
         setStyleName("border-bs");
     }
 

@@ -3,11 +3,7 @@ package ru.ppsrk.gwt.bootstrap.client;
 import static ru.ppsrk.gwt.client.ClientUtils.*;
 
 import java.util.Collection;
-
-import ru.ppsrk.gwt.client.ClientUtils.MyAsyncCallback;
-import ru.ppsrk.gwt.client.event.ReloadDataEvent;
-import ru.ppsrk.gwt.client.event.ReloadDataEvent.ReloadDataHandler;
-import ru.ppsrk.gwt.client.HasListboxValue;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
@@ -22,6 +18,9 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.view.client.SingleSelectionModel;
 
 import fr.mikrosimage.gwt.client.CompleteResizableDataGrid;
+import ru.ppsrk.gwt.client.ClientUtils.MyAsyncCallback;
+import ru.ppsrk.gwt.client.HasListboxValue;
+import ru.ppsrk.gwt.client.event.ReloadDataEvent;
 
 public abstract class AbstractDataGridCRUD<T extends HasListboxValue> implements IsWidget {
 
@@ -34,13 +33,9 @@ public abstract class AbstractDataGridCRUD<T extends HasListboxValue> implements
 
     public HandlerRegistration registerReload(EventBus eventBus, final Long groupId) {
         this.eventBus = eventBus;
-        return eventBus.addHandler(ReloadDataEvent.TYPE, new ReloadDataHandler() {
-
-            @Override
-            public void onReloadData(ReloadDataEvent event) {
-                if (event.groupId == null || event.groupId.equals(groupId)) {
-                    loadData();
-                }
+        return eventBus.addHandler(ReloadDataEvent.TYPE, event -> {
+            if (event.groupId == null || event.groupId.equals(groupId)) {
+                loadData();
             }
         });
     }

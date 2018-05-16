@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.Range;
@@ -60,15 +59,11 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
                 }
             }
             if (restorePosition && visibleRange != null) {
-                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-
-                    @Override
-                    public void execute() {
-                        setVisibleRange(visibleRange);
-                        getScrollPanel().setVerticalScrollPosition(scrollPos);
-                        visibleRange = null;
-                        scrollPos = 0;
-                    }
+                Scheduler.get().scheduleDeferred(() -> {
+                    setVisibleRange(visibleRange);
+                    getScrollPanel().setVerticalScrollPosition(scrollPos);
+                    visibleRange = null;
+                    scrollPos = 0;
                 });
             }
         }
