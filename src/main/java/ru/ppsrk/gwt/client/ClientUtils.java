@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.client.LocalizableResource;
@@ -32,7 +31,6 @@ import com.google.gwt.view.client.SingleSelectionModel;
 
 import fr.mikrosimage.gwt.client.ResizableDataGrid;
 import net.lightoze.gwt.i18n.client.LocaleFactory;
-import ru.ppsrk.gwt.client.ClientUtils.ValueCondition.ValueConditionException;
 import ru.ppsrk.gwt.client.ResultPopupPanel.ResultPopupPanelCallback;
 import ru.ppsrk.gwt.shared.SharedUtils;
 
@@ -44,8 +42,8 @@ public class ClientUtils {
 
     public static class FormPanelLDP extends FormPanel {
 
-        private List<ListDataProvider<?>> fpDataProviders = new LinkedList<ListDataProvider<?>>();
-        private List<SelectionModel<?>> fpSelectionModels = new LinkedList<SelectionModel<?>>();
+        private List<ListDataProvider<?>> fpDataProviders = new LinkedList<>();
+        private List<SelectionModel<?>> fpSelectionModels = new LinkedList<>();
 
         public void addDataProvider(ListDataProvider<?> listDataProvider) {
             fpDataProviders.add(listDataProvider);
@@ -91,7 +89,7 @@ public class ClientUtils {
         public void load(H parent, MyAsyncCallback<List<H>> callback);
     }
 
-    static public abstract class MyAsyncCallback<T> implements AsyncCallback<T> {
+    public abstract static class MyAsyncCallback<T> implements AsyncCallback<T> {
 
         public void errorHandler(final Throwable exception) {
             if (!(exception instanceof ClientAuthException)) {
@@ -99,7 +97,6 @@ public class ClientUtils {
                     delayedAlert("Ошибка: " + exception.getMessage());
                 } else {
                     System.out.println("Stacktrace:");
-                    // exception.printStackTrace();
                     System.out.println("--------------------------");
                     for (StackTraceElement ste : exception.getStackTrace()) {
                         System.out.println(ste);
@@ -235,21 +232,19 @@ public class ClientUtils {
 
         public ValueBoxEmptyException(String failText) {
             super(failText);
-            // TODO Auto-generated constructor stub
         }
 
     }
 
     /**
-     * Tests the entered value against some condition and throws
-     * ValueConditionException if it hasn't been met.
+     * Tests the entered value against some condition and throws ValueConditionException if it hasn't been met.
      * 
      * @param <T>
      *            the type of the value
      * @throws ValueConditionException
      *             if the condition fails
      */
-    public abstract static class ValueCondition<T> {
+    public interface ValueCondition<T> {
 
         /**
          * Tests if the number value isn't negative.
@@ -259,7 +254,7 @@ public class ClientUtils {
          * @throws ValueConditionException
          *             if the value is negative or isn't a number
          */
-        public static class NonNegativeValueCondition<T extends Number> extends ValueCondition<T> {
+        public static class NonNegativeValueCondition<T extends Number> implements ValueCondition<T> {
 
             private String failText;
 
@@ -271,8 +266,7 @@ public class ClientUtils {
             @Override
             public void test(T value) {
                 try {
-                    Number numVal = (Number) value;
-                    if (numVal.longValue() < 0) {
+                    if (value.longValue() < 0) {
                         throw new ValueConditionException(failText);
                     }
                 } catch (ClassCastException e) {
@@ -298,9 +292,9 @@ public class ClientUtils {
 
     }
 
-    static private HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>> dataProviders = new HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>>();
+    private static HashMap<Hierarchic, ListDataProvider<? extends Hierarchic>> dataProviders = new HashMap<>();
 
-    static private HashMap<SelectionModel<? extends Hierarchic>, PathProvider> pathDataProviders = new HashMap<SelectionModel<? extends Hierarchic>, ClientUtils.PathProvider>();
+    private static HashMap<SelectionModel<? extends Hierarchic>, PathProvider> pathDataProviders = new HashMap<>();
 
     private static Set<String> roles = null;
 
@@ -315,7 +309,7 @@ public class ClientUtils {
     }
 
     public static String buildPath(Hierarchic dtoObject, boolean includeLeaf) {
-        String path = new String();
+        String path = "";
         if (dtoObject != null) {
             if (includeLeaf)
                 path = dtoObject.getId().toString();
@@ -376,12 +370,8 @@ public class ClientUtils {
 
     public static ListDataProvider<? extends Hierarchic> getPathProviderByObject(Hierarchic object,
             SelectionModel<? extends Hierarchic> selectionModel) {
-        PathProvider pp = pathDataProviders.get(selectionModel);
-        if (pp == null) {
-            pathDataProviders.put(selectionModel, new PathProvider());
-            return null;
-        }
-        return pathDataProviders.get(selectionModel).get(buildPath(object, true));
+        PathProvider pp = pathDataProviders.computeIfAbsent(selectionModel, s -> new PathProvider());
+        return pp.get(buildPath(object, true));
     }
 
     public static Hierarchic getRegisteredObjectBySample(Hierarchic sample) {
@@ -407,8 +397,7 @@ public class ClientUtils {
     }
 
     /**
-     * Inserts a new object to the data provider specified by the parent object.
-     * If no such provider or parent object exists, creates them.
+     * Inserts a new object to the data provider specified by the parent object. If no such provider or parent object exists, creates them.
      * 
      * @param object
      *            object to insert
@@ -417,8 +406,7 @@ public class ClientUtils {
      * @param selectionModel
      *            selection model which is used in the target CellTree
      * @param createFirst
-     *            if true, insert the parent object to the beginning of the
-     *            parent's parent list. If false, add it to the end of the list.
+     *            if true, insert the parent object to the beginning of the parent's parent list. If false, add it to the end of the list.
      */
 
     @SuppressWarnings("unchecked")
@@ -439,13 +427,11 @@ public class ClientUtils {
         } else {
             ListDataProvider<Hierarchic> listParentDataProvider = (ListDataProvider<Hierarchic>) pathDataProviders.get(selectionModel)
                     .get(buildPath(parentObjectToCreate.getParent(), true));
-            if (listParentDataProvider != null) {
-                if (!listParentDataProvider.getList().contains(parentObjectToCreate)) {
-                    if (createFirst) {
-                        listParentDataProvider.getList().add(0, parentObjectToCreate);
-                    } else {
-                        listParentDataProvider.getList().add(parentObjectToCreate);
-                    }
+            if (listParentDataProvider != null && !listParentDataProvider.getList().contains(parentObjectToCreate)) {
+                if (createFirst) {
+                    listParentDataProvider.getList().add(0, parentObjectToCreate);
+                } else {
+                    listParentDataProvider.getList().add(parentObjectToCreate);
                 }
             }
         }
@@ -459,7 +445,7 @@ public class ClientUtils {
      *            delimiter
      * @return String of concatenated elements
      */
-    static public <T> String join(Collection<T> objects, String delim) {
+    public static <T> String join(Collection<T> objects, String delim) {
         StringBuilder sb = new StringBuilder(objects.size() * (10 + delim.length()));
         for (Object object : objects) {
             if (sb.length() > 0) {
@@ -493,7 +479,7 @@ public class ClientUtils {
             if (tmpDataProvider != null) {
                 dataProvider = tmpDataProvider;
             } else {
-                dataProvider = new ListDataProvider<H>();
+                dataProvider = new ListDataProvider<>();
             }
         } else {
             dataProvider = defaultDataProvider;
@@ -567,9 +553,8 @@ public class ClientUtils {
     }
 
     /**
-     * Registers the objects with the provider. Used to find sibling nodes or
-     * the provider by object to remove that object or modify it. Call this on
-     * adding or setting objects to the data provider.
+     * Registers the objects with the provider. Used to find sibling nodes or the provider by object to remove that object or modify it.
+     * Call this on adding or setting objects to the data provider.
      * 
      * @param list
      * @param listDataProvider
@@ -592,10 +577,8 @@ public class ClientUtils {
     }
 
     /**
-     * Registers the supplied {@link ListDataProvider} with
-     * {@link SelectionModel} and parent object to which this data provider
-     * belongs to. It's used to find the data provider later having the parent
-     * object, for example to add a new child node. Use after creating a new
+     * Registers the supplied {@link ListDataProvider} with {@link SelectionModel} and parent object to which this data provider belongs to.
+     * It's used to find the data provider later having the parent object, for example to add a new child node. Use after creating a new
      * data provider.
      * 
      * @param object
@@ -759,43 +742,35 @@ public class ClientUtils {
     }
 
     public static void setupExceptionHandler() {
-        GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
-            @Override
-            public void onUncaughtException(Throwable e) {
-                while (e instanceof UmbrellaException) {
-                    e = e.getCause();
+        GWT.setUncaughtExceptionHandler(e -> {
+            while (e instanceof UmbrellaException) {
+                e = e.getCause();
+            }
+            if (e instanceof AlertRuntimeException) {
+                Window.alert(e.getMessage());
+            } else {
+                StackTraceElement[] stackTraceElements = e.getStackTrace();
+                StringBuilder trace = new StringBuilder();
+                trace.append(e).append('\n');
+                for (StackTraceElement element : stackTraceElements) {
+                    trace.append(element.toString()).append('\n');
                 }
-                if (e instanceof AlertRuntimeException) {
-                    Window.alert(e.getMessage());
-                } else {
-                    StackTraceElement[] stackTraceElements = e.getStackTrace();
-                    StringBuilder trace = new StringBuilder();
-                    trace.append(e).append('\n');
-                    for (StackTraceElement element : stackTraceElements) {
-                        trace.append(element.toString()).append('\n');
-                    }
-                    Window.alert(trace.toString());
-                }
+                Window.alert(trace.toString());
             }
         });
 
     }
 
     public static void setupTelemetryExceptionHandler() {
-        GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
-            @Override
-            public void onUncaughtException(Throwable e) {
-                while (e instanceof UmbrellaException) {
-                    e = e.getCause();
-                }
-                if (e instanceof AlertRuntimeException) {
-                    Window.alert(e.getMessage());
-                } else {
-                    sendErrorTelemetry(e);
-                    Window.alert("Произошла клиентская ошибка. Информация отправлена разработчику.");
-                }
+        GWT.setUncaughtExceptionHandler(e -> {
+            while (e instanceof UmbrellaException) {
+                e = e.getCause();
+            }
+            if (e instanceof AlertRuntimeException) {
+                Window.alert(e.getMessage());
+            } else {
+                sendErrorTelemetry(e);
+                Window.alert("Произошла клиентская ошибка. Информация отправлена разработчику.");
             }
         });
     }
@@ -803,7 +778,7 @@ public class ClientUtils {
     public static <S, T extends S> List<T> trySelectionModelValue(MultiSelectionModel<S> selectionModel, String failText,
             Class<T> selectedClass) {
         @SuppressWarnings("unchecked")
-        List<T> result = new ArrayList<T>((Collection<? extends T>) selectionModel.getSelectedSet());
+        List<T> result = new ArrayList<>((Collection<? extends T>) selectionModel.getSelectedSet());
         if (result.isEmpty()) {
             throw new SelectionModelNullException(failText);
         }
@@ -842,8 +817,7 @@ public class ClientUtils {
      * @param selectedClass
      *            expected class
      * @param allowSubclasses
-     *            don't throw exception if the result is a subclass of the
-     *            specified class
+     *            don't throw exception if the result is a subclass of the specified class
      * @return selectionModel's selected object
      * @throws SelectionModelInvalidClassException
      *             if the object has unexpected type.
@@ -887,13 +861,16 @@ public class ClientUtils {
 
             @Override
             public void onSuccess(Void result) {
-
+                // do nothing on successful telemetry report
             }
         });
     }
 
+    /**
+     * @deprecated use {@link #setupLocale(LocalizableResource) instead}
+     */
     @Deprecated
-    public static <T extends LocalizableResource> T setupLocale(T messages, Class<T> clazz) {
+    public static <T extends LocalizableResource> T setupLocale(T messages, Class<T> clazz) { // NOSONAR I will
         return setupLocale(messages);
     }
 
@@ -906,7 +883,7 @@ public class ClientUtils {
         return messages;
     }
 
-    public static void reloadOnAuthFailure() {
+    public static void setReloadOnAuthFailure() {
         reloadOnAuthFailure = true;
     }
 
@@ -921,11 +898,11 @@ public class ClientUtils {
     }
 
     /**
-     * Fix invalid time paired with invalid timezone (XP with old TZ database)
-     * by setting time to noon. Use if only date is needed to prevent -1 day bug
-     * due to 00:00:00 becoming 23:00:00 of the previous day.
+     * Fix invalid time paired with invalid timezone (XP with old TZ database) by setting time to noon. Use if only date is needed to
+     * prevent -1 day bug due to 00:00:00 becoming 23:00:00 of the previous day.
      * 
-     * @param date date to fix
+     * @param date
+     *            date to fix
      * @return the same date for chaining
      */
     @SuppressWarnings("deprecation")
