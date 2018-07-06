@@ -39,18 +39,18 @@ public class GWTUtilTest {
     public void init() throws GwtUtilException {
         ServerUtils.resetTables(new String[] { "terrdepts" });
         Dept rootNode = nsm.insertRootNode(new Dept());
-        assertEquals(rootNode.getId().longValue(), 1L);
-        assertEquals(rootNode.getLeftNum().longValue(), 1L);
-        assertEquals(rootNode.getRightNum().longValue(), 2L);
+        assertEquals(1L, rootNode.getId().longValue());
+        assertEquals(1L, rootNode.getLeftNum().longValue());
+        assertEquals(2L, rootNode.getRightNum().longValue());
         Dept sq11 = nsm.insertNode(new Dept("11 Отряд", "Краснозатонский"), rootNode.getId());
         Dept pch111 = nsm.insertNode(new Dept("111 ПЧ", "Краснозатонский"), sq11.getId());
-        assertEquals(pch111.getId().longValue(), 3L);
-        assertEquals(pch111.getLeftNum().longValue(), 3L);
-        assertEquals(pch111.getRightNum().longValue(), 4L);
+        assertEquals(3L, pch111.getId().longValue());
+        assertEquals(3L, pch111.getLeftNum().longValue());
+        assertEquals(4L, pch111.getRightNum().longValue());
         rootNode = nsm.getRootNode();
-        assertEquals(rootNode.getId().longValue(), 1L);
-        assertEquals(rootNode.getLeftNum().longValue(), 1L);
-        assertEquals(rootNode.getRightNum().longValue(), 6L);
+        assertEquals(1L, rootNode.getId().longValue());
+        assertEquals(1L, rootNode.getLeftNum().longValue());
+        assertEquals(6L, rootNode.getRightNum().longValue());
         Dept sq12 = nsm.insertNode(new Dept("12 Отряд", "Микунь"), rootNode.getId());
         Dept pch121 = nsm.insertNode(new Dept("121 ПЧ", "Микунь"), sq12.getId());
         nsm.insertNode(new Dept("1 ОП 121 ПЧ", "Кожмудор"), pch121.getId());
