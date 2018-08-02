@@ -38,7 +38,7 @@ public class SettingsManager implements Iterable<String> {
         this.filename = filename;
     }
 
-    public Integer getIntegerSetting(String key) throws NumberFormatException {
+    public Integer getIntegerSetting(String key) {
         return Integer.valueOf(properties.getProperty(key, defaults.get(key)));
     }
 
