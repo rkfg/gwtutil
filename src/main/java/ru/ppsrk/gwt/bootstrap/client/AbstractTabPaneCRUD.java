@@ -1,30 +1,25 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
-import com.google.gwt.user.client.ui.Widget;
+import static ru.ppsrk.gwt.client.ClientUtils.trySelectionModelValue;
+
+import com.google.gwt.view.client.SingleSelectionModel;
 
 import ru.ppsrk.gwt.client.HasListboxValue;
 
-public abstract class AbstractTabPaneCRUD<T extends HasListboxValue> extends AbstractDataGridCRUD<T> {
-
-    protected TabPaneFixed tabPane;
+public abstract class AbstractTabPaneCRUD<T extends HasListboxValue> extends AbstractTabPaneCRUDBase<T, SingleSelectionModel<T>> {
 
     public AbstractTabPaneCRUD(Class<T> itemsClass, CRUDMessages messages) {
-        super(itemsClass, messages);
-        tabPane = new TabPaneFixed() {
-            @Override
-            protected void onShown() {
-                dg_data.redraw();
-            }
-        };
-    }
-
-    protected void initWidget(Widget widget, String heading) {
-        tabPane.initWidget(widget, heading);
+        super(new SingleSelectionModel<>(), itemsClass, messages);
     }
 
     @Override
-    public TabPaneFixed asWidget() {
-        return tabPane;
+    protected void edit(T item) {
+        openEditor(item, reloadDataCallback);
+    }
+
+    @Override
+    protected T getSelected() {
+        return trySelectionModelValue(dg_data.getSelectionModel(), messages.noItemSelected(), itemsClass);
     }
     
 }
