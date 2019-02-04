@@ -24,10 +24,10 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> i
     private boolean isKeyboardClosable = false;
 
     public BootstrapResultPopupPanel() {
-        this(true, "");
+        this(true);
     }
 
-    public BootstrapResultPopupPanel(boolean keyboardClosable, String title) {
+    public BootstrapResultPopupPanel(boolean keyboardClosable) {
         super();
         button_ok.addClickHandler(new Button_okClickHandler());
         button_ok.setIcon(IconType.OK);
