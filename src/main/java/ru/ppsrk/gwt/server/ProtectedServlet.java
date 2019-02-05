@@ -2,6 +2,8 @@ package ru.ppsrk.gwt.server;
 
 import javax.servlet.ServletException;
 
+import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 public class ProtectedServlet extends AnnotatedServlet {
@@ -15,6 +17,22 @@ public class ProtectedServlet extends AnnotatedServlet {
 
     protected Session getSession() {
         return sproc.getSession();
+    }
+
+    protected Query createQuery(String query) {
+        return sproc.getSession().createQuery(query);
+    }
+
+    protected Criteria createCriteria(Class<?> clazz) {
+        return sproc.getSession().createCriteria(clazz);
+    }
+
+    protected Query createCachedQuery(String query) {
+        return createQuery(query).setCacheable(true);
+    }
+
+    protected Criteria createCachedCriteria(Class<?> clazz) {
+        return createCriteria(clazz).setCacheable(true);
     }
 
     public ProtectedServlet() {
