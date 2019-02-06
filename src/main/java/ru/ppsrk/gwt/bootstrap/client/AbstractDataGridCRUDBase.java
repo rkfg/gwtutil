@@ -2,6 +2,8 @@ package ru.ppsrk.gwt.bootstrap.client;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
@@ -16,6 +18,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.view.client.SetSelectionModel;
 
 import fr.mikrosimage.gwt.client.CompleteResizableDataGrid;
+import ru.ppsrk.gwt.client.AlertRuntimeException;
 import ru.ppsrk.gwt.client.ClientUtils.MyAsyncCallback;
 import ru.ppsrk.gwt.client.HasListboxValue;
 import ru.ppsrk.gwt.client.event.ReloadDataEvent;
@@ -56,7 +59,7 @@ public abstract class AbstractDataGridCRUDBase<T extends HasListboxValue, S exte
             loadData(true);
         }
     };
-    
+
     public class ListDataCallbackAdapter implements AsyncCallback<List<T>> {
 
         private AsyncCallback<Collection<T>> adaptee;
@@ -64,7 +67,7 @@ public abstract class AbstractDataGridCRUDBase<T extends HasListboxValue, S exte
         public ListDataCallbackAdapter(AsyncCallback<Collection<T>> adaptee) {
             this.adaptee = adaptee;
         }
-        
+
         @Override
         public void onFailure(Throwable caught) {
             adaptee.onFailure(caught);
@@ -74,7 +77,7 @@ public abstract class AbstractDataGridCRUDBase<T extends HasListboxValue, S exte
         public void onSuccess(List<T> result) {
             adaptee.onSuccess(result);
         }
-        
+
     }
 
     public interface CRUDMessages extends Messages {
@@ -85,6 +88,8 @@ public abstract class AbstractDataGridCRUDBase<T extends HasListboxValue, S exte
         @DefaultMessage("Really delete the item {0}?")
         String confirmItemDeletion(String itemText);
 
+        @DefaultMessage("Really delete the selected items?")
+        String confirmMultipleItemsDeletion();
     }
 
     protected void clearItems() {
@@ -94,6 +99,10 @@ public abstract class AbstractDataGridCRUDBase<T extends HasListboxValue, S exte
     protected abstract void openEditor(T item, AsyncCallback<Void> saveCallback);
 
     protected abstract void deleteItem(Long id, AsyncCallback<Void> reloadCallback);
+
+    protected void deleteMultipleItems(Collection<Long> id, AsyncCallback<Void> reloadCallback) {
+        throw new AlertRuntimeException("Multiple items deletion is not supported.");
+    }
 
     protected void loadData() {
         loadData(false);
@@ -122,20 +131,45 @@ public abstract class AbstractDataGridCRUDBase<T extends HasListboxValue, S exte
 
     @UiHandler("b_change")
     public void onChangeClick(ClickEvent e) {
-        edit(getSelected());
+        Collection<T> selected = getSelected();
+        if (selected.size() == 1) {
+            edit(selected.iterator().next());
+        } else {
+            editMultiple(selected);
+        }
     }
 
     @UiHandler("b_del")
     public void onDelPartClick(ClickEvent e) {
-        T selectedPart = getSelected();
-        if (!Window.confirm(messages.confirmItemDeletion(selectedPart.getListboxValue()))) {
-            return;
+        Collection<T> selected = getSelected();
+        if (selected.size() == 1) {
+            T selectedItem = selected.iterator().next();
+            if (!Window.confirm(messages.confirmItemDeletion(selectedItem.getListboxValue()))) {
+                return;
+            }
+            deleteItem(selectedItem.getId(), reloadDataCallback);
+        } else {
+            if (!Window.confirm(messages.confirmMultipleItemsDeletion())) {
+                return;
+            }
+            deleteMultipleItems(selected.stream().map(T::getId).collect(Collectors.toList()), reloadDataCallback);
         }
-        deleteItem(selectedPart.getId(), reloadDataCallback);
     }
 
-    protected abstract void edit(T item);
+    protected void edit(T item) {
+        openEditor(item, reloadDataCallback);
+    }
 
-    protected abstract T getSelected();
+    protected void editMultiple(Collection<T> item) {
+        throw new AlertRuntimeException("Multiple items editing is not supported.");
+    }
+
+    protected Collection<T> getSelected() {
+        Set<T> selected = dg_data.getSelectionModel().getSelectedSet();
+        if (selected.isEmpty()) {
+            throw new AlertRuntimeException(messages.noItemSelected());
+        }
+        return selected;
+    }
 
 }
