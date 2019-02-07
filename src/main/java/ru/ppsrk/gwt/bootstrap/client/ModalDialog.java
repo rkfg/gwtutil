@@ -4,9 +4,7 @@ import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.Form;
 import com.github.gwtbootstrap.client.ui.Modal;
 import com.github.gwtbootstrap.client.ui.constants.BackdropType;
-import com.github.gwtbootstrap.client.ui.event.HiddenEvent;
 import com.github.gwtbootstrap.client.ui.event.HiddenHandler;
-import com.github.gwtbootstrap.client.ui.event.ShownEvent;
 import com.github.gwtbootstrap.client.ui.event.ShownHandler;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -55,24 +53,16 @@ public class ModalDialog<T> extends Composite {
 
     public ModalDialog() {
         uiBinder.createAndBindUi(this);
-        m_dialog.addShownHandler(new ShownHandler() {
-
-            @Override
-            public void onShown(ShownEvent shownEvent) {
-                if (focusable != null) {
-                    focusable.setFocus(true);
-                }
+        m_dialog.addShownHandler(shownEvent -> {
+            if (focusable != null) {
+                focusable.setFocus(true);
             }
         });
-        m_dialog.addHiddenHandler(new HiddenHandler() {
-
-            @Override
-            public void onHidden(HiddenEvent hiddenEvent) {
-                showParent();
-                m_dialog.removeFromParent();
-                if (restoreFocus != null) {
-                    restoreFocus.setFocus(true);
-                }
+        m_dialog.addHiddenHandler(hiddenEvent -> {
+            showParent();
+            m_dialog.removeFromParent();
+            if (restoreFocus != null) {
+                restoreFocus.setFocus(true);
             }
         });
     }
