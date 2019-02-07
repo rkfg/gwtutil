@@ -1,10 +1,12 @@
 package fr.mikrosimage.gwt.client;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.Range;
@@ -82,5 +84,17 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
         selectionModel.clear();
         selectedSet.clear();
         visibleRange = null;
+    }
+
+    public <C> Column<T, C> addColumn(Column<T, C> col, String headerString, Comparator<T> comparator, boolean sortAscending) {
+        super.addColumn(col, new DataGridResizableHeader(headerString, col));
+        col.setSortable(true);
+        col.setDefaultSortAscending(sortAscending);
+        sortHandler.setComparator(col, comparator);
+        return col;
+    }
+
+    public <C> Column<T, C> addColumn(Column<T, C> col, String headerString, Comparator<T> comparator) {
+        return addColumn(col, headerString, comparator, true);
     }
 }
