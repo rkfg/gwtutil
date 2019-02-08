@@ -3,11 +3,18 @@ package ru.ppsrk.gwt.shared;
 import java.util.Comparator;
 import java.util.function.Function;
 
-public class FieldComparator<T, C extends Comparable<C>> implements Comparator<T> {
+/**
+ * A comparator to sort objects using a single field that's usually obtained via getter method reference.
+ * @author rkfg
+ *
+ * @param <T> object type
+ * @param <F> field type (must implement {@link Comparable})
+ */
+public class FieldComparator<T, F extends Comparable<F>> implements Comparator<T> {
 
-    private Function<T, C> f;
+    private Function<T, F> f;
 
-    public FieldComparator(Function<T, C> f) {
+    public FieldComparator(Function<T, F> f) {
         this.f = f;
     }
 

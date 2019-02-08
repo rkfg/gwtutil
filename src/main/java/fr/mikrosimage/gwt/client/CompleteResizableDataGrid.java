@@ -95,6 +95,22 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
         visibleRange = null;
     }
 
+    /**
+     * Add a column with a comparator.
+     * 
+     * @param col
+     *            column to add
+     * @param headerString
+     *            column title
+     * @param comparator
+     *            comparator for values
+     * @param sortAscending
+     *            whether to sort this column ascending (true) or descending (false)
+     * @param <C>
+     *            column value type
+     * @return col
+     */
+
     public <C> Column<T, C> addColumn(Column<T, C> col, String headerString, Comparator<T> comparator, boolean sortAscending) {
         super.addColumn(col, new DataGridResizableHeader(headerString, col));
         col.setSortable(true);
@@ -103,51 +119,161 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
         return col;
     }
 
+    /**
+     * Add a column with a comparator, sort ascending by default.
+     * 
+     * @param col
+     *            column to add
+     * @param headerString
+     *            column title
+     * @param comparator
+     *            comparator for values
+     * @param <C>
+     *            column value type
+     * @return col
+     */
     public <C> Column<T, C> addColumn(Column<T, C> col, String headerString, Comparator<T> comparator) {
         return addColumn(col, headerString, comparator, true);
     }
+
+    /**
+     * Sets messages object for this data grid. It's used internally for representing null values in the columns as
+     * {@link CommonMessages#notSet()}. Should be used before adding columns using the {@link #addDateColumn(Function, String)},
+     * {@link #addLongColumn(Function, String)} etc.
+     * 
+     * @param messages
+     */
 
     public void setMessages(CommonMessages messages) {
         this.messages = messages;
     }
 
-    public DateColumn<T> addDateColumn(Function<T, Date> col, String headerString) {
+    /**
+     * Adds a column that represents a date. Also makes this column sortable using a field comparator.
+     * 
+     * <h3>Example:</h3>
+     * 
+     * <pre>
+     * dg_data.addDateColumn(Entity::getDate, Main.messages.date());
+     * </pre>
+     * 
+     * @param field
+     *            function (usually a method reference) for extracting the field from the object
+     * @param headerString
+     *            column header text
+     * @return the created column
+     */
+    public DateColumn<T> addDateColumn(Function<T, Date> field, String headerString) {
         return (DateColumn<T>) addColumn(new DateColumn<T>(messages) {
 
             @Override
             protected Date getDate(T object) {
-                return col.apply(object);
+                return field.apply(object);
             }
-        }, headerString, new FieldComparator<>(col));
+        }, headerString, new FieldComparator<>(field));
     }
 
-    public LongColumn<T> addLongColumn(Function<T, Long> col, String headerString) {
+    /**
+     * Adds a column that represents a long number. Also makes this column sortable using a field comparator.
+     * 
+     * <h3>Example:</h3>
+     * 
+     * <pre>
+     * dg_data.addLongColumn(Entity::getNumber, Main.messages.number());
+     * </pre>
+     * 
+     * @param field
+     *            function (usually a method reference) for extracting the field from the object.
+     * @param headerString
+     *            column header text
+     * @return the created column
+     */
+    public LongColumn<T> addLongColumn(Function<T, Long> field, String headerString) {
         return (LongColumn<T>) addColumn(new LongColumn<T>(messages) {
 
             @Override
             protected Long getLongValue(T object) {
-                return col.apply(object);
+                return field.apply(object);
             }
-        }, headerString, new FieldComparator<>(col));
+        }, headerString, new FieldComparator<>(field));
     }
 
-    public TextColumn<T> addTextColumn(Function<T, String> col, String headerString) {
+    /**
+     * Adds a column that displays a string field from the object. Also makes this column sortable using a field comparator.
+     * 
+     * <h3>Example:</h3>
+     * 
+     * <pre>
+     * dg_data.addTextColumn(Entity::getName, Main.messages.name());
+     * </pre>
+     * 
+     * @param field
+     *            function (usually a method reference) for extracting the field from the object.
+     * @param headerString
+     *            column header text
+     * @return the created column
+     */
+    public TextColumn<T> addTextColumn(Function<T, String> field, String headerString) {
         return (TextColumn<T>) addColumn(new TextColumn<T>() {
 
             @Override
             public String getValue(T object) {
-                return col.apply(object);
+                return field.apply(object);
             }
-        }, headerString, new FieldComparator<>(col));
+        }, headerString, new FieldComparator<>(field));
     }
 
-    public TextColumn<T> addHLBColumn(Function<T, HasListboxValue> col, String headerString) {
-        Function<T, String> function = col.andThen(v -> v == null ? null : v.getListboxValue());
+    /**
+     * Adds a column that displays a string field from the object. Also makes this column sortable using a field comparator that uses a
+     * specified field instead of the displayed one.
+     * 
+     * <h3>Example:</h3>
+     * 
+     * <pre>
+     * dg_data.addTextColumn(Entity::getName, Entity::getNormalizedName, Main.messages.name());
+     * </pre>
+     * 
+     * @param field
+     *            function (usually a method reference) for extracting the field from the object.
+     * @param compfield
+     *            function (usually a method reference) for extracting the sorting field from the object.
+     * @param headerString
+     *            column header text
+     * @return the created column
+     */
+    public <F extends Comparable<F>> TextColumn<T> addTextColumn(Function<T, String> field, Function<T, F> compfield, String headerString) {
         return (TextColumn<T>) addColumn(new TextColumn<T>() {
 
             @Override
             public String getValue(T object) {
-                HasListboxValue result = col.apply(object);
+                return field.apply(object);
+            }
+        }, headerString, new FieldComparator<>(compfield));
+    }
+
+    /**
+     * Adds a column that displays a complex field of type {@link HasListboxValue} from the object. Also makes this column sortable using a
+     * field comparator.
+     * 
+     * <h3>Example:</h3>
+     * 
+     * <pre>
+     * dg_data.addHLBColumn(Entity::getType, Main.messages.type());
+     * </pre>
+     * 
+     * @param field
+     *            function (usually a method reference) for extracting the field from the object.
+     * @param headerString
+     *            column header text
+     * @return the created column
+     */
+    public TextColumn<T> addHLBColumn(Function<T, HasListboxValue> field, String headerString) {
+        Function<T, String> function = field.andThen(v -> v == null ? null : v.getListboxValue());
+        return (TextColumn<T>) addColumn(new TextColumn<T>() {
+
+            @Override
+            public String getValue(T object) {
+                HasListboxValue result = field.apply(object);
                 if (result == null) {
                     return messages.notSet();
                 }
@@ -155,7 +281,38 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
             }
         }, headerString, new FieldComparator<>(function));
     }
-    
+
+    /**
+     * Adds a column that displays a complex field of type {@link HasListboxValue} from the object. Also makes this column sortable using a
+     * field comparator that uses a specified field instead of the displayed one.
+     * 
+     * <h3>Example:</h3>
+     * 
+     * <pre>
+     * dg_data.addHLBColumn(Entity::getType, Entity::getComparableType, Main.messages.type());
+     * </pre>
+     * 
+     * @param field
+     *            function (usually a method reference) for extracting the field from the object.
+     * @param headerString
+     *            column header text
+     * @return the created column
+     */
+    public <F extends Comparable<F>> TextColumn<T> addHLBColumn(Function<T, HasListboxValue> field, Function<T, F> compfield,
+            String headerString) {
+        return (TextColumn<T>) addColumn(new TextColumn<T>() {
+
+            @Override
+            public String getValue(T object) {
+                HasListboxValue result = field.apply(object);
+                if (result == null) {
+                    return messages.notSet();
+                }
+                return result.getListboxValue();
+            }
+        }, headerString, new FieldComparator<>(compfield));
+    }
+
     public void setDefaultSortColumn(Column<T, ?> col) {
         getColumnSortList().push(col);
     }
