@@ -155,4 +155,8 @@ public class CompleteResizableDataGrid<T extends HasId, S extends SetSelectionMo
             }
         }, headerString, new FieldComparator<>(function));
     }
+    
+    public void setDefaultSortColumn(Column<T, ?> col) {
+        getColumnSortList().push(col);
+    }
 }
