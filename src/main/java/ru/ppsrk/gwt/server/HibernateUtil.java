@@ -30,7 +30,7 @@ public class HibernateUtil {
 
     private HibernateUtil() {
     }
-    
+
     public static class ListQueryFilter {
         private List<String> filterNames = new ArrayList<>();
         private List<HashMap<String, Object>> filterParams = new ArrayList<>();
@@ -271,7 +271,7 @@ public class HibernateUtil {
         if (filter != null) {
             filter.applyFilter(session);
         }
-        return (List<HIB>) session.createQuery(query).setProperties(params).list();
+        return (List<HIB>) session.createQuery(query).setProperties(params).setCacheable(true).list();
     }
 
     public static void restartTransaction(Session session) {
