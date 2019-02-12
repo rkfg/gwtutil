@@ -4,17 +4,9 @@ import java.util.Collection;
 
 import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
-import com.github.gwtbootstrap.client.ui.Typeahead.HighlighterCallback;
-import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
-import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import com.google.gwt.user.client.ui.Widget;
@@ -35,48 +27,24 @@ public abstract class TypeaheadBox extends TextBox implements PreventsKeyboardCl
         this.suggestOnLength = suggestOnLength;
         addKeyPressHandler(new ThisKeyPressHandler());
         typeahead.add(this);
-        typeahead.setUpdaterCallback(new UpdaterCallback() {
-
-            @Override
-            public String onSelection(Suggestion selectedSuggestion) {
-                enterAllowed = true;
-                return updater(selectedSuggestion);
-            }
+        typeahead.setUpdaterCallback(selectedSuggestion -> {
+            enterAllowed = true;
+            return updater(selectedSuggestion);
         });
-        typeahead.setHighlighterCallback(new HighlighterCallback() {
-            
-            @Override
-            public String highlight(String item) {
-                return highlighter(item);
+        typeahead.setHighlighterCallback(this::highlighter);
+        addFocusHandler(event -> {
+            if (parentPanel == null) {
+                return;
             }
+            parentPanel.setFocusedWidget(TypeaheadBox.this);
         });
-        addFocusHandler(new FocusHandler() {
-
-            @Override
-            public void onFocus(FocusEvent event) {
-                if (parentPanel == null) {
-                    return;
-                }
-                parentPanel.setFocusedWidget(TypeaheadBox.this);
+        addBlurHandler(event -> {
+            if (parentPanel == null) {
+                return;
             }
+            parentPanel.setFocusedWidget(null);
         });
-        addBlurHandler(new BlurHandler() {
-
-            @Override
-            public void onBlur(BlurEvent event) {
-                if (parentPanel == null) {
-                    return;
-                }
-                parentPanel.setFocusedWidget(null);
-            }
-        });
-        addAttachHandler(new Handler() {
-
-            @Override
-            public void onAttachOrDetach(AttachEvent event) {
-                parentPanel = getParentClosablePanel();
-            }
-        });
+        addAttachHandler(event -> parentPanel = getParentClosablePanel());
         typeahead.reconfigure();
     }
 

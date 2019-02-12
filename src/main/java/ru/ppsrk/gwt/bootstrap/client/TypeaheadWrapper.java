@@ -10,7 +10,6 @@ import com.github.gwtbootstrap.client.ui.TextBox;
 import com.github.gwtbootstrap.client.ui.Typeahead;
 import com.github.gwtbootstrap.client.ui.Typeahead.UpdaterCallback;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
@@ -29,37 +28,21 @@ public class TypeaheadWrapper<T extends HasListboxValue> extends DecoratorBase<T
     }
 
     /**
-     * Fire ValueChangeEvent on the decorated TextBox. This can't be defaulted
-     * in the constructor for an unknown reason (maybe the callback gets
-     * rewritten due to initialisation order)
+     * Fire ValueChangeEvent on the decorated TextBox. This can't be defaulted in the constructor for an unknown reason (maybe the callback
+     * gets rewritten due to initialisation order)
      * 
-     * @param fire whether to fire the event or not
+     * @param fire
+     *            whether to fire the event or not
      */
     public void setFireChangeEvent(boolean fire) {
         if (fire) {
-            decorated.setUpdaterCallback(new UpdaterCallback() {
-
-                @Override
-                public String onSelection(Suggestion selectedSuggestion) {
-                    final String replacementString = selectedSuggestion.getReplacementString();
-                    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-
-                        @Override
-                        public void execute() {
-                            ValueChangeEvent.fire(getTextBox(), replacementString);
-                        }
-                    });
-                    return replacementString;
-                }
+            decorated.setUpdaterCallback(selectedSuggestion -> {
+                final String replacementString = selectedSuggestion.getReplacementString();
+                Scheduler.get().scheduleDeferred(() -> ValueChangeEvent.fire(getTextBox(), replacementString));
+                return replacementString;
             });
         } else {
-            decorated.setUpdaterCallback(new UpdaterCallback() {
-
-                @Override
-                public String onSelection(Suggestion selectedSuggestion) {
-                    return selectedSuggestion.getReplacementString();
-                }
-            });
+            decorated.setUpdaterCallback(Suggestion::getReplacementString);
         }
     }
 
