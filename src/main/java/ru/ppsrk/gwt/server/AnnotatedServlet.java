@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.RPC;
 import com.google.gwt.user.server.rpc.RPCRequest;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
 import ru.ppsrk.gwt.client.AlertRuntimeException;
 
 @SuppressWarnings("serial")
-public abstract class AnnotatedServlet extends RemoteServiceServlet {
+public abstract class AnnotatedServlet extends XsrfProtectedServiceServlet {
 
     private final transient Logger log = LoggerFactory.getLogger(getClass());
     

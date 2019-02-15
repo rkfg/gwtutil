@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	version="2.5">
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<listener>
 		<listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
 	</listener>
 
-    <listener>
-        <listener-class>net.lightoze.gwt.i18n.server.I18nInitializer</listener-class>
-    </listener>
+	<listener>
+		<listener-class>net.lightoze.gwt.i18n.server.I18nInitializer</listener-class>
+	</listener>
 
-    <filter>
-        <filter-name>i18nFilter</filter-name>
-        <filter-class>net.lightoze.gwt.i18n.server.I18nFilter</filter-class>
-    </filter>
+	<filter>
+		<filter-name>i18nFilter</filter-name>
+		<filter-class>net.lightoze.gwt.i18n.server.I18nFilter</filter-class>
+	</filter>
 
 	<filter>
 		<filter-name>ShiroFilter</filter-name>
 		<filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
 	</filter>
 
-    <filter-mapping>
-        <filter-name>i18nFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<filter-mapping>
+		<filter-name>i18nFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 	<filter-mapping>
 		<filter-name>ShiroFilter</filter-name>
@@ -36,22 +35,34 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<dispatcher>ERROR</dispatcher>
 	</filter-mapping>
 
+	<context-param>
+		<param-name>gwt.xsrf.session_cookie_name</param-name>
+		<param-value>JSESSIONID</param-value>
+	</context-param>
+
 	<servlet>
 		<servlet-name>AuthService</servlet-name>
 		<servlet-class>ru.ppsrk.gwt.server.AuthServiceImpl</servlet-class>
 	</servlet>
-    <servlet>
-        <servlet-name>TelemetryService</servlet-name>
-        <servlet-class>ru.ppsrk.gwt.server.TelemetryServiceImpl</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>TelemetryService</servlet-name>
+		<servlet-class>ru.ppsrk.gwt.server.TelemetryServiceImpl</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>xsrf</servlet-name>
+		<servlet-class>com.google.gwt.user.server.rpc.XsrfTokenServiceServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>AuthService</servlet-name>
 		<url-pattern>/gwtutil/AuthService</url-pattern>
 	</servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>TelemetryService</servlet-name>
-        <url-pattern>/gwtutil/telemetry</url-pattern>
-    </servlet-mapping>
-	<!-- TODO: Optionally add a <welcome-file-list> tag to display a welcome 
-		file. -->
+	<servlet-mapping>
+		<servlet-name>TelemetryService</servlet-name>
+		<url-pattern>/gwtutil/telemetry</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>xsrf</servlet-name>
+		<url-pattern>/gwtutil/xsrf</url-pattern>
+	</servlet-mapping>
+	<!-- TODO: Optionally add a <welcome-file-list> tag to display a welcome file. -->
 </web-app>

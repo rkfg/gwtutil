@@ -19,6 +19,11 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.HasRpcToken;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import com.google.gwt.user.client.rpc.XsrfToken;
+import com.google.gwt.user.client.rpc.XsrfTokenService;
+import com.google.gwt.user.client.rpc.XsrfTokenServiceAsync;
 import com.google.gwt.user.client.ui.Focusable;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.ListBox;
@@ -916,6 +921,28 @@ public class ClientUtils {
 
     public static <T extends HasId> T getSelectedCollectionItem(Collection<T> col, ListBox lb) {
         return SharedUtils.getObjectFromCollectionById(col, getListboxSelectedValue(lb));
+    }
+
+    /**
+     * Creates and returns the RPC service, gets an XSRF token, setups the service to use it and calls the user-supplied callback that
+     * usually creates and inits the UI
+     * 
+     * @param service your XSRF-protected service
+     * @param callback
+     * @return the async service implementing instance
+     */
+    public static void initXSRFToken(Object service, Runnable callback) {
+        XsrfTokenServiceAsync xsrf = GWT.create(XsrfTokenService.class);
+        ((ServiceDefTarget) xsrf).setServiceEntryPoint(GWT.getModuleBaseURL() + "xsrf");
+        xsrf.getNewXsrfToken(new MyAsyncCallback<XsrfToken>() {
+
+            @Override
+            public void onSuccess(XsrfToken result) {
+                ((HasRpcToken) service).setRpcToken(result);
+                callback.run();
+            }
+
+        });
     }
 
 }
