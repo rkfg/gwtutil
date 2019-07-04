@@ -41,7 +41,7 @@ public class ServerUtils {
 
     public interface MapperHint {
         public Class<?>[][] getMapperHints();
-    };
+    }
 
     protected static void cleanup() {
         log.info("Cleaning up ServerUtils...");
@@ -77,9 +77,9 @@ public class ServerUtils {
         return elements;
     }
 
-    public static <ST, DT> List<DT> mapArray(Collection<ST> list, Class<DT> destClass) {
-        List<DT> result = new ArrayList<>();
-        for (ST elem : list) {
+    public static <S, D> List<D> mapArray(Collection<S> list, Class<D> destClass) {
+        List<D> result = new ArrayList<>();
+        for (S elem : list) {
             if (elem != null) {
                 result.add(mapModel(elem, destClass));
             }
@@ -88,16 +88,16 @@ public class ServerUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <ST> List<ST> mapArray(Collection<ST> list) {
+    public static <S> List<S> mapArray(Collection<S> list) {
         if (list.isEmpty()) {
             return new ArrayList<>();
         }
-        return (List<ST>) mapArray(list, list.iterator().next().getClass());
+        return (List<S>) mapArray(list, list.iterator().next().getClass());
     }
 
-    public static <ST, DT, H extends MapperHint> List<DT> mapArray(Collection<ST> list, Class<DT> destClass, Class<H> hintClass) {
-        List<DT> result = new ArrayList<>();
-        for (ST elem : list) {
+    public static <S, D, H extends MapperHint> List<D> mapArray(Collection<S> list, Class<D> destClass, Class<H> hintClass) {
+        List<D> result = new ArrayList<>();
+        for (S elem : list) {
             if (elem != null) {
                 result.add(mapModel(elem, destClass, hintClass));
             }
@@ -109,10 +109,8 @@ public class ServerUtils {
         if (value == null) {
             try {
                 return classDTO.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+            } catch (InstantiationException | IllegalAccessException e) {
+                log.error("{}", e);
             }
         }
         return mapper.map(value, classDTO);
@@ -140,20 +138,20 @@ public class ServerUtils {
                     }
                 }
             }
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (InstantiationException | IllegalAccessException e) {
+            log.error("{}", e);
         }
         throw new AlertRuntimeException("Couldn't find the valid mapping class for " + value.toString());
     }
 
     public static void printStackTrace() {
-        System.out.println("--------------------------");
-        for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
-            System.out.println(ste);
+        if (log.isDebugEnabled()) {
+            log.debug("--------------------------");
+            for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+                log.debug(ste.toString());
+            }
+            log.debug("--------------------------");
         }
-        System.out.println("--------------------------");
     }
 
     public static void resetTables(final String[] tables) throws GwtUtilException {
@@ -182,23 +180,22 @@ public class ServerUtils {
                 try {
                     session.createSQLQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
                     File sql = new File(Thread.currentThread().getContextClassLoader().getResource(sqlFilename).getPath());
-                    Scanner scan;
-                    scan = new Scanner(sql);
-                    StringBuilder sb = new StringBuilder((int) sql.length());
-                    String line;
-                    while (scan.hasNextLine()) {
-                        line = scan.nextLine();
-                        sb.append(line);
-                        if (line.endsWith(";")) {
-                            session.createSQLQuery(sb.toString()).executeUpdate();
-                            sb.setLength(0);
+                    try (Scanner scan = new Scanner(sql)) {
+                        StringBuilder sb = new StringBuilder((int) sql.length());
+                        String line;
+                        while (scan.hasNextLine()) {
+                            line = scan.nextLine();
+                            sb.append(line);
+                            if (line.endsWith(";")) {
+                                session.createSQLQuery(sb.toString()).executeUpdate();
+                                sb.setLength(0);
+                            }
+                            sb.append('\n');
                         }
-                        sb.append('\n');
                     }
-                    scan.close();
                     session.createSQLQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    log.error("{}", e);
                 }
                 return null;
             }
@@ -248,7 +245,7 @@ public class ServerUtils {
                 return;
             }
             super.copyProperty(bean, name, value);
-        };
+        }
     };
 
     /**
@@ -268,8 +265,7 @@ public class ServerUtils {
         try {
             beanMerger.copyProperties(target, source);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            log.warn("Beans merging failed:", e);
-            throw new LogicException(e.getMessage());
+            throw new LogicException("Beans merging failed:", e);
         }
     }
 
