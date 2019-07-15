@@ -12,7 +12,7 @@ public class TabPaneFixed extends TabPane {
     }
 
     protected void onShown() {
-
+        // empty by default
     }
 
 }

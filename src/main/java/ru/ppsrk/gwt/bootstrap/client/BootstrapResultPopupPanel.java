@@ -1,18 +1,16 @@
 package ru.ppsrk.gwt.bootstrap.client;
 
-import ru.ppsrk.gwt.client.ResultPopupPanel;
-
 import com.github.gwtbootstrap.client.ui.Button;
 import com.github.gwtbootstrap.client.ui.ButtonGroup;
 import com.github.gwtbootstrap.client.ui.constants.IconType;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
+
+import ru.ppsrk.gwt.client.ResultPopupPanel;
 
 public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> implements KeyboardClosable {
     protected final HorizontalPanel horizontalPanel_buttons = new HorizontalPanel() {
@@ -29,10 +27,14 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> i
 
     public BootstrapResultPopupPanel(boolean keyboardClosable) {
         super();
-        button_ok.addClickHandler(new Button_okClickHandler());
+        button_ok.addClickHandler(e -> {
+            if (!preventOk()) {
+                hide();
+            }
+        });
         button_ok.setIcon(IconType.OK);
         button_ok.setText("ОК");
-        button_cancel.addClickHandler(new Button_cancelClickHandler());
+        button_cancel.addClickHandler(e -> cancelHide());
         button_cancel.setIcon(IconType.REMOVE);
         button_cancel.setText("Отмена");
         horizontalPanel_buttons.add(buttonGroup);
@@ -41,20 +43,6 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> i
 
     protected boolean preventOk() {
         return false;
-    }
-
-    private class Button_okClickHandler implements ClickHandler {
-        public void onClick(ClickEvent event) {
-            if (!preventOk()) {
-                hide();
-            }
-        }
-    }
-
-    private class Button_cancelClickHandler implements ClickHandler {
-        public void onClick(ClickEvent event) {
-            cancelHide();
-        }
     }
 
     protected Button getOkButton() {
@@ -93,6 +81,8 @@ public abstract class BootstrapResultPopupPanel<T> extends ResultPopupPanel<T> i
                     event.consume();
                     closeOk();
                 }
+                break;
+            default:
                 break;
             }
         }

@@ -22,6 +22,10 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class BootstrapUtils {
+
+    private BootstrapUtils() {
+    }
+
     @SuppressWarnings("rawtypes")
     public static void tooltipify(Widget myWidget, String tooltipText) {
         myWidget.getElement().setAttribute("data-original-title", tooltipText);
@@ -32,14 +36,14 @@ public class BootstrapUtils {
     }
 
     private static Panel notificationsPanel = new ComplexWidget("div");
-    private static List<Alert> alerts = new LinkedList<Alert>();
+    private static List<Alert> alerts = new LinkedList<>();
     private static double gap = 45;
 
     static {
         RootLayoutPanel.get().add(notificationsPanel);
         notificationsPanel.getElement().getParentElement().getStyle().setZIndex(-10000);
     }
-    
+
     public static void setNotificationsSettings(Panel panel, double alertsGap) {
         notificationsPanel = panel;
         gap = alertsGap;
@@ -66,7 +70,7 @@ public class BootstrapUtils {
         }
         notificationsPanel.add(alert);
         alerts.add(alert);
-        style.setLeft(Window.getClientWidth() / 2 - alert.getOffsetWidth() / 2, Unit.PX);
+        style.setLeft(Window.getClientWidth() / 2. - alert.getOffsetWidth() / 2., Unit.PX);
         new Timer() {
 
             @Override

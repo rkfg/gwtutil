@@ -17,22 +17,22 @@ public abstract class ModalDialogAdapter<T> extends Composite {
         @Override
         protected T getResult() {
             return ModalDialogAdapter.this.getResult();
-        };
+        }
 
         @Override
         protected boolean preventOk() {
             return ModalDialogAdapter.this.preventOk();
-        };
+        }
     };
 
-    public class PreventingModalDialogCallback<MT> extends PreventingCallback<MT> {
+    public class PreventingModalDialogCallback<M> extends PreventingCallback<M> {
 
         public PreventingModalDialogCallback() {
             super(modalDialog.b_ok);
         }
 
         @Override
-        protected void doSuccess(MT result) {
+        protected void doSuccess(M result) {
             modalDialog.doOk();
         }
 
