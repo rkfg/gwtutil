@@ -252,8 +252,20 @@ public class HibernateUtil {
         return (List<H>) session.createQuery(query).setProperties(params).setCacheable(true).list();
     }
 
+    public static void commitTransaction(Session session) {
+        try {
+            if (session.getTransaction().isActive()) {
+                session.getTransaction().commit();
+            }
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            session.close();
+            throw e;
+        }
+    }
+    
     public static void restartTransaction(Session session) {
-        session.getTransaction().commit();
+        commitTransaction(session);
         session.beginTransaction();
     }
 
