@@ -53,7 +53,9 @@ public class SessionProcessor implements IAnnotationProcessor, IRPCFinalizer {
                     t.clear();
                 }
             } finally {
-                session.close();
+                if (session.isOpen()) {
+                    session.close();
+                }
                 setSession(null);
             }
         }
@@ -67,5 +69,5 @@ public class SessionProcessor implements IAnnotationProcessor, IRPCFinalizer {
     public void registerOneTimer(Runnable r) {
         oneTimers.get().add(r);
     }
-    
+
 }
