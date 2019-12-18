@@ -18,6 +18,7 @@ package ru.ppsrk.gwt.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.cell.client.AbstractInputCell;
 import com.google.gwt.cell.client.Cell;
@@ -28,6 +29,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.SelectElement;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
@@ -46,7 +48,7 @@ public class DynamicSelectionCell extends AbstractInputCell<Pair<Long, String>, 
 
     private static Template template;
 
-    private HashMap<Long, Integer> indexForOption = new HashMap<Long, Integer>();
+    private Map<Long, Integer> indexForOption = new HashMap<>();
 
     private final List<Pair<Long, String>> options;
 
@@ -61,7 +63,7 @@ public class DynamicSelectionCell extends AbstractInputCell<Pair<Long, String>, 
         if (template == null) {
             template = GWT.create(Template.class);
         }
-        this.options = new ArrayList<Pair<Long, String>>(options);
+        this.options = new ArrayList<>(options);
         refreshIndexes();
     }
 
@@ -96,7 +98,8 @@ public class DynamicSelectionCell extends AbstractInputCell<Pair<Long, String>, 
     }
 
     @Override
-    public void onBrowserEvent(Context context, Element parent, Pair<Long, String> value, NativeEvent event, ValueUpdater<Pair<Long, String>> valueUpdater) {
+    public void onBrowserEvent(Context context, Element parent, Pair<Long, String> value, NativeEvent event,
+            ValueUpdater<Pair<Long, String>> valueUpdater) {
         super.onBrowserEvent(context, parent, value, event, valueUpdater);
         String type = event.getType();
         if ("change".equals(type)) {
