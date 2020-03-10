@@ -1,6 +1,7 @@
 package ru.ppsrk.gwt.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -55,9 +56,7 @@ public class ClientUtils {
         }
 
         public void addDataProviders(ListDataProvider<?>... listDataProviders) {
-            for (ListDataProvider<?> dataProvider : listDataProviders) {
-                fpDataProviders.add(dataProvider);
-            }
+            fpDataProviders.addAll(Arrays.asList(listDataProviders));
         }
 
         public void addSelectionModel(SelectionModel<?> selectionModel) {
@@ -65,9 +64,7 @@ public class ClientUtils {
         }
 
         public void addSelectionModels(SelectionModel<?>... selectionModels) {
-            for (SelectionModel<?> selectionModel : selectionModels) {
-                fpSelectionModels.add(selectionModel);
-            }
+            fpSelectionModels.addAll(Arrays.asList(selectionModels));
         }
 
         @Override
@@ -644,7 +641,7 @@ public class ClientUtils {
 
             @Override
             public void onSuccess(Boolean result) {
-                if (!result) {
+                if (!Boolean.TRUE.equals(result)) {
                     PopupPanel popupPanel = new Login(rememberMe, showRememberMe);
                     popupPanel.center();
                 }
@@ -666,7 +663,7 @@ public class ClientUtils {
 
             @Override
             public void onSuccess(Boolean result) {
-                if (!result) {
+                if (!Boolean.TRUE.equals(result)) {
                     PopupPanel popupPanel = new Login(rememberMe, showRememberMe);
                     popupPanel.center();
                     return;
