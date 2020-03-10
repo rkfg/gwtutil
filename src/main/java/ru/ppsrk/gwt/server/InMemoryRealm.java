@@ -60,7 +60,7 @@ public class InMemoryRealm extends GwtUtilRealm {
         if (user == null) {
             throw new AuthenticationException(INVALID_CREDS);
         }
-        return verify(token, user.getUsername(), user.getPassword(), user.getSalt());
+        return makeAuthInfo(token, user.getUsername(), user.getPassword(), user.getSalt());
     }
 
 }

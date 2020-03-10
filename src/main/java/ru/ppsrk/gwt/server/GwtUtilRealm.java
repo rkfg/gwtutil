@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -71,12 +72,12 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
         return ByteSource.Util.bytes(Base64.decode(salt));
     }
 
-    public boolean login(final String username, String password, boolean remember) throws GwtUtilException {
+    public boolean login(AuthenticationToken token) throws GwtUtilException {
         Subject subject = SecurityUtils.getSubject();
         try {
-            subject.login(new UsernamePasswordToken(username, password, remember));
+            subject.login(token);
             if (subject.isAuthenticated()) {
-                loginSuccessful(username);
+                loginSuccessful((String) token.getPrincipal());
             }
         } catch (AuthenticationException e) {
             log.warn("Auth exception:", e);
@@ -88,14 +89,20 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
         return subject.isAuthenticated();
     }
 
-    protected SimpleAuthenticationInfo verify(AuthenticationToken token, String principal, String credentials, String salt) {
-        SimpleAuthenticationInfo authinfo = new SimpleAuthenticationInfo(principal, credentials, getByteSourceSalt(salt),
-                getClass().getSimpleName());
-        if (getCredentialsMatcher().doCredentialsMatch(token, authinfo)) {
-            return authinfo;
-        } else {
-            throw new AuthenticationException(INVALID_CREDS);
+    public boolean login(final String username, String password, boolean remember) throws GwtUtilException {
+        return login(new UsernamePasswordToken(username, password, remember));
+    }
+
+    protected SimpleAuthenticationInfo makeAuthInfo(AuthenticationToken token, String principal, String credentials, String salt) {
+        return new SimpleAuthenticationInfo(principal, credentials, getByteSourceSalt(salt), getClass().getSimpleName());
+    }
+
+    @Override
+    protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) throws AuthenticationException {
+        if (token instanceof WildcardToken) {
+            return;
         }
+        super.assertCredentialsMatch(token, info);
     }
 
     @Override
@@ -151,4 +158,9 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
     }
 
     protected abstract String getRoleId(Long roleId) throws GwtUtilException;
+
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        return super.supports(token) || token instanceof WildcardToken;
+    }
 }

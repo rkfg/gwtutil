@@ -49,4 +49,6 @@ public interface AuthService extends RemoteService {
     public Set<String> getUserRoles() throws GwtUtilException;
 
     public String getUsername();
+
+    void impersonate(String username) throws GwtUtilException;
 }

@@ -48,7 +48,7 @@ public class HibernateRealm extends GwtUtilRealm {
         principal = user.get(0).getUsername();
         credentials = user.get(0).getPassword();
         salt = user.get(0).getSalt();
-        return verify(token, principal, credentials, salt);
+        return makeAuthInfo(token, principal, credentials, salt);
     }
 
     @Override

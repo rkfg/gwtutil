@@ -219,6 +219,19 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     }
 
     @Override
+    public void impersonate(String username) throws GwtUtilException {
+        if (!hasRole("admin")) {
+            throw new GwtUtilException("Can't impersonate user " + username);
+        }
+        logout();
+        setMDCIP(false);
+        if (!getRealm().login(new WildcardToken(username))) {
+            logger.warn("Impersonation of user \"{}\" failed.", username);
+            logout();
+        }
+    }
+
+    @Override
     public void logout() throws GwtUtilException {
         setMDCIP(true);
         logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());

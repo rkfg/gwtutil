@@ -40,7 +40,7 @@ public class IniRealm extends GwtUtilRealm {
                 throw new AuthenticationException(INVALID_CREDS);
             }
             String[] credentials = passData.split("\\|");
-            return verify(token, (String) token.getPrincipal(), credentials[0], credentials[1]);
+            return makeAuthInfo(token, (String) token.getPrincipal(), credentials[0], credentials[1]);
         } catch (FileNotFoundException e) {
             throw new AuthenticationException("auth.ini not found.", e);
         } catch (IOException e) {
