@@ -672,10 +672,6 @@ public class ClientUtils {
 
                     @Override
                     public void onSuccess(Set<String> result) {
-                        if (result.isEmpty()) {
-                            logout();
-                            return;
-                        }
                         rolesCallback.onSuccess(result);
                     }
 
