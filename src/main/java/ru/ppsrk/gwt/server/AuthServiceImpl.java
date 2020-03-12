@@ -47,6 +47,8 @@ import ru.ppsrk.gwt.domain.User;
 import ru.ppsrk.gwt.dto.UserDTO;
 
 public class AuthServiceImpl extends RemoteServiceServlet implements AuthService {
+    private static final String IMPERSONATOR_ATTR = "impersonator";
+
     private static final String NOT_AUTHENTICATED = "Not authenticated";
 
     private static final String USER_DTO = "userDTO";
@@ -223,20 +225,31 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
         if (!hasRole("admin")) {
             throw new GwtUtilException("Can't impersonate user " + username);
         }
+        String impersonator = getUsername();
         logout();
         setMDCIP(false);
         if (!getRealm().login(new WildcardToken(username))) {
             logger.warn("Impersonation of user \"{}\" failed.", username);
             logout();
+        } else {
+            logger.info("User \"{}\" has been impersonated by user \"{}\"", username, impersonator);
+            setSessionAttribute(IMPERSONATOR_ATTR, impersonator);
         }
     }
 
     @Override
     public void logout() throws GwtUtilException {
         setMDCIP(true);
-        logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
+        Object currentUser = SecurityUtils.getSubject().getPrincipal();
+        logger.info("User \"{}\" logged out.", currentUser);
         getRealm().cleanup();
+        String impersonator = (String) getSessionAttribute(IMPERSONATOR_ATTR);
+        removeSessionAttribute(IMPERSONATOR_ATTR);
         SecurityUtils.getSubject().logout();
+        if (impersonator != null && !impersonator.isEmpty()) {
+            logger.info("User \"{}\" was impersonated, logging out to the impersonating user \"{}\"", currentUser, impersonator);
+            getRealm().login(new WildcardToken(impersonator));
+        }
     }
 
     @Override
