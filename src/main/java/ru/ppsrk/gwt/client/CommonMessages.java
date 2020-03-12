@@ -84,4 +84,10 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("Настройки")
     public String settings();
+
+    @DefaultMessage("Переключить")
+    public String impersonate();
+
+    @DefaultMessage("Имя пользователя")
+    public String username();
 }
