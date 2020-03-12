@@ -235,7 +235,7 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
     public void logout() throws GwtUtilException {
         setMDCIP(true);
         logger.info("User \"{}\" logged out.", SecurityUtils.getSubject().getPrincipal());
-        removeSessionAttribute("userid");
+        getRealm().cleanup();
         SecurityUtils.getSubject().logout();
     }
 

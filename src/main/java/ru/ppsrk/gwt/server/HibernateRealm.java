@@ -122,4 +122,9 @@ public class HibernateRealm extends GwtUtilRealm {
             throw new ClientAuthorizationException(INVALID_CREDS);
         });
     }
+    
+    @Override
+    public void cleanup() throws GwtUtilException {
+        AuthServiceImpl.removeSessionAttribute("userid");
+    }
 }

@@ -163,4 +163,7 @@ public abstract class GwtUtilRealm extends AuthorizingRealm {
     public boolean supports(AuthenticationToken token) {
         return super.supports(token) || token instanceof WildcardToken;
     }
+
+    public void cleanup() throws GwtUtilException {
+    }
 }
