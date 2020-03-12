@@ -281,6 +281,8 @@ public class AuthServiceImpl extends RemoteServiceServlet implements AuthService
                     } else {
                         MDC.remove("user");
                     }
+                } catch (ClientAuthException e) {
+                    MDC.remove("user");
                 } catch (Exception e) {
                     MDC.remove("user");
                     logger.warn("Setting MDC IP failed:", e);
