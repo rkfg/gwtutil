@@ -90,4 +90,7 @@ public interface CommonMessages extends Messages {
 
     @DefaultMessage("Имя пользователя")
     public String username();
+    
+    @DefaultMessage("Доступ запрещён.")
+    public String accessDenied();
 }

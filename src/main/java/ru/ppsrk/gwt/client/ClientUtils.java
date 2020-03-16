@@ -19,7 +19,6 @@ import com.google.gwt.user.cellview.client.AbstractCellTree;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.HasRpcToken;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -938,19 +937,4 @@ public class ClientUtils {
 
         });
     }
-
-    public static class ImpersonationCallback implements AsyncCallback<Void> {
-
-        @Override
-        public void onFailure(Throwable caught) {
-            Location.reload();
-        }
-
-        @Override
-        public void onSuccess(Void result) {
-            Location.reload();
-        }
-        
-    }
-    
 }

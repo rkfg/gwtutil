@@ -1,0 +1,11 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:gb="urn:import:ru.ppsrk.gwt.bootstrap.client" xmlns:b="urn:import:com.github.gwtbootstrap.client.ui">
+    <ui:with type="ru.ppsrk.gwt.client.CommonMessages" field="res" />
+	<g:HTMLPanel>
+		<gb:InputAddOnHandy>
+			<b:TextBox placeholder="{res.username}" ui:field="tb_impersonate" />
+			<b:Button text="{res.impersonate}" icon="MAGIC" ui:field="b_impersonate" />
+		</gb:InputAddOnHandy>
+	</g:HTMLPanel>
+</ui:UiBinder> 
