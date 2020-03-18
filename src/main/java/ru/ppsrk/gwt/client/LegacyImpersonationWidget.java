@@ -44,7 +44,7 @@ public class LegacyImpersonationWidget extends Composite {
 
         });
     }
-    
+
     @UiHandler("tb_impersonate")
     public void onKeyPress(KeyPressEvent e) {
         if (e.getNativeEvent().getCharCode() == KeyCodes.KEY_ENTER) {
